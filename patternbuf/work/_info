@@ -2,55 +2,75 @@ m255
 K4
 z2
 13
+cModel Technology
+Z0 dC:/Modeltech_pe_edu_10.3/examples
 !s112 1.1
 !i10d 8192
 !i10e 25
 !i10f 100
-cModel Technology
-dC:/Modeltech_pe_edu_10.3/examples
 vbuffers
-Z0 DXx6 sv_std 3 std 0 22 <EOTafDcUY:cQeO^ICn]m3
-Z1 !s110 1391795839
-!i10b 1
-!s100 ;W?G]4o]Y9I=Jo0f22inX1
-Ij?cLYZ3K`nW0JDz3k6^c_3
-Z2 V`JN@9S9cnhjKRR_L]QIcM3
-!s105 buffers_v_unit
+Z1 DXx6 sv_std 3 std 0 22 `a<MJET1=lN@jzbA7kHm;1
+Z2 !s100 XVHa9[U64CQ=Y4??`<PGX2
+Z3 Ih31<_Md[?FIFaL]VLBj>z0
+Z4 V`JN@9S9cnhjKRR_L]QIcM3
+Z5 !s105 buffers_v_unit
 S1
-Z3 dC:/Modeltech_pe_edu_10.3/pulseq/patternbuf
-w1391795224
-8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
-FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
+Z6 dC:/Modeltech_pe_edu_10.3/pulseq/patternbuf
+Z7 w1391974614
+Z8 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
+Z9 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
 L0 4
-Z4 OP;L;10.3;59
+Z10 OP;L;10.2c;57
 r1
-!s85 0
 31
-!s108 1391795839.299000
-!s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
-!s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
-!s101 -O0
-Z5 o-work work -sv -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
-vpatternbuf
-R0
-R1
+Z11 !s90 -reportprogress|300|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
+Z12 o-work work -sv -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+Z13 !s110 1391975095
+Z14 !s108 1391975095.631000
+Z15 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
 !i10b 1
-!s100 eob<;a9Gmzd6l6Nk0EUU>1
-IlX574icWjBOdUiiE6i5K:0
-R2
-!s105 patternbuf_v_unit
-S1
-R3
-w1391795092
-8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
-FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
-L0 3
+!s85 0
+!s101 -O0
+vpatternbuf
+R1
+R13
+Z16 !s100 7TzG>I^H:D`GJkDKK:3SV2
+Z17 I<G>QQH;FNc^RPdL7WY?If3
 R4
+Z18 !s105 patternbuf_v_unit
+S1
+R6
+Z19 w1391974341
+Z20 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
+Z21 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
+L0 3
+R10
+r1
+31
+Z22 !s90 -reportprogress|300|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
+R12
+!i10b 1
+!s85 0
+Z23 !s108 1391975095.700000
+Z24 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
+!s101 -O0
+vtestbench
+R13
+!i10b 1
+Z25 !s100 m`CMQ0f=TXY6>SGZIeJ>R0
+Z26 I]4zUY>YlEB5Nc560EN6?M3
+R4
+R6
+Z27 w1391974775
+Z28 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v
+Z29 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v
+L0 1
+R10
 r1
 !s85 0
 31
-!s108 1391795839.353000
-!s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
-!s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
+!s108 1391975095.767000
+!s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v|
+Z30 !s90 -reportprogress|300|-work|work|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v|
 !s101 -O0
-R5
+Z31 o-work work -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
