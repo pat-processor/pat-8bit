@@ -1,27 +1,32 @@
 `timescale 1ns / 1ns
-`define buffersize 26
+`define buffersize 27
 `define nobufs 8
-module buffers(sclk, sin, sout, ssel, saddr, bufselect, current_buffer, bufp) ;
+`define SEQ1ADR 0 // address of globally visible sequence buffer (1)
+`define SEQ2ADR 1 // address of globally visible sequence buffer (2)
+`define SEQCTRLADR 2 // address of globally visible sequence control
+module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, pattern_sequence) ;
 
 
 input sclk, sin, ssel ;
 input [2:0] saddr ;
-input [2:0] bufselect ;
-input [4:0] bufp ; 
+input [2:0] bufp ;
+input [4:0] fieldp ; 
 output sout ;
+output [7:0] pattern_sequence [2:0] ;
 
-output [7:0] current_buffer [`buffersize:0] ;
+output [7:0] current_buffer [`buffersize-1:0] ; // FIXME: Don't output scratch (decrease size by 2 bytes)
 
-wire [7:0] bufs [`nobufs-1:0][`buffersize:0] ;
 
-wire [7:0] buf1 [`buffersize:0] ;
-wire [7:0] buf2 [`buffersize:0] ;
-wire [7:0] buf3 [`buffersize:0] ;
-wire [7:0] buf4 [`buffersize:0] ;
-wire [7:0] buf5 [`buffersize:0] ;
-wire [7:0] buf6 [`buffersize:0] ;
-wire [7:0] buf7 [`buffersize:0] ;
-wire [7:0] buf8 [`buffersize:0] ;
+wire [7:0] bufs [`nobufs-1:0][`buffersize-1:0] ;
+
+wire [7:0] buf1 [`buffersize-1:0] ;
+wire [7:0] buf2 [`buffersize-1:0] ;
+wire [7:0] buf3 [`buffersize-1:0] ;
+wire [7:0] buf4 [`buffersize-1:0] ;
+wire [7:0] buf5 [`buffersize-1:0] ;
+wire [7:0] buf6 [`buffersize-1:0] ;
+wire [7:0] buf7 [`buffersize-1:0] ;
+wire [7:0] buf8 [`buffersize-1:0] ;
 
 wire ssel1 ;
 wire ssel2 ;
@@ -56,10 +61,20 @@ assign ssel7 = ssel && saddr == 6 ;
 assign ssel8 = ssel && saddr == 7 ;
 
 
-assign current_buffer = bufs[bufselect] ;
+assign current_buffer = bufs[bufp] ;
 
-assign patternbyte = current_buffer[bufp] ;
+// globally visible sequence buffer
+reg [7:0] pattern_sequence [2:0] ;
 
+// assign the patternbyte to the relevant
+// buffer, unless it's the globally visible
+// pattern sequence register
+assign patternbyte = (fieldp == `SEQ1ADR || fieldp == `SEQ2ADR || fieldp == `SEQCTRLADR) ? 
+pattern_sequence[fieldp] :
+current_buffer[fieldp-3] ;
+
+// FIXME: check if the "-3" takes any calculation effort. If so, swap addressing or
+// set as a set of if-statements on the pattern sequnce.
 
 
 patternbuf buffer1(buf1, sclk, ssel1, sin, sout) ;

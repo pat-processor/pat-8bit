@@ -6,21 +6,21 @@ module testbench(sout) ;
   
 reg sin, sclk, ssel ;
 reg [2:0] saddr ;
-reg [2:0] bufselect ;
-reg [4:0] bufp ;
+reg [2:0] bufp ;
+reg [4:0] fieldp ;
 output sout ;
 
 wire [7:0] current_buffer [26:0] ;
+wire [7:0] pattern_sequence [2:0] ;
 
-
-buffers theBuffers(sclk, sin, sout, ssel, saddr, bufselect, current_buffer, bufp) ;
+buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, pattern_sequence) ;
     
 initial
 begin
 	sin = 1 ;
-	bufp = 0 ;
+	fieldp = 0 ;
 	sclk = 0 ;
-	bufselect = 0 ;
+	bufp = 0 ;
 	ssel = 1 ;
 	saddr = 0 ;
   // forever #1 sclk != sclk ;
