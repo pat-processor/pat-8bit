@@ -28,6 +28,11 @@ end
 
 always #1 sclk = ~sclk;
 
+always @(posedge sclk)
+begin
+ bufp <= bufp + 1 ;
+ fieldp <= fieldp + 1 ;
+end
   
   
 endmodule

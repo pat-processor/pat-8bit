@@ -4,7 +4,7 @@
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, pattern_sequence) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, pattern_sequence, field_byte) ;
 
 
 input sclk, sin, ssel ;
@@ -13,6 +13,7 @@ input [2:0] bufp ;
 input [4:0] fieldp ; 
 output sout ;
 output [7:0] pattern_sequence [2:0] ;
+output [7:0] field_byte ;
 
 output [7:0] current_buffer [`buffersize-1:0] ; // FIXME: Don't output scratch (decrease size by 2 bytes)
 
@@ -38,7 +39,7 @@ wire ssel7 ;
 wire ssel8 ;
 
 
-wire [7:0] patternbyte ;
+wire [7:0] field_byte ;
 
 assign bufs[0] = buf1 ;
 assign bufs[1] = buf2 ;
@@ -69,7 +70,7 @@ reg [7:0] pattern_sequence [2:0] ;
 // assign the patternbyte to the relevant
 // buffer, unless it's the globally visible
 // pattern sequence register
-assign patternbyte = (fieldp == `SEQ1ADR || fieldp == `SEQ2ADR || fieldp == `SEQCTRLADR) ? 
+assign field_byte = (fieldp == `SEQ1ADR || fieldp == `SEQ2ADR || fieldp == `SEQCTRLADR) ? 
 pattern_sequence[fieldp] :
 current_buffer[fieldp-3] ;
 
