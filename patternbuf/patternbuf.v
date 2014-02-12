@@ -10,20 +10,21 @@ input sclk ;
 input [4:0] fieldp ;
 
 output [buffer_width-1:0] field_byte ;
-output [buffer_width-1:0] pattern [buffer_size-1:0] ;
+output [buffer_width-1:0] pattern [buffer_size] ;
 output sout ;
 
 
 // array as a collection of 
-reg [buffer_width-1:0] pattern [buffer_size-1:0] ;
+reg [buffer_width-1:0] pattern [buffer_size] ;
 
 assign sout = pattern[buffer_size-1][7] ;
 
 
-//assign field_byte = pattern[fieldp] ;
+assign field_byte = pattern[fieldp] ;
 
 
-
+/* The below maps to physical cells and works, but synthesis optimisation
+* removes and replaces with combinatoral logic.
 genvar g ;
 
 generate for (g = 0 ; g < 8 ; g = g+1)
@@ -60,7 +61,7 @@ generate for (g = 0 ; g < 8 ; g = g+1)
 
    end
 endgenerate
-
+*/
 
 // this uses MUXs to select 8 seperate bits of pattern into field-byte.
 
