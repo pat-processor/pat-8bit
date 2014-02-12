@@ -9,7 +9,7 @@ output sout ;
 output [7:0] field_byte ;
 
 
-output [7:0] current_buffer [26:0] ;
+output [7:0] current_buffer [31:0] ;
 output [7:0] pattern_sequence [2:0] ;
 
 buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, pattern_sequence, field_byte) ;
