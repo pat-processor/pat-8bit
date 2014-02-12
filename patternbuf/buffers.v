@@ -142,9 +142,13 @@ endgenerate
 //
 //assign field_byte = field_bytes[bufp] ;
 
+
+/*
 generate for (i = 0 ; i < buffer_width ; i = i+1) 
  assign field_byte[i] = field_bytes[bufp][i] ;
 endgenerate
+*/
+assign field_byte = current_buffer[fieldp] ;
 
 
 patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_byte1) ;
