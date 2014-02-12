@@ -1,12 +1,14 @@
 `timescale 1ns / 1ns
 `define buffersize 27
-module patternbuf(pattern, sclk, ssel, sin, sout) ;
+module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, field_byte) ;
 
 
 input ssel ;
 input sin ;
 input sclk ;
+input [4:0] fieldp ;
 
+output [7:0] field_byte ;
 output [7:0] pattern [`buffersize-1:0] ;
 output sout ;
 
@@ -15,6 +17,7 @@ output sout ;
 reg [7:0] pattern [`buffersize-1:0] ;
 
 assign sout = pattern[`buffersize-1][7] ;
+assign field_byte = pattern[fieldp] ;
 
 integer i ;
 

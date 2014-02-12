@@ -50,6 +50,26 @@ assign bufs[5] = buf6 ;
 assign bufs[6] = buf7 ;
 assign bufs[7] = buf8 ;
 
+wire [7:0] field_bytes[7:0] ;
+wire [7:0] field_byte1 ;
+wire [7:0] field_byte2 ;
+wire [7:0] field_byte3 ;
+wire [7:0] field_byte4 ;
+wire [7:0] field_byte5 ;
+wire [7:0] field_byte6 ;
+wire [7:0] field_byte7 ;
+wire [7:0] field_byte8 ;
+
+assign field_bytes[0] = field_byte1 ;
+assign field_bytes[1] = field_byte2 ;
+assign field_bytes[2] = field_byte3 ;
+assign field_bytes[3] = field_byte4 ;
+assign field_bytes[4] = field_byte5 ;
+assign field_bytes[5] = field_byte6 ;
+assign field_bytes[6] = field_byte7 ;
+assign field_bytes[7] = field_byte8 ;
+
+
 // Select a single buffer for serial
 // interfacing, based on the saddr signal.
 assign ssel1 = ssel && saddr == 0 ;
@@ -72,20 +92,20 @@ reg [7:0] pattern_sequence [2:0] ;
 // pattern sequence register
 assign field_byte = (fieldp == `SEQ1ADR || fieldp == `SEQ2ADR || fieldp == `SEQCTRLADR) ? 
 pattern_sequence[fieldp] :
-current_buffer[fieldp-3] ;
+field_bytes[fieldp] ;
 
 // FIXME: check if the "-3" takes any calculation effort. If so, swap addressing or
 // set as a set of if-statements on the pattern sequnce.
 
 
-patternbuf buffer1(buf1, sclk, ssel1, sin, sout) ;
-patternbuf buffer2(buf2, sclk, ssel2, sin, sout) ;
-patternbuf buffer3(buf3, sclk, ssel3, sin, sout) ;
-patternbuf buffer4(buf4, sclk, ssel4, sin, sout) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, sout) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, sout) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, sout) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, sout) ;
+patternbuf buffer1(buf1, sclk, ssel1, sin, sout, fieldp, field_byte1) ;
+patternbuf buffer2(buf2, sclk, ssel2, sin, sout, fieldp, field_byte2) ;
+patternbuf buffer3(buf3, sclk, ssel3, sin, sout, fieldp, field_byte3) ;
+patternbuf buffer4(buf4, sclk, ssel4, sin, sout, fieldp, field_byte4) ;
+patternbuf buffer5(buf5, sclk, ssel5, sin, sout, fieldp, field_byte5) ;
+patternbuf buffer6(buf6, sclk, ssel6, sin, sout, fieldp, field_byte6) ;
+patternbuf buffer7(buf7, sclk, ssel7, sin, sout, fieldp, field_byte7) ;
+patternbuf buffer8(buf8, sclk, ssel8, sin, sout, fieldp, field_byte8) ;
 
 
 
