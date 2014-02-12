@@ -52,7 +52,8 @@ assign bufs[5] = buf6 ;
 assign bufs[6] = buf7 ;
 assign bufs[7] = buf8 ;
 
-wire [buffer_width-1:0] field_bytes[buffer_width-1:0] ;
+wire [buffer_width-1:0] field_bytes [no_bufs] ;
+
 wire [buffer_width-1:0] field_byte1 ;
 wire [buffer_width-1:0] field_byte2 ;
 wire [buffer_width-1:0] field_byte3 ;
@@ -84,7 +85,49 @@ assign ssel7 = ssel && saddr == 6 ;
 assign ssel8 = ssel && saddr == 7 ;
 
 
-assign current_buffer = bufs[bufp] ;
+
+wire [3:0] bufmux1_1in ;
+wire [3:0] bufmux1_2in ;
+assign bufmux1_1in[0] = buf1[0][0] ;
+assign bufmux1_1in[1] = buf2[0][0] ;
+assign bufmux1_1in[2] = buf3[0][0] ;
+assign bufmux1_1in[3] = buf4[0][0] ;
+assign bufmux1_2in[0] = buf5[0][0] ;
+assign bufmux1_2in[1] = buf6[0][0] ;
+assign bufmux1_2in[2] = buf7[0][0] ;
+assign bufmux1_2in[3] = buf8[0][0] ;
+
+wire bufmux1_1out ;
+wire bufmux1_2out ;
+
+
+MUX4X1_HV mux1_1(.A (bufmux1_1in[0]), .B (bufmux1_1in[1]),
+	.C (bufmux1_1in[2]), .D (bufmux1_1in[3]),
+	.S0 (bufp[0]), .S1 (bufp[1]), .Q( bufmux1_1out)) ;
+
+MUX4X1_HV mux1_2(.A (bufmux1_2in[0]), .B (bufmux1_2in[1]),
+	.C (bufmux1_2in[2]), .D (bufmux1_2in[3]),
+	.S0 (bufp[0]), .S1 (bufp[1]), .Q( bufmux1_2out)) ;
+
+
+//assign bufmux1_1out = bufmux1_1in[bufp[1:0]] ;
+//assign bufmux1_2out = bufmux1_2in[bufp[1:0]] ;
+
+
+wire bufmux2_1out ;
+assign bufmux2_1out = bufp[2] ? bufmux1_1out : bufmux1_2out ;
+assign current_buffer[0] = bufmux2_1out ; 
+
+
+
+genvar i ;
+/*
+generate for (i = 0 ; i < buffer_size ; i = i+1)
+ begin 
+   assign current_buffer[0] 
+ end
+endgenerate
+*/
 
 // globally visible sequence buffer
 reg [buffer_width-1:0] pattern_sequence [2:0] ;
@@ -92,7 +135,11 @@ reg [buffer_width-1:0] pattern_sequence [2:0] ;
 // assign the patternbyte to the relevant
 // buffer, unless it's the globally visible
 // pattern sequence register
-assign field_byte = field_bytes[bufp] ;
+//assign field_byte = field_bytes[bufp] ;
+
+generate for (i = 0 ; i < buffer_width ; i = i+1) 
+ assign field_byte[i] = field_bytes[bufp][i] ;
+endgenerate
 
 
 patternbuf buffer1(buf1, sclk, ssel1, sin, sout, fieldp, field_byte1) ;

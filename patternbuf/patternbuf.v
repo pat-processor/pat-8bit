@@ -18,7 +18,51 @@ output sout ;
 reg [buffer_width-1:0] pattern [buffer_size-1:0] ;
 
 assign sout = pattern[buffer_size-1][7] ;
-assign field_byte = pattern[fieldp] ; // this uses MUXs to select 8 seperate bits of pattern into field-byte.
+
+
+//assign field_byte = pattern[fieldp] ;
+
+
+
+genvar g ;
+
+generate for (g = 0 ; g < 8 ; g = g+1)
+ begin
+	 
+   // 1st level MUXs
+   wire mux1_1_out ;
+   wire mux1_2_out ;
+   wire mux1_3_out ;
+   wire mux1_4_out ;
+   wire mux1_5_out ;
+   wire mux1_6_out ;
+   wire mux1_7_out ;
+   wire mux1_8_out ;
+
+   MUX4X1_HV mux1_1(.A (pattern[0][g]), .B (pattern[1][g]), .C(pattern[2][g]), .D(pattern[3][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_1_out)) ;
+   MUX4X1_HV mux1_2(.A (pattern[4][g]), .B (pattern[5][g]), .C(pattern[6][g]), .D(pattern[7][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_2_out)) ;
+   MUX4X1_HV mux1_3(.A (pattern[8][g]), .B (pattern[9][g]), .C(pattern[10][g]), .D(pattern[11][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_3_out)) ;
+   MUX4X1_HV mux1_4(.A (pattern[12][g]), .B (pattern[13][g]), .C(pattern[14][g]), .D(pattern[15][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_4_out)) ;
+
+   MUX4X1_HV mux1_5(.A (pattern[16][g]), .B (pattern[17][g]), .C(pattern[18][g]), .D(pattern[19][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_5_out)) ;
+   MUX4X1_HV mux1_6(.A (pattern[20][g]), .B (pattern[21][g]), .C(pattern[22][g]), .D(pattern[23][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_6_out)) ;
+   MUX4X1_HV mux1_7(.A (pattern[24][g]), .B (pattern[25][g]), .C(pattern[26][g]), .D(pattern[27][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_7_out)) ;
+   MUX4X1_HV mux1_8(.A (pattern[28][g]), .B (pattern[29][g]), .C(pattern[30][g]), .D(pattern[31][g]), .S0 (fieldp[0]), .S1 (fieldp[1]), .Q (mux1_8_out)) ;
+
+   // 2nd level MUXs
+   wire mux2_1_out ;
+   wire mux2_2_out ;
+   MUX4X1_HV mux2_1(.A (mux1_1_out), .B (mux1_2_out), .C(mux1_3_out), .D(mux1_4_out), .S0 (fieldp[2]), .S1 (fieldp[3]), .Q (mux2_1_out)) ;
+   MUX4X1_HV mux2_2(.A (mux1_5_out), .B (mux1_6_out), .C(mux1_7_out), .D(mux1_8_out), .S0 (fieldp[2]), .S1 (fieldp[3]), .Q (mux2_2_out)) ;
+
+   // 3rd level MUX
+   MUX2X1_HV mux3_1(.A (mux2_1_out), .B (mux2_2_out), .S (fieldp[4]), .Q (field_byte[g])) ;
+
+   end
+endgenerate
+
+
+// this uses MUXs to select 8 seperate bits of pattern into field-byte.
 
 integer i ;
 
