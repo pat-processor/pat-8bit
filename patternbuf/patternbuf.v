@@ -36,7 +36,6 @@ output sout ;
 // array as a collection of 
 reg [buffer_width-1:0] pattern [buffer_size] ;
 
-assign sout = pattern[buffer_size-1][buffer_width-1] ;
 
 
 //assign field_byte = pattern[fieldp] ;
@@ -118,6 +117,10 @@ end
 
 
 /* - works except for sout not being connected */
+
+assign sout = pattern[buffer_size-1][buffer_width-1] ;
+
+
 /*
 always @(posedge clk)
 begin
@@ -138,6 +141,7 @@ end
 */
 
 
+/*
 wire flopq[buffer_size * buffer_width] ;
 assign sout = flopq[(buffer_size * buffer_width) -1] ;
 //DFSX1_HV flop0(.CP (clk), .D (ssel ? sin : flopq[0]), .Q (flopq[0]), .SE (field_write), .SI (field_in[0])) ;
@@ -151,6 +155,45 @@ begin
 
 end
 endgenerate
+*/
+genvar g ;
+genvar h ;
+
+
+
+wire [buffer_width-1:0] flopq [buffer_size] ;
+wire field_writes [buffer_size] ;
+
+// generate some write enable signals based on fieldp
+for (g=0 ; g < buffer_size ; g++)
+begin
+    assign field_writes[g] = (fieldp == g) ? 1 : 0 ;
+end
+
+// g=0 case
+scanD flop0(.cp (clk), .d (ssel ? sin : flopq[0][0]), .q (flopq[0][0]), .se (field_writes[0]), .si (field_in[0])) ;
+	generate for (h = 1 ; h < buffer_width ; h++)
+        begin
+	   scanD flopgh0(.cp (clk), .d (ssel ? flopq[0][h-1] : flopq[0][h]), .q (flopq[0][h]), .se (field_writes[0]), .si (field_in[h])) ;
+	   assign pattern[0][h] = flopq[0][h] ;
+        end 
+endgenerate
+
+
+generate for (g = 1 ; g < buffer_size ; g++)
+begin
+	// h=0 case
+	scanD flopg0(.cp (clk), .d (ssel ? flopq[g-1][buffer_width-1] : flopq[g][0]), .q (flopq[g][0]), .se (field_writes[g]), .si (field_in[0])) ;
+	assign pattern[g][0] = flopq[g][0] ;
+	for (h = 1 ; h < buffer_width ; h++)
+        begin
+	   scanD flopgh(.cp (clk), .d (ssel ? flopq[g][h-1] : flopq[g][h]), .q (flopq[g][h]), .se (field_writes[g]), .si (field_in[h])) ;
+	   assign pattern[g][h] = flopq[g][h] ;
+        end 
+
+end
+endgenerate
+
 
 
 

@@ -2,7 +2,7 @@
 module testbench(sin, ssel, saddr, sclk, sout, pattern_out, field_byte_out, clk, bufp_in, fieldp_in, incbufp, incfieldp, field_in, field_write) ;
 
 parameter buffer_size = 32 ;
-parameter buffer_width = 8 ;
+parameter buffer_width = 6 ;
 
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
