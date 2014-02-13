@@ -140,7 +140,7 @@ endgenerate
 // assign the patternbyte to the relevant
 // buffer,
 //
-//assign field_byte = field_bytes[bufp] ;
+assign field_byte = field_bytes[bufp] ;
 
 
 /*
@@ -148,7 +148,7 @@ generate for (i = 0 ; i < buffer_width ; i = i+1)
  assign field_byte[i] = field_bytes[bufp][i] ;
 endgenerate
 */
-assign field_byte = current_buffer[fieldp] ;
+//assign field_byte = current_buffer[fieldp] ;
 
 defparam buffer1.buffer_width = buffer_width ;
 defparam buffer1.buffer_size = buffer_size ;

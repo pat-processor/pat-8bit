@@ -20,14 +20,14 @@ reg [buffer_width-1:0] pattern [buffer_size] ;
 assign sout = pattern[buffer_size-1][buffer_width-1] ;
 
 
-assign field_byte = pattern[fieldp] ;
+//assign field_byte = pattern[fieldp] ;
 
 
 /* The below maps to physical cells and works, but synthesis optimisation
 * removes and replaces with combinatoral logic.
+	*/
 genvar g ;
-
-generate for (g = 0 ; g < 8 ; g = g+1)
+generate for (g = 0 ; g < buffer_width ; g = g+1)
  begin
 	 
    // 1st level MUXs
@@ -61,16 +61,11 @@ generate for (g = 0 ; g < 8 ; g = g+1)
 
    end
 endgenerate
-*/
 
-// this uses MUXs to select 8 seperate bits of pattern into field-byte.
+
+
 
 integer i ;
-
-// a, b, s, q
-//MUX2X1_HV mux1(.A (pattern[0][0]), .B (pattern[1][0]), .S (fieldp[0]), .Q (fbit)) ;
-
-//assign fbit = fieldp[0] ? pattern[0][0] : pattern[1][0] ;
 
 
 always @(posedge sclk)
