@@ -1,0 +1,1 @@
+/home/staff/simon/linux/scripts/rc-ams.tcl

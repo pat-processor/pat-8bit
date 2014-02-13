@@ -150,6 +150,22 @@ endgenerate
 */
 assign field_byte = current_buffer[fieldp] ;
 
+defparam buffer1.buffer_width = buffer_width ;
+defparam buffer1.buffer_size = buffer_size ;
+defparam buffer2.buffer_width = buffer_width ;
+defparam buffer2.buffer_size = buffer_size ;
+defparam buffer3.buffer_width = buffer_width ;
+defparam buffer3.buffer_size = buffer_size ;
+defparam buffer4.buffer_width = buffer_width ;
+defparam buffer4.buffer_size = buffer_size ;
+defparam buffer5.buffer_width = buffer_width ;
+defparam buffer5.buffer_size = buffer_size ;
+defparam buffer6.buffer_width = buffer_width ;
+defparam buffer6.buffer_size = buffer_size ;
+defparam buffer7.buffer_width = buffer_width ;
+defparam buffer7.buffer_size = buffer_size ;
+defparam buffer8.buffer_width = buffer_width ;
+defparam buffer8.buffer_size = buffer_size ;
 
 patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_byte1) ;
 patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_byte2) ;

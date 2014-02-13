@@ -17,7 +17,7 @@ output sout ;
 // array as a collection of 
 reg [buffer_width-1:0] pattern [buffer_size] ;
 
-assign sout = pattern[buffer_size-1][7] ;
+assign sout = pattern[buffer_size-1][buffer_width-1] ;
 
 
 assign field_byte = pattern[fieldp] ;
@@ -79,10 +79,10 @@ begin
   // and add in 'sin'
   if (ssel)
     begin
-    	pattern[0] <= {pattern[0][6:0], sin} ;
+    	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
     	for(i=1 ; i<=buffer_size-1 ; i=i+1)
     	begin
-      		pattern[i] <= {pattern[i][6:0], pattern[i-1][7]} ;
+      		pattern[i] <= {pattern[i][buffer_width-2:0], pattern[i-1][buffer_width-1]} ;
     	end
 	end
 
