@@ -2,7 +2,7 @@
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, field_byte) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 32 ; // bytes
 parameter buffer_width = 8 ; // bits
@@ -13,6 +13,9 @@ input sclk, sin, ssel ;
 input [2:0] saddr ;
 input [2:0] bufp ;
 input [4:0] fieldp ; 
+input clk ;
+input [buffer_width-1:0] field_in ;
+input field_write ;
 output sout ;
 output [buffer_width-1:0] field_byte ;
 
@@ -87,7 +90,8 @@ assign ssel8 = ssel && saddr == 7 ;
 // assign the scan chain outputs
 // tri-state if disabled.
 wire souts[8] ;
-assign sout = ssel ? souts[saddr] : 1'bz ;
+//assign sout = ssel ? souts[saddr] : 1'bz ;
+assign sout = souts[0] ;
 
 
 /*
@@ -140,15 +144,31 @@ endgenerate
 // assign the patternbyte to the relevant
 // buffer,
 //
-assign field_byte = field_bytes[bufp] ;
+//assign field_byte = field_bytes[bufp] ;
 
 
-/*
-generate for (i = 0 ; i < buffer_width ; i = i+1) 
- assign field_byte[i] = field_bytes[bufp][i] ;
-endgenerate
-*/
-//assign field_byte = current_buffer[fieldp] ;
+
+assign field_byte = current_buffer[fieldp] ;
+
+
+wire field_write1 ;
+wire field_write2 ;
+wire field_write3 ;
+wire field_write4 ;
+wire field_write5 ;
+wire field_write6 ;
+wire field_write7 ;
+wire field_write8 ;
+
+assign field_write1 = (fieldp == 0 && field_write) ;
+assign field_write2 = (fieldp == 1 && field_write) ;
+assign field_write3 = (fieldp == 2 && field_write) ;
+assign field_write4 = (fieldp == 3 && field_write) ;
+assign field_write5 = (fieldp == 4 && field_write) ;
+assign field_write6 = (fieldp == 5 && field_write) ;
+assign field_write7 = (fieldp == 6 && field_write) ;
+assign field_write8 = (fieldp == 7 && field_write) ;
+
 
 defparam buffer1.buffer_width = buffer_width ;
 defparam buffer1.buffer_size = buffer_size ;
@@ -167,14 +187,14 @@ defparam buffer7.buffer_size = buffer_size ;
 defparam buffer8.buffer_width = buffer_width ;
 defparam buffer8.buffer_size = buffer_size ;
 
-patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_byte1) ;
-patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_byte2) ;
-patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, field_byte3) ;
-patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, field_byte4) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, field_byte5) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, field_byte6) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, field_byte7) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, field_byte8) ;
+patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_byte1, field_in, field_write1, clk) ;
+patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_byte2, field_in, field_write2, clk) ;
+patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, field_byte3, field_in, field_write3, clk) ;
+patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, field_byte4, field_in, field_write4, clk) ;
+patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, field_byte5, field_in, field_write5, clk) ;
+patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, field_byte6, field_in, field_write6, clk) ;
+patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, field_byte7, field_in, field_write7, clk) ;
+patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, field_byte8, field_in, field_write8, clk) ;
 
 
 

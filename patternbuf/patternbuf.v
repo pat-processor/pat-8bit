@@ -1,5 +1,21 @@
+module scanD(cp, d, q, qn, se, si) ;
+input cp, d, se, si ;
+output q, qn ;
+
+reg q ;
+wire qn ;
+
+assign qn = ~q ;
+
+always @(posedge cp)
+begin
+	q <= se ? si : d ;
+end
+
+endmodule
+
 `timescale 1ns / 1ns
-module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, field_byte) ;
+module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_width = 8 ;
 parameter buffer_size = 32 ;
@@ -8,6 +24,9 @@ input ssel ;
 input sin ;
 input sclk ;
 input [4:0] fieldp ;
+input [buffer_width-1:0] field_in ;
+input field_write ;
+input clk ;
 
 output [buffer_width-1:0] field_byte ;
 output [buffer_width-1:0] pattern [buffer_size] ;
@@ -22,10 +41,9 @@ assign sout = pattern[buffer_size-1][buffer_width-1] ;
 
 //assign field_byte = pattern[fieldp] ;
 
-
 /* The below maps to physical cells and works, but synthesis optimisation
 * removes and replaces with combinatoral logic.
-	*/
+	
 genvar g ;
 generate for (g = 0 ; g < buffer_width ; g = g+1)
  begin
@@ -61,27 +79,81 @@ generate for (g = 0 ; g < buffer_width ; g = g+1)
 
    end
 endgenerate
-
+*/
 
 
 
 integer i ;
 
+//wire flopClock ;
+//assign flopClock = ssel ? sclk : clk  ;
+//
+//*/
 
-always @(posedge sclk)
+/*
+always @(posedge clk)
 begin
   // if serial is selected, shift all the buffer left by one 
   // and add in 'sin'
   if (ssel)
-    begin
+     begin
     	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
     	for(i=1 ; i<=buffer_size-1 ; i=i+1)
     	begin
       		pattern[i] <= {pattern[i][buffer_width-2:0], pattern[i-1][buffer_width-1]} ;
     	end
-	end
+    end
+    else if(field_write) pattern[fieldp] <= field_in ;
 
 end
+*/
+
+
+/*
+always @(clk or field_in)
+begin
+	if (~ssel && field_write) pattern[fieldp] <= field_in ;
+end
+*/
+
+
+/* - works except for sout not being connected */
+/*
+always @(posedge clk)
+begin
+for (i=1 ; i<buffer_size ; i++)
+ begin
+   if (field_write) 
+   begin
+       pattern[fieldp] <= field_in ;
+   end
+   else
+   begin
+	   pattern[0] <= ssel ? {pattern[0][buffer_width-2:0], sin} : pattern[0] ;
+	   pattern[i] <= ssel ? {pattern[i][buffer_width-2:0], pattern[i-1][buffer_width-1]} : pattern[i] ;
+
+   end
+  end
+end
+*/
+
+
+wire flopq[buffer_size * buffer_width] ;
+assign sout = flopq[(buffer_size * buffer_width) -1] ;
+//DFSX1_HV flop0(.CP (clk), .D (ssel ? sin : flopq[0]), .Q (flopq[0]), .SE (field_write), .SI (field_in[0])) ;
+scanD flop0(.cp (clk), .d (ssel ? sin : flopq[0]), .q (flopq[0]), .se (field_write), .si (field_in[0])) ;
+
+
+genvar g ;
+generate for (g = 1 ; g < buffer_size * buffer_width ; g++)
+begin
+	scanD flopg(.cp (clk), .d (ssel ? flopq[g-1] : flopq[g]), .q (flopq[g]), .se (field_write), .si (field_in[0])) ;
+
+end
+endgenerate
+
+
+
 
 
 endmodule 
