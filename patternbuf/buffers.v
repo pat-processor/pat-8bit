@@ -1,8 +1,36 @@
+module mux4(y, a, b, c, d, s0, s1) ;
+
+input a, b, c, d, s0, s1 ;
+output y ;
+
+/*
+wire sel0_0, sel0_1 ;
+
+assign sel0_0 = s0 ? b : a ;
+assign sel0_1 = s0 ? d : c ;
+assign y = s1 ? sel0_1 : sel0_0 ;
+*/
+MUX4X1_HV mux4(.Q (y), .A (a), .B (b), .C (c), .D (d), .S0 (s0), .S1 (s1)) ;
+
+endmodule
+
+
+module mux2(y, a, b, s) ;
+
+input a, b, s ;
+output y ;
+
+assign y = s ? b : a ;
+
+
+endmodule
+
+
 `timescale 1ns / 1ns
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, bufp2, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 32 ; // bytes
 parameter buffer_width = 8 ; // bits
@@ -12,6 +40,7 @@ parameter no_bufs = 8 ;      // patternbuf instances
 input sclk, sin, ssel ;
 input [2:0] saddr ;
 input [2:0] bufp ;
+input [2:0] bufp2 ;
 input [4:0] fieldp ; 
 input clk ;
 input [buffer_width-1:0] field_in ;
@@ -130,8 +159,43 @@ assign current_buffer[0] = bufmux2_1out ;
 
 assign current_buffer = bufs[bufp] ;
 
+// split into two to reduce fanout problems
+//assign current_buffer[0:(buffer_size/2)-1][buffer_width-1:0] = bufs[bufp][buffer_width-1:0][0:(buffer_size/2)-1] ;
+//assign current_buffer[buffer_size/2:buffer_size-1][buffer_width-1:0] = bufs[bufp2][buffer_width-1:0][buffer_size/2:buffer_size-1] ;
+//assign current_buffer[0:(buffer_size/2)-1] = bufs[bufp][0:(buffer_size/2)-1] ;
+//assign current_buffer[buffer_size/2:buffer_size-1] = bufs[bufp2][buffer_size/2:buffer_size-1] ;
 
-genvar i ;
+genvar g, h, i ;
+
+
+/*
+// see if I can force some MUXs to be used
+// Sims seem so tshow that Looks like 4s followed by a single 2 will be fastest (very marginally). -74 and -68ps.
+//
+generate for (g = 0 ; g < buffer_size ; g++)
+begin
+ for (h = 0 ; h < buffer_width ; h++)
+ begin
+   wire bufmuxout[4] ;
+/*	
+   mux2 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], bufp[0]) ;
+   mux2 bufmux1(bufmuxout[1], bufs[2][g][h], bufs[3][g][h], bufp[0]) ;
+   mux2 bufmux2(bufmuxout[2], bufs[4][g][h], bufs[5][g][h], bufp[0]) ;
+   mux2 bufmux3(bufmuxout[3], bufs[6][g][h], bufs[7][g][h], bufp[0]) ;
+
+   mux4 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], bufmuxout[2], bufmuxout[3], bufp[1], bufp[2]) ;
+
+   // OR...
+
+   mux4 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], bufs[2][g][h], bufs[3][g][h], bufp[0], bufp[1]) ;
+   mux4 bufmux1(bufmuxout[1], bufs[4][g][h], bufs[5][g][h], bufs[6][g][h], bufs[7][g][h], bufp[0], bufp[1]) ;
+
+   mux2 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], bufp[2]) ;
+ end
+end
+endgenerate
+*/
+
 /*
 generate for (i = 0 ; i < buffer_size ; i = i+1)
  begin 

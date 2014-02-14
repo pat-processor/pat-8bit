@@ -162,6 +162,8 @@ genvar h ;
 
 
 wire [buffer_width-1:0] flopq [buffer_size] ;
+wire [buffer_width-1:0] flopqn [buffer_size] ; // not connected wire (to supress error messages)
+
 wire field_writes [buffer_size] ;
 
 // generate some write enable signals based on fieldp
@@ -171,10 +173,11 @@ begin
 end
 
 // g=0 case
-scanD flop0(.cp (clk), .d (ssel ? sin : flopq[0][0]), .q (flopq[0][0]), .se (field_writes[0]), .si (field_in[0])) ;
+scanD flop0(.cp (clk), .d (ssel ? sin : flopq[0][0]), .q (flopq[0][0]), .qn(flopqn[0][0]), .se (field_writes[0]), .si (field_in[0])) ;
+assign pattern[0][0] = flopq[0][0] ;
 	generate for (h = 1 ; h < buffer_width ; h++)
         begin
-	   scanD flopgh0(.cp (clk), .d (ssel ? flopq[0][h-1] : flopq[0][h]), .q (flopq[0][h]), .se (field_writes[0]), .si (field_in[h])) ;
+	   scanD flopgh0(.cp (clk), .d (ssel ? flopq[0][h-1] : flopq[0][h]), .q (flopq[0][h]), .qn(flopqn[0][h]), .se (field_writes[0]), .si (field_in[h])) ;
 	   assign pattern[0][h] = flopq[0][h] ;
         end 
 endgenerate
@@ -183,11 +186,11 @@ endgenerate
 generate for (g = 1 ; g < buffer_size ; g++)
 begin
 	// h=0 case
-	scanD flopg0(.cp (clk), .d (ssel ? flopq[g-1][buffer_width-1] : flopq[g][0]), .q (flopq[g][0]), .se (field_writes[g]), .si (field_in[0])) ;
+	scanD flopg0(.cp (clk), .d (ssel ? flopq[g-1][buffer_width-1] : flopq[g][0]), .q (flopq[g][0]), .qn(flopqn[g][0]), .se (field_writes[g]), .si (field_in[0])) ;
 	assign pattern[g][0] = flopq[g][0] ;
 	for (h = 1 ; h < buffer_width ; h++)
         begin
-	   scanD flopgh(.cp (clk), .d (ssel ? flopq[g][h-1] : flopq[g][h]), .q (flopq[g][h]), .se (field_writes[g]), .si (field_in[h])) ;
+	   scanD flopgh(.cp (clk), .d (ssel ? flopq[g][h-1] : flopq[g][h]), .q (flopq[g][h]), .qn(flopqn[g][h]), .se (field_writes[g]), .si (field_in[h])) ;
 	   assign pattern[g][h] = flopq[g][h] ;
         end 
 
