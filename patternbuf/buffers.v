@@ -30,7 +30,7 @@ endmodule
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 32 ; // bytes
 parameter buffer_width = 8 ; // bits
@@ -42,6 +42,7 @@ input [2:0] saddr ;
 input [2:0] bufp ;
 input [2:0] buffer_select ;
 input [buffer_size-1:0] fieldp ; 
+input [buffer_size-1:0] fieldwp ; 
 input clk ;
 input [buffer_width-1:0] field_in ;
 input field_write ;
@@ -217,6 +218,8 @@ assign current_buffer = bufs[buffer_select] ;
 //
 assign field_byte = field_bytes[bufp] ; // -96ps
 //
+
+// below code seems to save 1ps over the direct assign above.
 /*
 genvar g, h ;
 
@@ -225,9 +228,9 @@ for (g = 0 ; g < buffer_width ; g++)
 begin
 	for (h = 0 ; h < no_bufs ; h++)
 	begin
-	       assign field_bits_to_sel[g][h] = field_bytes[h][g] ;
+	       assign field_bytes_swapped[g][h] = field_bytes[h][g] ;
        end
-	assign field_byte[g] = | field_bits_to_sel[g] ;
+	assign field_byte[g] = | field_bytes_swapped[g] ;
 end
 */
 
@@ -295,14 +298,14 @@ defparam buffer7.buffer_size = buffer_size ;
 defparam buffer8.buffer_width = buffer_width ;
 defparam buffer8.buffer_size = buffer_size ;
 
-patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_bytes[0], field_in, field_write1, clk, bufsel) ;
-patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_bytes[1], field_in, field_write2, clk, bufsel) ;
-patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, field_bytes[2], field_in, field_write3, clk, bufsel) ;
-patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, field_bytes[3], field_in, field_write4, clk, bufsel) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, field_bytes[4], field_in, field_write5, clk, bufsel) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, field_bytes[5], field_in, field_write6, clk, bufsel) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, field_bytes[6], field_in, field_write7, clk, bufsel) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, field_bytes[7], field_in, field_write8, clk, bufsel) ;
+patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, fieldwp, field_bytes[0], field_in, field_write1, clk, bufsel) ;
+patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, fieldwp, field_bytes[1], field_in, field_write2, clk, bufsel) ;
+patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, fieldwp, field_bytes[2], field_in, field_write3, clk, bufsel) ;
+patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, fieldwp, field_bytes[3], field_in, field_write4, clk, bufsel) ;
+patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, fieldwp, field_bytes[4], field_in, field_write5, clk, bufsel) ;
+patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, fieldwp, field_bytes[5], field_in, field_write6, clk, bufsel) ;
+patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, fieldwp, field_bytes[6], field_in, field_write7, clk, bufsel) ;
+patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, fieldwp, field_bytes[7], field_in, field_write8, clk, bufsel) ;
 
 
 assign bufsel = bufp[0] ; // FIXME: this is for testing.

@@ -15,7 +15,7 @@ end
 endmodule
 
 `timescale 1ns / 1ns
-module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, field_byte, field_in, field_write, clk, bufsel) ;
+module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk, bufsel) ;
 
 parameter buffer_width = 8 ;
 parameter buffer_size = 32 ;
@@ -24,6 +24,7 @@ input ssel ;
 input sin ;
 input sclk ;
 input [buffer_size-1:0] fieldp ;
+input [buffer_size-1:0] fieldwp ;
 input [buffer_width-1:0] field_in ;
 input field_write ;
 input clk ;
@@ -211,7 +212,8 @@ begin
 end
 
 
-//assign field_byte = pattern[fieldp] ;
+//assign field_byte = pattern[fieldp] ; // slower than above by ~300ps (if you
+	//believe that --- I don't... 
 
 
 wire [buffer_width-1:0] flopq [buffer_size] ;
@@ -221,12 +223,12 @@ wire field_writes [buffer_size] ;
 
 // FIXME: removed the fieldp fanouts for writing, so writing doesn't work yet!
 // generate some write enable signals based on fieldp
-/*
+
 for (g=0 ; g < buffer_size ; g++)
 begin
-    assign field_writes[g] = (fieldp == g && field_write) ;
+    assign field_writes[g] = (fieldwp[g] == 1 && field_write) ;
 end
-*/
+
 
 // g=0 case
 scanD flop0(.cp (clk), .d (ssel ? sin : flopq[0][0]), .q (flopq[0][0]), .qn(flopqn[0][0]), .se (field_writes[0]), .si (field_in[0])) ;
