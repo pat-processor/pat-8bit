@@ -1,5 +1,5 @@
 `timescale 1ns / 1ns
-module testbench(sin, ssel, saddr, sclk, sout, pattern_out, field_byte_out, clk, bufp_in, bufp_in2, fieldp_in, incbufp, incfieldp, field_in, field_write) ;
+module testbench(sin, ssel, saddr, sclk, sout, pattern_out, field_byte_out, clk, bufp_in, buffer_select_in, fieldp_in, field_in, field_write) ;
 
 parameter buffer_size = 32 ;
 parameter buffer_width = 6 ;
@@ -18,8 +18,8 @@ output [buffer_width-1:0] field_byte_out ;
 output [buffer_width-1:0] pattern_out [buffer_size] ;
 
 reg [2:0] bufp ;
-reg [2:0] bufp2 ;
-reg [4:0] fieldp ;
+reg [2:0] buffer_select ;
+reg [buffer_size-1:0] fieldp ;
 reg [buffer_width-1:0] pattern_out [buffer_size] ;
 reg [buffer_width-1:0] field_byte_out ;
 
@@ -30,18 +30,14 @@ wire [buffer_width-1:0] field_byte ;
 wire [buffer_width-1:0] current_buffer [buffer_size] ;
 
 
-
-// debug
-input incbufp ;
-input incfieldp ;
+input [2:0] buffer_select_in ;
 input [2:0] bufp_in ;
-input [2:0] bufp_in2 ;
-input [4:0] fieldp_in ;
+input [buffer_size-1:0] fieldp_in ;
 
 reg [buffer_width-1:0] field_in_through ;
 reg field_write_through ;
 
-buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, bufp2, current_buffer, fieldp, field_byte, field_in_through, field_write_through, clk) ;
+buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, field_byte, field_in_through, field_write_through, clk) ;
 
 
 /*
@@ -68,12 +64,9 @@ end
 always @(posedge clk)
 begin
  // bufp and fieldp cannot be simulaneously incremented, so model this
- if (incbufp)
-	 begin
-		 bufp <= bufp_in ;
-		 bufp2 <= bufp_in2 ;
-	 end
- else fieldp <= fieldp_in ;
+ buffer_select <= buffer_select_in ;
+ bufp <= bufp_in ;	 
+ fieldp <= fieldp_in ;
  pattern_out <= current_buffer ;
  field_byte_out <= field_byte ;
  field_write_through <= field_write ;

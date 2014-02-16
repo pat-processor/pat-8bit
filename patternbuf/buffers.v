@@ -30,7 +30,7 @@ endmodule
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, bufp2, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 32 ; // bytes
 parameter buffer_width = 8 ; // bits
@@ -40,15 +40,15 @@ parameter no_bufs = 8 ;      // patternbuf instances
 input sclk, sin, ssel ;
 input [2:0] saddr ;
 input [2:0] bufp ;
-input [2:0] bufp2 ;
-input [4:0] fieldp ; 
+input [2:0] buffer_select ;
+input [buffer_size-1:0] fieldp ; 
 input clk ;
 input [buffer_width-1:0] field_in ;
 input field_write ;
 output sout ;
 output [buffer_width-1:0] field_byte ;
 
-output [buffer_width-1:0] current_buffer [buffer_size] ; // FIXME: Don't output scratch (decrease size by 2 bytes)
+output [buffer_width-1:0] current_buffer [buffer_size] ; 
 
 
 wire [buffer_width-1:0] bufs [no_bufs][buffer_size] ;
@@ -94,6 +94,7 @@ wire [buffer_width-1:0] field_byte6 ;
 wire [buffer_width-1:0] field_byte7 ;
 wire [buffer_width-1:0] field_byte8 ;
 
+
 assign field_bytes[0] = field_byte1 ;
 assign field_bytes[1] = field_byte2 ;
 assign field_bytes[2] = field_byte3 ;
@@ -102,6 +103,9 @@ assign field_bytes[4] = field_byte5 ;
 assign field_bytes[5] = field_byte6 ;
 assign field_bytes[6] = field_byte7 ;
 assign field_bytes[7] = field_byte8 ;
+
+
+
 
 
 // Select a single buffer for serial
@@ -119,8 +123,8 @@ assign ssel8 = ssel && saddr == 7 ;
 // assign the scan chain outputs
 // tri-state if disabled.
 wire souts[8] ;
-//assign sout = ssel ? souts[saddr] : 1'bz ;
-assign sout = souts[0] ;
+assign sout = ssel ? souts[saddr] : 1'bz ;
+//assign sout = souts[0] ;
 
 
 /*
@@ -140,32 +144,31 @@ wire bufmux1_2out ;
 
 MUX4X1_HV mux1_1(.A (bufmux1_1in[0]), .B (bufmux1_1in[1]),
 	.C (bufmux1_1in[2]), .D (bufmux1_1in[3]),
-	.S0 (bufp[0]), .S1 (bufp[1]), .Q( bufmux1_1out)) ;
+	.S0 (buffer_select[0]), .S1 (buffer_select[1]), .Q( bufmux1_1out)) ;
 
 MUX4X1_HV mux1_2(.A (bufmux1_2in[0]), .B (bufmux1_2in[1]),
 	.C (bufmux1_2in[2]), .D (bufmux1_2in[3]),
-	.S0 (bufp[0]), .S1 (bufp[1]), .Q( bufmux1_2out)) ;
+	.S0 (buffer_select[0]), .S1 (buffer_select[1]), .Q( bufmux1_2out)) ;
 */
 
 /*
-assign bufmux1_1out = bufmux1_1in[bufp[1:0]] ;
-assign bufmux1_2out = bufmux1_2in[bufp[1:0]] ;
+assign bufmux1_1out = bufmux1_1in[buffer_select[1:0]] ;
+assign bufmux1_2out = bufmux1_2in[buffer_select[1:0]] ;
 
 
 wire bufmux2_1out ;
-assign bufmux2_1out = bufp[2] ? bufmux1_1out : bufmux1_2out ;
+assign bufmux2_1out = buffer_select[2] ? bufmux1_1out : bufmux1_2out ;
 assign current_buffer[0] = bufmux2_1out ; 
 */
 
-assign current_buffer = bufs[bufp] ;
 
 // split into two to reduce fanout problems
-//assign current_buffer[0:(buffer_size/2)-1][buffer_width-1:0] = bufs[bufp][buffer_width-1:0][0:(buffer_size/2)-1] ;
-//assign current_buffer[buffer_size/2:buffer_size-1][buffer_width-1:0] = bufs[bufp2][buffer_width-1:0][buffer_size/2:buffer_size-1] ;
-//assign current_buffer[0:(buffer_size/2)-1] = bufs[bufp][0:(buffer_size/2)-1] ;
-//assign current_buffer[buffer_size/2:buffer_size-1] = bufs[bufp2][buffer_size/2:buffer_size-1] ;
+//assign current_buffer[0:(buffer_size/2)-1][buffer_width-1:0] = bufs[buffer_select][buffer_width-1:0][0:(buffer_size/2)-1] ;
+//assign current_buffer[buffer_size/2:buffer_size-1][buffer_width-1:0] = bufs[buffer_select2][buffer_width-1:0][buffer_size/2:buffer_size-1] ;
+//assign current_buffer[0:(buffer_size/2)-1] = bufs[buffer_select][0:(buffer_size/2)-1] ;
+//assign current_buffer[buffer_size/2:buffer_size-1] = bufs[buffer_select2][buffer_size/2:buffer_size-1] ;
 
-genvar g, h, i ;
+//genvar g, h, i ;
 
 
 /*
@@ -178,19 +181,19 @@ begin
  begin
    wire bufmuxout[4] ;
 /*	
-   mux2 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], bufp[0]) ;
-   mux2 bufmux1(bufmuxout[1], bufs[2][g][h], bufs[3][g][h], bufp[0]) ;
-   mux2 bufmux2(bufmuxout[2], bufs[4][g][h], bufs[5][g][h], bufp[0]) ;
-   mux2 bufmux3(bufmuxout[3], bufs[6][g][h], bufs[7][g][h], bufp[0]) ;
+   mux2 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], buffer_select[0]) ;
+   mux2 bufmux1(bufmuxout[1], bufs[2][g][h], bufs[3][g][h], buffer_select[0]) ;
+   mux2 bufmux2(bufmuxout[2], bufs[4][g][h], bufs[5][g][h], buffer_select[0]) ;
+   mux2 bufmux3(bufmuxout[3], bufs[6][g][h], bufs[7][g][h], buffer_select[0]) ;
 
-   mux4 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], bufmuxout[2], bufmuxout[3], bufp[1], bufp[2]) ;
+   mux4 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], bufmuxout[2], bufmuxout[3], buffer_select[1], buffer_select[2]) ;
 
    // OR...
 
-   mux4 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], bufs[2][g][h], bufs[3][g][h], bufp[0], bufp[1]) ;
-   mux4 bufmux1(bufmuxout[1], bufs[4][g][h], bufs[5][g][h], bufs[6][g][h], bufs[7][g][h], bufp[0], bufp[1]) ;
+   mux4 bufmux0(bufmuxout[0], bufs[0][g][h], bufs[1][g][h], bufs[2][g][h], bufs[3][g][h], buffer_select[0], buffer_select[1]) ;
+   mux4 bufmux1(bufmuxout[1], bufs[4][g][h], bufs[5][g][h], bufs[6][g][h], bufs[7][g][h], buffer_select[0], buffer_select[1]) ;
 
-   mux2 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], bufp[2]) ;
+   mux2 bufmux4(current_buffer[g][h], bufmuxout[0], bufmuxout[1], buffer_select[2]) ;
  end
 end
 endgenerate
@@ -204,15 +207,56 @@ generate for (i = 0 ; i < buffer_size ; i = i+1)
 endgenerate
 */
 
+// TRYME: How about using tri-state drivers off each buffer,
+// rather than MUXing?
+assign current_buffer = bufs[buffer_select] ;
+
 
 // assign the patternbyte to the relevant
 // buffer,
 //
-//assign field_byte = field_bytes[bufp] ;
+assign field_byte = field_bytes[bufp] ; // -96ps
+//
+/*
+genvar g, h ;
+
+wire [no_bufs-1:0] field_bytes_swapped [buffer_width] ;
+for (g = 0 ; g < buffer_width ; g++)
+begin
+	for (h = 0 ; h < no_bufs ; h++)
+	begin
+	       assign field_bits_to_sel[g][h] = field_bytes[h][g] ;
+       end
+	assign field_byte[g] = | field_bits_to_sel[g] ;
+end
+*/
+
+/*
+genvar g ;
+generate for (g = 0 ; g < no_bufs ; g++)
+begin
+	assign field_byte = field_bytes[g] ;
+end
+endgenerate
+*/
+
+// try using tristate instead of MUX for the final step.
+/* With patternbuf also using tristate => -370ps. Without => -300ps.
+* Non-tristate logic: -331ps.
+tri [buffer_width-1:0] field_bytes_tri [no_bufs] ;
+
+genvar g ;
+generate for (g = 0 ; g < no_bufs ; g++)
+begin
+	assign field_bytes_tri[g] = (bufp == g) ? field_bytes[g] : {buffer_width{1'bz}} ;
+	assign field_byte = field_bytes_tri[g] ;
+end
+endgenerate
+*/
 
 
 
-assign field_byte = current_buffer[fieldp] ;
+//assign field_byte = current_buffer[fieldp] ;
 
 
 wire field_write1 ;
@@ -224,14 +268,14 @@ wire field_write6 ;
 wire field_write7 ;
 wire field_write8 ;
 
-assign field_write1 = (fieldp == 0 && field_write) ;
-assign field_write2 = (fieldp == 1 && field_write) ;
-assign field_write3 = (fieldp == 2 && field_write) ;
-assign field_write4 = (fieldp == 3 && field_write) ;
-assign field_write5 = (fieldp == 4 && field_write) ;
-assign field_write6 = (fieldp == 5 && field_write) ;
-assign field_write7 = (fieldp == 6 && field_write) ;
-assign field_write8 = (fieldp == 7 && field_write) ;
+assign field_write1 = (bufp == 0 && field_write) ;
+assign field_write2 = (bufp == 1 && field_write) ;
+assign field_write3 = (bufp == 2 && field_write) ;
+assign field_write4 = (bufp == 3 && field_write) ;
+assign field_write5 = (bufp == 4 && field_write) ;
+assign field_write6 = (bufp == 5 && field_write) ;
+assign field_write7 = (bufp == 6 && field_write) ;
+assign field_write8 = (bufp == 7 && field_write) ;
 
 
 defparam buffer1.buffer_width = buffer_width ;
@@ -251,16 +295,17 @@ defparam buffer7.buffer_size = buffer_size ;
 defparam buffer8.buffer_width = buffer_width ;
 defparam buffer8.buffer_size = buffer_size ;
 
-patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_byte1, field_in, field_write1, clk) ;
-patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_byte2, field_in, field_write2, clk) ;
-patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, field_byte3, field_in, field_write3, clk) ;
-patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, field_byte4, field_in, field_write4, clk) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, field_byte5, field_in, field_write5, clk) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, field_byte6, field_in, field_write6, clk) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, field_byte7, field_in, field_write7, clk) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, field_byte8, field_in, field_write8, clk) ;
+patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, field_bytes[0], field_in, field_write1, clk, bufsel) ;
+patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, field_bytes[1], field_in, field_write2, clk, bufsel) ;
+patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, field_bytes[2], field_in, field_write3, clk, bufsel) ;
+patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, field_bytes[3], field_in, field_write4, clk, bufsel) ;
+patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, field_bytes[4], field_in, field_write5, clk, bufsel) ;
+patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, field_bytes[5], field_in, field_write6, clk, bufsel) ;
+patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, field_bytes[6], field_in, field_write7, clk, bufsel) ;
+patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, field_bytes[7], field_in, field_write8, clk, bufsel) ;
 
 
+assign bufsel = bufp[0] ; // FIXME: this is for testing.
 
 
 endmodule
