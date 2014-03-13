@@ -45,7 +45,7 @@ reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] dmem [256] ; // TODO: Select this memory or external
+reg [d_width-1:0] dmem [8] ; // TODO: Select this memory or external
 
 
 // instruction type selection
@@ -175,29 +175,29 @@ endtask
 
 task op_ldi ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= immediate ;
 		else
 			acc <= immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_setsp ;
 	input [7:0] immediate ;
-	fork
+	begin
 		sp <= immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_incsp ;
 	input [2:0] inc ;
-	fork
+	begin
 		sp <= sp + inc ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_decsp ;
@@ -210,134 +210,134 @@ endtask
 
 task op_or ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value | immediate ;
 		else
 			acc <= acc | immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_and ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value & immediate ;
 		else
 			acc <= acc & immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_add ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value + immediate ;
 		else
 			acc <= acc + immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_sub ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value - immediate ;
 		else
 			acc <= acc - immediate ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_shl ;
 	input [2:0] shift ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value << shift ;
 		else
 			acc <= acc << shift ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_shr ;
 	input [2:0] shift ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value >> shift ;
 		else
 			acc <= acc >> shift ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_ashr ;
 	input [2:0] shift ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value >>> shift ;
 		else
 			acc <= acc >>> shift ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_not ;
-	fork
+	begin
 		if (field_op)
 			field_out <= ~field_value ;
 		else
 			acc <= ~acc ;
 		incPC() ;
-	join
+	end
 endtask
 
 task op_ldm ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= dmem[immediate] ;
 		else
 			acc <= dmem[immediate] ;
 		incPC() ;
-	join
+	end
 endtask 
 
 task op_stm ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			dmem[immediate] <= field_value ;
 		else
 			dmem[immediate] <= acc ;
 		incPC() ;
-	join
+	end
 endtask 
 
 
 task op_addm ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value + dmem[immediate] ;
 		else
 			acc <= acc + dmem[immediate] ;
 		incPC() ;
-	join
+	end
 endtask 
 
 task op_subm ;
 	input [7:0] immediate ;
-	fork
+	begin
 		if (field_op)
 			field_out <= field_value - dmem[immediate] ;
 		else
 			acc <= acc - dmem[immediate] ;
 		incPC() ;
-	join
+	end
 endtask 
 
 
@@ -357,17 +357,17 @@ endtask
 
 
 always @(posedge clk)
-	fork
+	begin
 		doOp() ;
 		// updatePC() ; // part of the ops
 		// commitResults() ; // part of the ops
-	join
+	end
 
 always @(negedge clk)
-	fork // run next statements in parallel
+	begin // run next statements in parallel
 		getField() ;
 		updateFieldp() ;
 		// getDmem() ; // if external data memory used
-	join
+	end
 
 endmodule
