@@ -10,90 +10,163 @@ dC:/Modeltech_pe_edu_10.3/examples
 !i10f 100
 vbuffers
 Z0 DXx6 sv_std 3 std 0 22 <EOTafDcUY:cQeO^ICn]m3
-Z1 !s110 1392064837
+Z1 !s110 1394723456
 !i10b 1
-!s100 7YnP=PH]4O6PWX9WIjYi51
-IJ<?>`>M7=?KB8jimoY]2h0
+!s100 4Cfo;NR8]h^DQY_WS^GaY2
+Ig4KB]`Nm`_bKUll>R5kKH0
 Z2 V`JN@9S9cnhjKRR_L]QIcM3
-!s105 buffers_v_unit
+Z3 !s105 buffers_v_unit
 S1
-Z3 dC:/Modeltech_pe_edu_10.3/pulseq/patternbuf
-w1392064684
-8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
-FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
-L0 7
-Z4 OP;L;10.3;59
+Z4 dC:/Modeltech_pe_edu_10.3/pulseq/patternbuf
+Z5 w1394113046
+Z6 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
+Z7 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v
+L0 33
+Z8 OP;L;10.3;59
 r1
 !s85 0
 31
-!s108 1392064837.744000
-!s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
-!s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
+Z9 !s108 1394723456.208000
+Z10 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
+Z11 !s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/buffers.v|
 !s101 -O0
-Z5 o-work work -sv -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
-vpat
-!s110 1394115972
+Z12 o-work work -sv -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+vmux2
+R0
+R1
 !i10b 1
-!s100 lBZXj?;97jc4BY``;3U8J0
-I>7fzCk8J<Hn[;FJK:G^]l3
+!s100 S7dEE><]Dc<ZMdg8d;PzI3
+IO??Qel=`aaX?>AkH^i^Pd3
 R2
 R3
-w1394115969
+S1
+R4
+R5
+R6
+R7
+Z13 L0 18
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+R12
+vmux4
+R0
+R1
+!i10b 1
+!s100 nLW[:B0L6QR46X:zV0b6d3
+I@BYROdC<WX6Wdb?7TKC910
+R2
+R3
+S1
+R4
+R5
+R6
+R7
+L0 1
+R8
+r1
+!s85 0
+31
+R9
+R10
+R11
+!s101 -O0
+R12
+vpat
+R0
+!s110 1394725987
+!i10b 1
+!s100 khj2MiO9NiO43819<2[ia2
+ISMf[j]OlenEY?61WQ3bD:2
+R2
+!s105 pat_v_unit
+S1
+R4
+w1394725983
 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/pat.v
 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/pat.v
 L0 1
-R4
+R8
 r1
 !s85 0
 31
-!s108 1394115972.265000
+!s108 1394725987.614000
 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/pat.v|
-!s90 -reportprogress|300|-nostats|-work|work|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/pat.v|
+!s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/pat.v|
 !s101 -O0
-o-work work -L mtiAvm -L mtiOvm -L mtiUvm -L mtiUPF -L infact -O0
+R12
 vpatternbuf
 R0
 R1
 !i10b 1
-!s100 6LfYfMN3Fl^[^JkW9Tgfg3
-Ije30WQdaQYIjCIdR;[:Vb1
+!s100 oC3D87VbdiT>1YAN^aSPS2
+IDbJZDR`CRR8]H5?cCn1Ph0
 R2
-!s105 patternbuf_v_unit
+Z14 !s105 patternbuf_v_unit
 S1
-R3
-w1392064530
-8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
-FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
-L0 3
 R4
+R5
+Z15 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
+Z16 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v
+R13
+R8
 r1
 !s85 0
 31
-!s108 1392064837.800000
-!s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
-!s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
+Z17 !s108 1394723456.303000
+Z18 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
+Z19 !s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/patternbuf.v|
 !s101 -O0
+R12
+vscanD
+R0
+R1
+!i10b 1
+!s100 BN9W6hhXc8k3dAESV08Od2
+I6?m=PJe4daHYZ=XkoXo0<0
+R2
+R14
+S1
+R4
 R5
+R15
+R16
+L0 1
+R8
+r1
+!s85 0
+31
+R17
+R18
+R19
+!s101 -O0
+R12
+nscan@d
 vtestbench
 R0
 R1
 !i10b 1
-!s100 heDEobIMZ3b[Cc?=^@LF20
-IRR^HPKF<4`nPGP2llnS9Z1
+!s100 J9;SMhli>K[eJmRZajAPo1
+IlDQEk9k@XjnzB<;EFJz4E0
 R2
 !s105 testbench_v_unit
 S1
-R3
-w1392064836
+R4
+w1394112889
 8C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v
 FC:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v
 L0 5
-R4
+R8
 r1
 !s85 0
 31
-!s108 1392064837.856000
+!s108 1394723456.385000
 !s107 C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v|
 !s90 -reportprogress|300|-nostats|-work|work|-sv|C:/Modeltech_pe_edu_10.3/pulseq/patternbuf/testbench.v|
 !s101 -O0
-R5
+R12
