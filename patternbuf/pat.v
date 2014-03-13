@@ -45,7 +45,7 @@ reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] dmem [8] ; // TODO: Select this memory or external
+reg [d_width-1:0] dmem [256] ; // TODO: Select this memory or external
 
 
 // instruction type selection
@@ -113,7 +113,10 @@ task i_i8 ;
 		4'b1011: op_subm(immediate) ;
 		4'b1100: op_add(immediate) ;
 		4'b1101: op_sub(immediate) ;
-		// 4'b1110:
+
+		// DEBUG FIXME - push to correct op format area
+		4'b1110: op_ldba() ;
+		4'b1111: op_stab() ;
 
 
 		default: $display ("Undefined i8 instruction in decode") ;
@@ -211,9 +214,9 @@ endtask
 task op_or ;
 	input [7:0] immediate ;
 	begin
-		if (field_op)
-			field_out <= field_value | immediate ;
-		else
+	//	if (field_op)
+	//		field_out <= field_value | immediate ;
+	//	else
 			acc <= acc | immediate ;
 		incPC() ;
 	end
@@ -222,9 +225,9 @@ endtask
 task op_and ;
 	input [7:0] immediate ;
 	begin
-		if (field_op)
-			field_out <= field_value & immediate ;
-		else
+	//	if (field_op)
+	//		field_out <= field_value & immediate ;
+	//	else
 			acc <= acc & immediate ;
 		incPC() ;
 	end
@@ -233,9 +236,9 @@ endtask
 task op_add ;
 	input [7:0] immediate ;
 	begin
-		if (field_op)
-			field_out <= field_value + immediate ;
-		else
+	//	if (field_op)
+	//		field_out <= field_value + immediate ;
+	//	else
 			acc <= acc + immediate ;
 		incPC() ;
 	end
@@ -255,9 +258,9 @@ endtask
 task op_shl ;
 	input [2:0] shift ;
 	begin
-		if (field_op)
-			field_out <= field_value << shift ;
-		else
+	//	if (field_op)
+//			field_out <= field_value << shift ;
+	//	else
 			acc <= acc << shift ;
 		incPC() ;
 	end
@@ -266,9 +269,9 @@ endtask
 task op_shr ;
 	input [2:0] shift ;
 	begin
-		if (field_op)
-			field_out <= field_value >> shift ;
-		else
+//		if (field_op)
+//			field_out <= field_value >> shift ;
+//		else
 			acc <= acc >> shift ;
 		incPC() ;
 	end
@@ -277,9 +280,9 @@ endtask
 task op_ashr ;
 	input [2:0] shift ;
 	begin
-		if (field_op)
-			field_out <= field_value >>> shift ;
-		else
+//		if (field_op)
+//			field_out <= field_value >>> shift ;
+//		else
 			acc <= acc >>> shift ;
 		incPC() ;
 	end
@@ -287,9 +290,9 @@ endtask
 
 task op_not ;
 	begin
-		if (field_op)
-			field_out <= ~field_value ;
-		else
+//		if (field_op)
+//			field_out <= ~field_value ;
+//		else
 			acc <= ~acc ;
 		incPC() ;
 	end
@@ -321,9 +324,9 @@ endtask
 task op_addm ;
 	input [7:0] immediate ;
 	begin
-		if (field_op)
-			field_out <= field_value + dmem[immediate] ;
-		else
+	//	if (field_op)
+	//		field_out <= field_value + dmem[immediate] ;
+	//	else
 			acc <= acc + dmem[immediate] ;
 		incPC() ;
 	end
@@ -332,13 +335,26 @@ endtask
 task op_subm ;
 	input [7:0] immediate ;
 	begin
-		if (field_op)
-			field_out <= field_value - dmem[immediate] ;
-		else
+	//	if (field_op)
+//			field_out <= field_value - dmem[immediate] ;
+	//	else
 			acc <= acc - dmem[immediate] ;
 		incPC() ;
 	end
 endtask 
+
+
+task op_stab ;
+	begin
+		field_out <= acc ;
+	end
+endtask
+
+task op_ldba ;
+	begin
+		acc <= field_value ;
+	end
+endtask
 
 
 // control tasks
@@ -361,12 +377,15 @@ always @(posedge clk)
 		doOp() ;
 		// updatePC() ; // part of the ops
 		// commitResults() ; // part of the ops
+          	getField() ;
+		updateFieldp() ;
+
 	end
 
 always @(negedge clk)
 	begin // run next statements in parallel
-		getField() ;
-		updateFieldp() ;
+		//getField() ;
+	//	updateFieldp() ;
 		// getDmem() ; // if external data memory used
 	end
 
