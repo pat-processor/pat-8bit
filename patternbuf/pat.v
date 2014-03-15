@@ -45,8 +45,9 @@ reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] dmem [256] ; // TODO: Select this memory or external
+reg [d_width-1:0] dmem [4] ; // TODO: Select this memory or external
 
+reg [d_width-1:0] dmem_read[4] ;
 
 // instruction type selection
 /*
@@ -90,7 +91,7 @@ task incPC ; // incrementPC if not a jump
 	end
 endtask
 
-
+wire foo ; // FIXME: test
 
 task i_i8 ;
 	input [opcode_i8_width-1:0] opcode ;
@@ -214,9 +215,9 @@ endtask
 task op_or ;
 	input [7:0] immediate ;
 	begin
-	//	if (field_op)
-	//		field_out <= field_value | immediate ;
-	//	else
+		if (field_op)
+			field_out <= field_value | immediate ;
+		else
 			acc <= acc | immediate ;
 		incPC() ;
 	end
@@ -225,9 +226,9 @@ endtask
 task op_and ;
 	input [7:0] immediate ;
 	begin
-	//	if (field_op)
-	//		field_out <= field_value & immediate ;
-	//	else
+		if (field_op)
+			field_out <= field_value & immediate ;
+		else
 			acc <= acc & immediate ;
 		incPC() ;
 	end
@@ -236,9 +237,9 @@ endtask
 task op_add ;
 	input [7:0] immediate ;
 	begin
-	//	if (field_op)
-	//		field_out <= field_value + immediate ;
-	//	else
+		if (field_op)
+			field_out <= field_value + immediate ;
+		else
 			acc <= acc + immediate ;
 		incPC() ;
 	end
@@ -258,9 +259,9 @@ endtask
 task op_shl ;
 	input [2:0] shift ;
 	begin
-	//	if (field_op)
-//			field_out <= field_value << shift ;
-	//	else
+		if (field_op)
+			field_out <= field_value << shift ;
+		else
 			acc <= acc << shift ;
 		incPC() ;
 	end
@@ -269,9 +270,9 @@ endtask
 task op_shr ;
 	input [2:0] shift ;
 	begin
-//		if (field_op)
-//			field_out <= field_value >> shift ;
-//		else
+		if (field_op)
+			field_out <= field_value >> shift ;
+		else
 			acc <= acc >> shift ;
 		incPC() ;
 	end
@@ -280,9 +281,9 @@ endtask
 task op_ashr ;
 	input [2:0] shift ;
 	begin
-//		if (field_op)
-//			field_out <= field_value >>> shift ;
-//		else
+		if (field_op)
+			field_out <= field_value >>> shift ;
+		else
 			acc <= acc >>> shift ;
 		incPC() ;
 	end
@@ -290,9 +291,9 @@ endtask
 
 task op_not ;
 	begin
-//		if (field_op)
-//			field_out <= ~field_value ;
-//		else
+		if (field_op)
+			field_out <= ~field_value ;
+		else
 			acc <= ~acc ;
 		incPC() ;
 	end
@@ -324,9 +325,9 @@ endtask
 task op_addm ;
 	input [7:0] immediate ;
 	begin
-	//	if (field_op)
-	//		field_out <= field_value + dmem[immediate] ;
-	//	else
+		if (field_op)
+			field_out <= field_value + dmem[immediate] ;
+		else
 			acc <= acc + dmem[immediate] ;
 		incPC() ;
 	end
@@ -335,9 +336,9 @@ endtask
 task op_subm ;
 	input [7:0] immediate ;
 	begin
-	//	if (field_op)
-//			field_out <= field_value - dmem[immediate] ;
-	//	else
+		if (field_op)
+			field_out <= field_value - dmem[immediate] ;
+		else
 			acc <= acc - dmem[immediate] ;
 		incPC() ;
 	end
