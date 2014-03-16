@@ -1,31 +1,33 @@
-/*
-module program_counter(clk, reset, offset, bf, bb, pc_out) ;
+module pc_inc(pc, pc_next) ;
 
 parameter i_adr_width = 10 ;
+input [i_adr_width-1:0] pc ;
+output [i_adr_width-1:0] pc_next ;
 
-input clk, reset, bf, bb ;
-input [7:0] offset ;
-output pc_out ;
-
-reg [i_adr_width-1:0] pc ;
-
-wire [i_adr_width-1:0] bf_pc ;
-wire [i_adr_width-1:0] bb_pc ;
-wire [i_adr_width-1:0] inc_pc ;
-
-assign bf_pc = pc + offset ;
-assign bb_pc = pc - offset ;
-assign inc_pc = pc + 1 ;
-
-always @(posedge clk)
-begin
-	if (reset) pc <= 0 ;
-	else if (bf) pc <= bf_pc ;
-	else if (bb) pc <= bb_pc ;
-	else pc <= inc_pc ;
-end
+assign pc_next = pc + 1 ;
 endmodule
-*/
+
+module pc_add(pc, offset, pc_next) ;
+parameter i_adr_width = 10 ;
+parameter d_width = 8 ;
+input [i_adr_width-1:0] pc ;
+input [d_width-1:0] offset ;
+output [i_adr_width-1:0] pc_next ;
+
+assign pc_next = pc + offset ;
+endmodule
+
+module pc_sub(pc, offset, pc_next) ;
+parameter i_adr_width = 10 ;
+parameter d_width = 8 ;
+input [i_adr_width-1:0] pc ;
+input [d_width-1:0] offset ;
+output [i_adr_width-1:0] pc_next ;
+
+assign pc_next = pc - offset ;
+endmodule
+
+
 module shifter(a, b, left_rightn, y) ;
 
 parameter d_width = 8 ;
@@ -102,7 +104,7 @@ assign y = (op[2] == 1'b1) ? shift_out :
 
 endmodule
 
-module pat(reset, pc, write_en, data_adr, data_out, bufp, fieldp, fieldwp, field_out, imem_in, data_in, field_in, clk) ;
+module pat(reset, pc, write_en, data_adr, data_out, bufp, fieldp, fieldwp, field_out, imem_in, data_in, field_in, clk, acc) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 15 ; // instruction width
@@ -134,6 +136,8 @@ output [bufp_width-1:0] bufp ;
 output [fieldp_width-1:0] fieldp ;
 output [fieldp_width-1:0] fieldwp ;
 output [buffer_width-1:0] field_out ;
+
+output [d_width-1:0] acc ; //FIXME: remove --- debug
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -254,6 +258,8 @@ assign op_subm =(opcode_i8 == 4'b1010) && i_t_i8 ;
 assign op_add = (opcode_i8 == 4'b1011) && i_t_i8 ;
 assign op_sub = (opcode_i8 == 4'b1100) && i_t_i8 ;
 
+wire op_return ;
+
 
 assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub ;
 assign source_dmem = op_ldm | op_addm | op_subm ;
@@ -261,303 +267,48 @@ assign source_sp = 1'b0 ;
 assign source_imm = ~(source_acc | source_dmem | source_sp) ;
 // source_imm is none of above
 
+assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
 
+assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
+
+assign dest_dmem = op_stm ;
 
 // Program counter 
-
-wire [i_adr_width-1:0] pc_offset ;
-wire pc_bf, pc_bb ;
 
 assign pc_offset = immediate_i8 ;
 
 //program_counter thePC(clk, reset, pc_offset, op_bf, op_bb, pc) ;
 
+// perform speculative pc computations to aid speed
+wire [i_adr_width-1:0] pc_bf ; 
+wire [i_adr_width-1:0] pc_bb ;
+wire [i_adr_width-1:0] pc_inc ;
+wire [i_adr_width-1:0] pc_ret ; 
+wire [i_adr_width-1:0] pc_next ;
 
+// speculative pc computations in parallel
+pc_inc pcInc(pc, pc_inc) ;
+pc_add pcAdd(pc, immediate_i8, pc_bf) ;
+pc_sub pcSub(pc, immediate_i8, pc_bb) ;
 
 /*
-task doOp ;
-	// check the opcode prefix to determine operation type.
-	begin
-		if (opcode_i8 != `i3_opcode_prefix) i_i8(opcode_i8, condition, immediate_i8) ;
-		else if (opcode_i3 != `i0_opcode_prefix) i_i3(opcode_i3, condition, immediate_i3) ;
-		else i_i0(opcode_i0, condition) ;
-	end
-endtask
-
-task incPC ; // incrementPC if not a jump
-	begin
-		//pc <= pc + 1 ;
-	end
-endtask
-
-wire foo ; // FIXME: test
-
-task i_i8 ;
-	input [opcode_i8_width-1:0] opcode ;
-	input [1:0] condition ;
-        input [7:0] immediate ;
-	casex(opcode) // case is evaluated in order
-
-
-
-		// i8 format instruction
-		4'b0000: op_bf(immediate) ;
-		4'b0001: op_bb(immediate) ;
-		4'b0010: op_call(immediate) ;
-		4'b0011: op_ldi(immediate) ;
-		4'b0100: op_ldm(immediate) ;
-		4'b0101: op_stm(immediate) ;
-		4'b0110: op_setsp(immediate) ;
-		// 4'b0111:
-		4'b1000: op_or(immediate) ;
-		4'b1001: op_and(immediate) ;
-		4'b1010: op_addm(immediate) ;
-		4'b1011: op_subm(immediate) ;
-		4'b1100: op_add(immediate) ;
-		4'b1101: op_sub(immediate) ;
-
-		// DEBUG FIXME - push to correct op format area
-		4'b1110: op_ldba() ;
-		4'b1111: op_stab() ;
-
-
-		default: $display ("Undefined i8 instruction in decode") ;
-	endcase
-endtask
-
-
-task i_i3 ;
-	input [i_width-1:0] opcode ;
-	input [1:0] condition ;
-	input [2:0] immediate ;
-
-
-	begin
-	end
-endtask
-
-task i_i0 ;
-	input [i_width-1:0] opcode ;
-	input [1:0] condition ;
-
-	begin
-	end
-endtask
-
-
-task op_bf ;
-	input [7:0] offset ;
-	begin
-	//	pc <= pc + offset ;
-	end
-endtask
-
-task op_bb ;
-	input [7:0] offset ;
-//
-	begin
-	//	pc <= pc - offset ;
-	end
-endtask
-
-task op_call ;
-	input [7:0] offset ;
-	begin
-		call_stack[call_stack_pointer] <= pc ;
-		call_stack_pointer <= call_stack_pointer + 1 ;
-	//	pc <= pc + offset ;
-	end
-endtask
-
-
-task op_return ; // 'return' is a reserved keyword
-	begin
-	//	pc <= call_stack[call_stack_pointer - 1] ;
-		call_stack_pointer <= call_stack_pointer - 1 ;
-	end
-endtask
-
-
-task op_ldi ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= immediate ;
-		else
-			acc <= immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_setsp ;
-	input [7:0] immediate ;
-	begin
-		sp <= immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_incsp ;
-	input [2:0] inc ;
-	begin
-		sp <= sp + inc ;
-		incPC() ;
-	end
-endtask
-
-task op_decsp ;
-	input [2:0] dec ;
-	begin
-		sp <= sp - dec ;
-		incPC() ;
-	end
-endtask
-
-task op_or ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value | immediate ;
-		else
-			acc <= acc | immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_and ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value & immediate ;
-		else
-			acc <= acc & immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_add ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value + immediate ;
-		else
-			acc <= acc + immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_sub ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value - immediate ;
-		else
-			acc <= acc - immediate ;
-		incPC() ;
-	end
-endtask
-
-task op_shl ;
-	input [2:0] shift ;
-	begin
-		if (field_op)
-			field_out <= field_value << shift ;
-		else
-			acc <= acc << shift ;
-		incPC() ;
-	end
-endtask
-
-task op_shr ;
-	input [2:0] shift ;
-	begin
-		if (field_op)
-			field_out <= field_value >> shift ;
-		else
-			acc <= acc >> shift ;
-		incPC() ;
-	end
-endtask
-
-task op_ashr ;
-	input [2:0] shift ;
-	begin
-		if (field_op)
-			field_out <= field_value >>> shift ;
-		else
-			acc <= acc >>> shift ;
-		incPC() ;
-	end
-endtask
-
-task op_not ;
-	begin
-		if (field_op)
-			field_out <= ~field_value ;
-		else
-			acc <= ~acc ;
-		incPC() ;
-	end
-endtask
-
-task op_ldm ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= dmem[immediate] ;
-		else
-			acc <= dmem[immediate] ;
-		incPC() ;
-	end
-endtask 
-
-task op_stm ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			dmem[immediate] <= field_value ;
-		else
-			dmem[immediate] <= acc ;
-		incPC() ;
-	end
-endtask 
-
-
-task op_addm ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value + dmem[immediate] ;
-		else
-			acc <= acc + dmem[immediate] ;
-		incPC() ;
-	end
-endtask 
-
-task op_subm ;
-	input [7:0] immediate ;
-	begin
-		if (field_op)
-			field_out <= field_value - dmem[immediate] ;
-		else
-			acc <= acc - dmem[immediate] ;
-		incPC() ;
-	end
-endtask 
-
-
-task op_stab ;
-	begin
-		field_out <= acc ;
-	end
-endtask
-
-task op_ldba ;
-	begin
-		acc <= field_value ;
-	end
-endtask
+assign pc_bf = pc + immediate_i8 ;
+assign pc_bb = pc - immediate_i8 ;
+assign pc_inc = pc + 1 ;
 */
+assign pc_ret = call_stack[sp] ;
+
+assign pc_next = op_bf ? pc_bf :
+		 op_bb ? pc_bb :
+		 op_return ? pc_ret :
+		 pc_inc ;
+
+task updatePC ;
+begin
+	pc <= pc_next ;
+end
+endtask
+
 
 
 // control tasks
@@ -577,18 +328,13 @@ endtask
 
 always @(posedge clk)
 	begin
-	//	doOp() ;
-		// updatePC() ; // part of the ops
-		// commitResults() ; // part of the ops
-		pc <= pc + 1 ;
+		updatePC() ;
           	getField() ;
 		updateFieldp() ;
 
 		if (dest_acc) acc <= result ;
 		else if (dest_field) field_out <= result ;
 		else if (dest_dmem) data_out <= result ;
-
-
 
 	end
 
