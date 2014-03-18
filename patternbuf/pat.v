@@ -238,13 +238,6 @@ assign immediate_i3 = imem_in[2:0] ;
 assign opcode_i0 = imem_in[opcode_i0_width-1:0] ;
 
 
-wire [d_width-1:0] alu_a ;
-wire [d_width-1:0] alu_b ;
-wire [d_width-1:0] alu_y ;
-wire [2:0] alu_op ; // FIXME: parameterise
-
-
-
 // determine the type of operation
 assign i_t_i8 = (opcode_i8 != `i3_opcode_prefix) ? 1'b1 : 1'b0 ;
 assign i_t_i3 = (!i_t_i8) && (opcode_i3 != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
@@ -288,6 +281,11 @@ assign dest_dmem = op_stm ;
 
 
 // instantiate two ALUs to speed up by preventing input MUX
+wire [d_width-1:0] acc_alu_a ;
+wire [d_width-1:0] acc_alu_b ;
+wire [d_width-1:0] field_alu_a ;
+wire [d_width-1:0] field_alu_b ;
+
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
 alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
 
