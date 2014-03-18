@@ -1,3 +1,21 @@
+module program_counter(pc, immediate_i8, op_bf, op_bb, op_return, ret_adr, pc_next) ;
+parameter i_adr_width = 10 ;
+input [i_adr_width-1:0] pc ;
+input [i_adr_width-1:0] ret_adr ;
+input [7:0] immediate_i8 ;
+input op_bf, op_bb, op_return ;
+
+output [i_adr_width-1:0] pc_next ;
+//assign pc_ret = call_stack[sp] ;
+
+assign pc_next = op_bf ? (pc + immediate_i8) :
+		 op_bb ? (pc - immediate_i8) :
+		 op_return ? ret_adr : (pc + 1) ;
+
+endmodule
+
+
+
 module pc_inc(pc, pc_next) ;
 
 parameter i_adr_width = 10 ;
@@ -311,29 +329,29 @@ assign pc_offset = immediate_i8 ;
 
 //program_counter thePC(clk, reset, pc_offset, op_bf, op_bb, pc) ;
 
+wire [i_adr_width-1:0 ] pc_next ;
+
+program_counter thePC(pc, pc_offset, op_bf, op_bb, op_return, call_stack[sp], pc_next) ;
+/*
 // perform speculative pc computations to aid speed
 wire [i_adr_width-1:0] pc_bf ; 
 wire [i_adr_width-1:0] pc_bb ;
 wire [i_adr_width-1:0] pc_inc ;
 wire [i_adr_width-1:0] pc_ret ; 
 wire [i_adr_width-1:0] pc_next ;
-
+*/
 // speculative pc computations in parallel
-pc_inc pcInc(pc, pc_inc) ;
-pc_add pcAdd(pc, immediate_i8, pc_bf) ;
-pc_sub pcSub(pc, immediate_i8, pc_bb) ;
+//pc_inc pcInc(pc, pc_inc) ;
+//pc_add pcAdd(pc, immediate_i8, pc_bf) ;
+//pc_sub pcSub(pc, immediate_i8, pc_bb) ;
+
+
 
 /*
 assign pc_bf = pc + immediate_i8 ;
 assign pc_bb = pc - immediate_i8 ;
 assign pc_inc = pc + 1 ;
 */
-assign pc_ret = call_stack[sp] ;
-
-assign pc_next = op_bf ? pc_bf :
-		 op_bb ? pc_bb :
-		 op_return ? pc_ret :
-		 pc_inc ;
 
 task updatePC ;
 begin
