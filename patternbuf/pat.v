@@ -152,6 +152,51 @@ assign y = op_or ? or_out :
 
 endmodule
 
+module data_mem(data_read_adr, data_write_adr, data_write, data_in, data_out) ;
+parameter d_adr_width = 8 ; // data address space size
+parameter d_width = 8 ; // data width
+parameter dmemsize = 256 ;
+
+input [d_adr_width-1:0] data_read_adr ;
+input [d_adr_width-1:0] data_write_adr ;
+input data_write ;
+input [d_width-1:0] data_in ;
+
+output [d_width-1:0] data_out ;
+
+reg [d_width-1:0] dmem [dmemsize] ;
+wire [d_width-1:0] read_bus [dmemsize] ;
+
+genvar i,j ;
+
+// read decoder 
+for (i = 0 ; i < dmemsize ; i++)
+begin
+	assign read_bus[i] = (data_read_adr == i) ? dmem[i] : {d_width{1'b0}} ;
+end
+
+wire [dmemsize-1:0] read_bus_transformed [d_width] ;
+
+for (i = 0 ; i < d_width ; i++)
+begin
+	for (j = 0 ; j < dmemsize ; j++)
+	begin
+		assign read_bus_transformed[i][j] = read_bus[j][i] ;
+	end
+	assign data_out[i] = | read_bus_transformed[i] ;
+end
+
+// write
+always @(data_write or data_in)
+begin
+	dmem[data_write_adr] <= data_in ;
+end
+
+endmodule
+
+
+
+
 module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
@@ -196,15 +241,14 @@ reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
 reg write_en ;
-//reg [d_adr_width-1:0] data_adr ;
-//reg [d_width-1:0] data_out ;
+reg [d_width-1:0] data_out ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
+//reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
 
 
 // instruction type selection
@@ -297,7 +341,16 @@ assign alu_a = source_field ? field_in :
 	       source_sp ? sp : acc ;
 */
 wire [d_width-1:0] data_in ;
-assign data_in = dmem[immediate_i8] ;
+wire [d_adr_width-1:0] data_adr ;
+
+assign data_adr = immediate_i8 ;
+reg [d_adr_width-1:0] data_write_adr ; 
+reg data_write ;
+
+data_mem dmem(data_adr, data_write_adr, data_write, data_out, data_in) ;
+
+
+
 assign acc_alu_a = acc ;
 	  
 
@@ -368,16 +421,17 @@ always @(posedge clk)
 
 		if (dest_acc) acc <= result ;
 		else if (dest_field) field_out <= result ;
-		//else if (dest_dmem) data_out <= result ;
-		else if (dest_dmem) dmem[immediate_i8] <= result ;
+		else if (dest_dmem) begin 
+			data_out <= result ;
+			data_write <= 1'b1 ;
+			data_write_adr <= immediate_i8 ;
+		end
 
 	end
 
 always @(negedge clk)
-	begin // run next statements in parallel
-		//getField() ;
-	//	updateFieldp() ;
-		// getDmem() ; // if external data memory used
+	begin
+		data_write <= 1'b0 ; // disable write
 	end
 
 endmodule
