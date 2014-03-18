@@ -283,8 +283,10 @@ assign dest_dmem = op_stm ;
 // instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
+wire [d_width-1:0] acc_alu_y ;
 wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
+wire [d_width-1:0] field_alu_y ;
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
 alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
