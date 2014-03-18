@@ -327,31 +327,11 @@ assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate 
 
 assign pc_offset = immediate_i8 ;
 
-//program_counter thePC(clk, reset, pc_offset, op_bf, op_bb, pc) ;
 
 wire [i_adr_width-1:0 ] pc_next ;
 
 program_counter thePC(pc, pc_offset, op_bf, op_bb, op_return, call_stack[sp], pc_next) ;
-/*
-// perform speculative pc computations to aid speed
-wire [i_adr_width-1:0] pc_bf ; 
-wire [i_adr_width-1:0] pc_bb ;
-wire [i_adr_width-1:0] pc_inc ;
-wire [i_adr_width-1:0] pc_ret ; 
-wire [i_adr_width-1:0] pc_next ;
-*/
-// speculative pc computations in parallel
-//pc_inc pcInc(pc, pc_inc) ;
-//pc_add pcAdd(pc, immediate_i8, pc_bf) ;
-//pc_sub pcSub(pc, immediate_i8, pc_bb) ;
 
-
-
-/*
-assign pc_bf = pc + immediate_i8 ;
-assign pc_bb = pc - immediate_i8 ;
-assign pc_inc = pc + 1 ;
-*/
 
 task updatePC ;
 begin
@@ -359,6 +339,7 @@ begin
 end
 endtask
 
+// END PC
 
 
 // control tasks
