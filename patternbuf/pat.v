@@ -54,7 +54,7 @@ input [d_width-1:0] a ;
 input [2:0] b ;
 input op_shl, op_shr, op_asr ;
 
-output y ;
+output [d_width-1:0] y ;
 
 wire [d_width-1:0] shl ;
 wire [d_width-1:0] shr ;
@@ -135,7 +135,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b, shift_out, op_shl, op_shr, op_asr) ;
+shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
@@ -152,7 +152,7 @@ assign y = op_or ? or_out :
 
 endmodule
 
-module pat(reset, pc, write_en, data_adr, data_out, bufp, fieldp, fieldwp, field_out, imem_in, data_in, field_in, clk, acc) ;
+module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 15 ; // instruction width
@@ -172,14 +172,14 @@ parameter opcode_i0_width = 5 ; // width of opcode for i0 instruction
 
 input reset ;
 input [i_width-1:0] imem_in ;
-input [d_width-1:0] data_in;
+//input [d_width-1:0] data_in;
 input [buffer_width-1:0] field_in ;
 input clk ;
 
 output [i_adr_width-1:0] pc ;
 output write_en ;
-output [d_adr_width-1:0] data_adr ;
-output [d_width-1:0] data_out ;
+//output [d_adr_width-1:0] data_adr ;
+//output [d_width-1:0] data_out ;
 output [bufp_width-1:0] bufp ;
 output [fieldp_width-1:0] fieldp ;
 output [fieldp_width-1:0] fieldwp ;
@@ -196,17 +196,16 @@ reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
 reg write_en ;
-reg [d_adr_width-1:0] data_adr ;
-reg [d_width-1:0] data_out ;
+//reg [d_adr_width-1:0] data_adr ;
+//reg [d_width-1:0] data_out ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] dmem [4] ; // TODO: Select this memory or external
+reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
 
-reg [d_width-1:0] dmem_read[4] ;
 
 // instruction type selection
 
@@ -214,9 +213,6 @@ wire i_t_i0 ;
 wire i_t_i3 ;
 wire i_t_i8 ;
 
-// operation type selection
-wire source_acc, source_dmem, source_field, source_imm, source_sp ;
-wire dest_acc, dest_dmem, dest_field, dest_sp ;
 
 // instruction immediate values
 wire [7:0] immediate_i8 ;
@@ -243,39 +239,44 @@ assign i_t_i8 = (opcode_i8 != `i3_opcode_prefix) ? 1'b1 : 1'b0 ;
 assign i_t_i3 = (!i_t_i8) && (opcode_i3 != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
 assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
-assign source_field = field_op ;
 
 
 // i8 operations
 wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
 wire op_and, op_addm, op_subm, op_add, op_sub, op_ldba, op_stab ;
-assign op_bf = 	(opcode_i8 == 4'b0000) && i_t_i8 ;
-assign op_bb =	(opcode_i8 == 4'b0001) && i_t_i8 ;
-assign op_call =(opcode_i8 == 4'b0010) && i_t_i8 ;
-assign op_ldi = (opcode_i8 == 4'b0011) && i_t_i8 ;
-assign op_ldm = (opcode_i8 == 4'b0100) && i_t_i8 ;
-assign op_stm = (opcode_i8 == 4'b0101) && i_t_i8 ;
-assign op_setsp=(opcode_i8 == 4'b0110) && i_t_i8 ;
-assign op_or = 	(opcode_i8 == 4'b0111) && i_t_i8 ;
-assign op_and = (opcode_i8 == 4'b1000) && i_t_i8 ;
-assign op_addm =(opcode_i8 == 4'b1001) && i_t_i8 ;
-assign op_subm =(opcode_i8 == 4'b1010) && i_t_i8 ;
-assign op_add = (opcode_i8 == 4'b1011) && i_t_i8 ;
-assign op_sub = (opcode_i8 == 4'b1100) && i_t_i8 ;
+assign op_or = 	(opcode_i8 == 4'b0000) && i_t_i8 ;
+assign op_and =	(opcode_i8 == 4'b0001) && i_t_i8 ;
+assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
+assign op_subm = (opcode_i8 == 4'b0011) && i_t_i8 ;
+assign op_add = (opcode_i8 == 4'b0100) && i_t_i8 ;
+assign op_sub = (opcode_i8 == 4'b0101) && i_t_i8 ;
+assign op_ldi =(opcode_i8 == 4'b0110) && i_t_i8 ;
+assign op_ldm =	(opcode_i8 == 4'b0111) && i_t_i8 ;
+assign op_bf = (opcode_i8 == 4'b1000) && i_t_i8 ;
+assign op_call =(opcode_i8 == 4'b1001) && i_t_i8 ;
+assign op_stm =(opcode_i8 == 4'b1010) && i_t_i8 ;
+assign op_setsp = (opcode_i8 == 4'b1011) && i_t_i8 ;
+assign op_bb = (opcode_i8 == 4'b1100) && i_t_i8 ;
 
 wire op_return ;
+assign op_return = (opcode_i8 == 4'b1101) && i_t_i8 ; // FIXME: move to real place
 
 
-assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub ;
+// operation type selection
+wire source_acc, source_dmem, source_field, source_imm, source_sp ;
+wire dest_acc, dest_dmem, dest_field, dest_sp ;
+
+assign source_field = field_op ;
+assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub | (op_stm && !field_op) ;
 assign source_dmem = op_ldm | op_addm | op_subm ;
 assign source_sp = 1'b0 ;
 assign source_imm = ~(source_acc | source_dmem | source_sp) ;
-// source_imm is none of above
 
 assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
 
 assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
 
+// dmem op
 assign dest_dmem = op_stm ;
 
 
@@ -295,6 +296,8 @@ alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_neg, (op_a
 assign alu_a = source_field ? field_in :
 	       source_sp ? sp : acc ;
 */
+wire [d_width-1:0] data_in ;
+assign data_in = dmem[immediate_i8] ;
 assign acc_alu_a = acc ;
 	  
 
@@ -317,7 +320,6 @@ wire [d_width-1:0] result ; // final result of the operation
 wire [d_width-1:0] alu_result ; // result from the parallel ALUs
 
 assign alu_result = field_op ? field_alu_y : acc_alu_y ;
-
 assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
 
 // END ALUS
@@ -325,6 +327,7 @@ assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate 
 
 // Program counter 
 
+wire [d_width-1:0] pc_offset ;
 assign pc_offset = immediate_i8 ;
 
 
@@ -365,7 +368,8 @@ always @(posedge clk)
 
 		if (dest_acc) acc <= result ;
 		else if (dest_field) field_out <= result ;
-		else if (dest_dmem) data_out <= result ;
+		//else if (dest_dmem) data_out <= result ;
+		else if (dest_dmem) dmem[immediate_i8] <= result ;
 
 	end
 
