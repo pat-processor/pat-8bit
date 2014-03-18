@@ -28,22 +28,26 @@ assign pc_next = pc - offset ;
 endmodule
 
 
-module shifter(a, b, left_rightn, y) ;
+module shifter(a, b, y, op_shl, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [2:0] b ;
-input left_rightn ;
+input op_shl, op_shr, op_asr ;
 
 output y ;
 
 wire [d_width-1:0] shl ;
 wire [d_width-1:0] shr ;
+wire [d_width-1:0] asr ;
 
 assign shl = a << b ;
 assign shr = a >> b ;
-assign y = left_rightn ? shl : shr ;
+assign asr = a >>> b ;
+
+assign y = op_shl ? shl : 
+	   op_shr ? shr : asr ;
 
 endmodule
 
@@ -67,6 +71,24 @@ assign y = a + b ;
 
 endmodule
 
+module orer(a, b, y) ;
+parameter d_width = 8 ;
+input [d_width-1:0] a ;
+input [d_width-1:0] b ;
+output [d_width-1:0] y ;
+
+assign y = a | b ;
+endmodule
+
+module ander(a, b, y) ;
+parameter d_width = 8 ;
+input [d_width-1:0] a ;
+input [d_width-1:0] b ;
+output [d_width-1:0] y ;
+
+assign y = a & b ;
+endmodule
+
 module negator(a, y) ;
 parameter d_width = 8 ;
 input [d_width-1:0] a ;
@@ -76,13 +98,15 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op) ;
+module alu(a, b, y, op_or, op_and, op_neg, op_add, op_sub, op_shl, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [d_width-1:0] b ;
-input [2:0] op ;
+input op_or, op_and, op_neg ;
+input op_add, op_sub;
+input op_shl, op_shr, op_asr ;
 
 output [d_width-1:0] y ;
 
@@ -90,16 +114,22 @@ wire [d_width-1:0] shift_out ;
 wire [d_width-1:0] add_out ;
 wire [d_width-1:0] sub_out ;
 wire [d_width-1:0] neg_out ;
+wire [d_width-1:0] and_out ;
+wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[2:0], op[1], shift_out) ;
+shifter theShifter(a, b, shift_out, op_shl, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
+orer theOR(a, b, or_out) ;
+ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
 
-assign y = (op[2] == 1'b1) ? shift_out : 
-	   (op[1] == 1'b1) ? neg_out :
-	   (op[0] == 1'b0) ? add_out :
-           sub_out ;
+assign y = op_or ? or_out :
+	   op_and ? and_out :
+	   op_neg ? neg_out :
+	   op_add ? add_out :
+	   op_sub ? sub_out :
+	   shift_out ; // any of the three shifts
 
 
 endmodule
@@ -204,44 +234,8 @@ assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
 assign source_field = field_op ;
 
-// instantiate two ALUs to speed up by preventing input MUX
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, alu_op) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, alu_op) ;
 
-/*
-assign alu_a = source_field ? field_in :
-	       source_sp ? sp : acc ;
-*/
-assign acc_alu_a = acc ;
-	  
-
-assign acc_alu_b = source_dmem ? data_in : 
-	       i_t_i8 ? immediate_i8 :
-               {{5{1'b0}},immediate_i3} ;
-	      // i_t_i0 ? {8{1'bx}} : {8{1'bx}} ; // FIXME: parameterise
-
-assign field_alu_a = field_in ;
-assign field_alu_b = acc_alu_b ;
-
-
-assign alu_op = i_t_i8 ? opcode_i8[2:0] :  // FIXME: align with reality
-		i_t_i3 ? opcode_i3[2:0] :
-		i_t_i0 ? opcode_i0[2:0] : {3{1'bx}} ;
-
-// should I put the immediates through the ALU too.
-// TODO: SP, IN, OUT
-
-
-
-
-
-wire [d_width-1:0] result ; // final result of the operation
-wire [d_width-1:0] alu_result ; // result from the parallel ALUs
-
-assign alu_result = field_op ? field_alu_y : acc_alu_y ;
-
-assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
-
+// i8 operations
 wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
 wire op_and, op_addm, op_subm, op_add, op_sub, op_ldba, op_stab ;
 assign op_bf = 	(opcode_i8 == 4'b0000) && i_t_i8 ;
@@ -272,6 +266,44 @@ assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opco
 assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
 
 assign dest_dmem = op_stm ;
+
+
+
+// instantiate two ALUs to speed up by preventing input MUX
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
+
+/*
+assign alu_a = source_field ? field_in :
+	       source_sp ? sp : acc ;
+*/
+assign acc_alu_a = acc ;
+	  
+
+assign acc_alu_b = source_dmem ? data_in : 
+	       i_t_i8 ? immediate_i8 :
+               {{5{1'b0}},immediate_i3} ;
+	      // i_t_i0 ? {8{1'bx}} : {8{1'bx}} ; // FIXME: parameterise
+
+assign field_alu_a = field_in ;
+assign field_alu_b = acc_alu_b ;
+
+
+assign alu_op = i_t_i8 ? opcode_i8[2:0] :  // FIXME: align with reality
+		i_t_i3 ? opcode_i3[2:0] :
+		i_t_i0 ? opcode_i0[2:0] : {3{1'bx}} ;
+
+// should I put the immediates through the ALU too.
+// TODO: SP, IN, OUT
+wire [d_width-1:0] result ; // final result of the operation
+wire [d_width-1:0] alu_result ; // result from the parallel ALUs
+
+assign alu_result = field_op ? field_alu_y : acc_alu_y ;
+
+assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
+
+// END ALUS
+
 
 // Program counter 
 
