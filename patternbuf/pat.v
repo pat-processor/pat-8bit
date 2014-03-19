@@ -65,7 +65,8 @@ assign shr = a >> b ;
 assign asr = a >>> b ;
 
 assign y = op_shl ? shl : 
-	   op_shr ? shr : asr ;
+	   op_shr ? shr :
+		asr ;
 
 endmodule
 
@@ -135,7 +136,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
+//shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
@@ -146,7 +147,7 @@ assign y = op_or ? or_out :
 	   op_and ? and_out :
 	   op_neg ? neg_out :
 	   op_add ? add_out :
-	   op_sub ? sub_out :
+	   op_sub ? sub_out : 
 	   shift_out ; // any of the three shifts
 
 
@@ -287,7 +288,7 @@ assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
 // i8 operations
 wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
-wire op_and, op_addm, op_subm, op_add, op_sub, op_ldba, op_stab ;
+wire op_and, op_addm, op_subm, op_add, op_sub ;
 assign op_or = 	(opcode_i8 == 4'b0000) && i_t_i8 ;
 assign op_and =	(opcode_i8 == 4'b0001) && i_t_i8 ;
 assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
@@ -302,8 +303,33 @@ assign op_stm =(opcode_i8 == 4'b1010) && i_t_i8 ;
 assign op_setsp = (opcode_i8 == 4'b1011) && i_t_i8 ;
 assign op_bb = (opcode_i8 == 4'b1100) && i_t_i8 ;
 
-wire op_return ;
-assign op_return = (opcode_i8 == 4'b1101) && i_t_i8 ; // FIXME: move to real place
+
+// i3 operations
+wire op_in, op_shl, op_shr, op_asr, op_out, op_setb ;
+wire op_ldsp, op_stasp, op_incsp, op_decsp ;
+assign op_in = 	(opcode_i3 == 4'b0000) && i_t_i3 ;
+assign op_shl =	(opcode_i3 == 4'b0001) && i_t_i3 ;
+//assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
+assign op_shr = (opcode_i3 == 4'b0011) && i_t_i3 ;
+//assign op_add = (opcode_i8 == 4'b0100) && i_t_i8 ;
+assign op_asr = (opcode_i3 == 4'b0101) && i_t_i3 ;
+
+assign op_out = (opcode_i3 == 4'b1000) && i_t_i3 ;
+assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
+assign op_ldsp =(opcode_i3 == 4'b1010) && i_t_i3 ;
+//
+assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
+assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
+assign op_incsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
+
+
+// i0 operations
+wire op_return, op_not, op_nop, op_ldba, op_stab ;
+assign op_return = (opcode_i0 == 4'b0000) && i_t_i0 ;
+assign op_not = (opcode_i0 == 4'b0001) && i_t_i0 ;
+assign op_nop = (opcode_i0 == 4'b0010) && i_t_i0 ;
+assign op_ldba = (opcode_i0 == 4'b0011) && i_t_i0 ;
+assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
 
 
 // operation type selection
@@ -373,6 +399,7 @@ wire [d_width-1:0] result ; // final result of the operation
 wire [d_width-1:0] alu_result ; // result from the parallel ALUs
 
 assign alu_result = field_op ? field_alu_y : acc_alu_y ;
+
 assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
 
 // END ALUS
