@@ -8,9 +8,24 @@ input op_bf, op_bb, op_return ;
 output [i_adr_width-1:0] pc_next ;
 //assign pc_ret = call_stack[sp] ;
 
+/*
 assign pc_next = op_bf ? (pc + immediate_i8) :
 		 op_bb ? (pc - immediate_i8) :
 		 op_return ? ret_adr : (pc + 1) ;
+*/
+
+wire [i_adr_width-1:0] pcInc ;
+wire [i_adr_width-1:0] pcAdd ;
+wire [i_adr_width-1:0] pcSub ;
+
+pc_inc pcIncr(pc, pcInc) ;
+pc_add pcAddr(pc, immediate_i8, pcAdd) ;
+pc_sub pcSubr(pc, immediate_i8, pcSub) ;
+
+assign pc_next = op_bf ? pcAdd :
+		 op_bb ? pcSub :
+		 op_return ? ret_adr : pcInc ;
+
 
 endmodule
 
@@ -136,21 +151,35 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-//shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
+shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
 ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
 
+// enhancement from Introduction to Logic Synthesis Using Verilog HDL
+// By Robert Bryan Reese, Mitchell Aaron Thornton
+// seems to be exactly same speed as my solution //FIXME: remove
+wire op_addsub = op_add | op_sub ;
+wire [d_width-1:0] addsubi ;
+wire [d_width-1:0] addsubout ;
+assign addsubi = op_sub ? ~b : b ;
+assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
+
 assign y = op_or ? or_out :
 	   op_and ? and_out :
 	   op_neg ? neg_out :
-	   op_add ? add_out :
-	   op_sub ? sub_out : 
+//	   op_add ? add_out :
+//	   op_sub ? sub_out : 
+	   op_addsub ? addsubout :
 	   shift_out ; // any of the three shifts
 
 
+/*
+assign y = op_add ? add_out :
+	    sub_out ;
+*/
 endmodule
 
 module data_mem(data_read_adr, data_write_adr, data_write, data_in, data_out) ;
@@ -395,12 +424,18 @@ assign alu_op = i_t_i8 ? opcode_i8[2:0] :  // FIXME: align with reality
 
 // should I put the immediates through the ALU too.
 // TODO: SP, IN, OUT
-wire [d_width-1:0] result ; // final result of the operation
-wire [d_width-1:0] alu_result ; // result from the parallel ALUs
+//wire [d_width-1:0] result ; // final result of the operation
+//wire [d_width-1:0] alu_result ; // result from the parallel ALUs
+wire [d_width-1:0] acc_result ; 
+wire [d_width-1:0] field_result ; 
 
-assign alu_result = field_op ? field_alu_y : acc_alu_y ;
+//assign alu_result = field_op ? field_alu_y : acc_alu_y ;
+//assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
+assign acc_result = (source_imm) ? immediate_i8 : acc_alu_y ;
+assign field_result = (source_imm) ? immediate_i8 : field_alu_y ;
 
-assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
+
+
 
 // END ALUS
 
@@ -446,10 +481,10 @@ always @(posedge clk)
           	getField() ;
 		updateFieldp() ;
 
-		if (dest_acc) acc <= result ;
-		else if (dest_field) field_out <= result ;
+		if (dest_acc) acc <= acc_result ;
+		else if (dest_field) field_out <= field_result ;
 		else if (dest_dmem) begin 
-			data_out <= result ;
+			data_out <= field_op ? field_result : acc_result ;
 			data_write <= 1'b1 ;
 			data_write_adr <= immediate_i8 ;
 		end
