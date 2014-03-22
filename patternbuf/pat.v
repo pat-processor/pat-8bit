@@ -132,13 +132,13 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op_or, op_and, op_neg, op_add, op_sub, op_shl, op_shlo, op_shr, op_asr) ;
+module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [d_width-1:0] b ;
-input op_or, op_and, op_neg ;
+input op_or, op_and, op_not ;
 input op_add, op_sub;
 input op_shl, op_shlo, op_shr, op_asr ;
 
@@ -160,7 +160,7 @@ negator theNeg(a, neg_out) ;
 
 // enhancement from Introduction to Logic Synthesis Using Verilog HDL
 // By Robert Bryan Reese, Mitchell Aaron Thornton
-// seems to be exactly same speed as my solution //FIXME: remove
+// seems to be quicker than my solution //TODO: see if still true
 wire op_addsub = op_add | op_sub ;
 wire [d_width-1:0] addsubi ;
 wire [d_width-1:0] addsubout ;
@@ -169,7 +169,7 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 
 assign y = op_or ? or_out :
 	   op_and ? and_out :
-	   op_neg ? neg_out :
+	   op_not ? neg_out :
 //	   op_add ? add_out :
 //	   op_sub ? sub_out : 
 	   op_addsub ? addsubout :
@@ -372,7 +372,7 @@ wire source_acc, source_dmem, source_field, source_imm, source_sp ;
 wire dest_acc, dest_dmem, dest_field, dest_sp ;
 
 assign source_field = field_op ;
-assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub | (op_stam && !field_op) ; // | op_not missing
+assign source_acc = op_or | op_and | op_not | op_addm | op_subm | op_add | op_sub | (op_stam && !field_op) ;
 assign source_dmem = op_ldm | op_addm | op_subm | op_orm | op_andm | op_ldm ;
 assign source_sp = 1'b0 ;
 assign source_imm = ~(source_acc | source_dmem | source_sp) ;
