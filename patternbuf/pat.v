@@ -2,17 +2,10 @@ module program_counter(pc, immediate_i8, op_bf, op_bb, op_return, ret_adr, pc_ne
 parameter i_adr_width = 10 ;
 input [i_adr_width-1:0] pc ;
 input [i_adr_width-1:0] ret_adr ;
-input [7:0] immediate_i8 ;
+input signed [7:0] immediate_i8 ;
 input op_bf, op_bb, op_return ;
 
 output [i_adr_width-1:0] pc_next ;
-//assign pc_ret = call_stack[sp] ;
-
-/*
-assign pc_next = op_bf ? (pc + immediate_i8) :
-		 op_bb ? (pc - immediate_i8) :
-		 op_return ? ret_adr : (pc + 1) ;
-*/
 
 wire [i_adr_width-1:0] pcInc ;
 wire [i_adr_width-1:0] pcAdd ;
@@ -20,10 +13,10 @@ wire [i_adr_width-1:0] pcSub ;
 
 pc_inc pcIncr(pc, pcInc) ;
 pc_add pcAddr(pc, immediate_i8, pcAdd) ;
-pc_sub pcSubr(pc, immediate_i8, pcSub) ;
+//pc_sub pcSubr(pc, immediate_i8, pcSub) ;
 
 assign pc_next = op_bf ? pcAdd :
-		 op_bb ? pcSub :
+	//	 op_bb ? pcSub :
 		 op_return ? ret_adr : pcInc ;
 
 
@@ -44,7 +37,7 @@ module pc_add(pc, offset, pc_next) ;
 parameter i_adr_width = 10 ;
 parameter d_width = 8 ;
 input [i_adr_width-1:0] pc ;
-input [d_width-1:0] offset ;
+input signed [d_width-1:0] offset ;
 output [i_adr_width-1:0] pc_next ;
 
 assign pc_next = pc + offset ;
@@ -61,17 +54,18 @@ assign pc_next = pc - offset ;
 endmodule
 
 
-module shifter(a, b, y, op_shl, op_shr, op_asr) ;
+module shifter(a, b, y, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [2:0] b ;
-input op_shl, op_shr, op_asr ;
+input op_shl, op_shlo, op_shr, op_asr ;
 
 output [d_width-1:0] y ;
 
 wire [d_width-1:0] shl ;
+wire [d_width-1:0] shlo ;
 wire [d_width-1:0] shr ;
 wire [d_width-1:0] asr ;
 
@@ -79,11 +73,17 @@ assign shl = a << b ;
 assign shr = a >> b ;
 assign asr = a >>> b ;
 
+assign shlo = shl ; //TODO: Implement shlo
+
 assign y = op_shl ? shl : 
 	   op_shr ? shr :
+	   op_shlo ? shlo :
 		asr ;
 
 endmodule
+
+
+
 
 module subtractor(a, b, y) ;
 parameter d_width = 8 ;
@@ -132,7 +132,7 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op_or, op_and, op_neg, op_add, op_sub, op_shl, op_shr, op_asr) ;
+module alu(a, b, y, op_or, op_and, op_neg, op_add, op_sub, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
@@ -140,7 +140,7 @@ input [d_width-1:0] a ;
 input [d_width-1:0] b ;
 input op_or, op_and, op_neg ;
 input op_add, op_sub;
-input op_shl, op_shr, op_asr ;
+input op_shl, op_shlo, op_shr, op_asr ;
 
 output [d_width-1:0] y ;
 
@@ -151,7 +151,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[2:0], shift_out, op_shl, op_shr, op_asr) ;
+shifter theShifter(a, b[2:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
@@ -227,7 +227,7 @@ endmodule
 
 
 
-module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc) ;
+module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 15 ; // instruction width
@@ -250,6 +250,7 @@ input [i_width-1:0] imem_in ;
 //input [d_width-1:0] data_in;
 input [buffer_width-1:0] field_in ;
 input clk ;
+input [d_width-1:0] inputs [8] ;
 
 output [i_adr_width-1:0] pc ;
 output write_en ;
@@ -261,6 +262,7 @@ output [fieldp_width-1:0] fieldwp ;
 output [buffer_width-1:0] field_out ;
 
 output [d_width-1:0] acc ; //FIXME: remove --- debug
+output [d_width-1:0] outputs [8] ;
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -280,6 +282,7 @@ reg [buffer_width-1:0] field_out ;
 reg [d_width-1:0] field_value ; // after latching field in
 //reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
 
+reg [d_width-1:0] outputs [8] ;
 
 // instruction type selection
 
@@ -316,10 +319,10 @@ assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
 
 // i8 operations
-wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
-wire op_and, op_addm, op_subm, op_add, op_sub ;
-assign op_or = 	(opcode_i8 == 4'b0000) && i_t_i8 ;
-assign op_and =	(opcode_i8 == 4'b0001) && i_t_i8 ;
+wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stam, op_setsp, op_or ;
+wire op_and, op_addm, op_subm, op_add, op_sub, op_orm, op_andm ;
+assign op_or =	(opcode_i8 == 4'b0000) && i_t_i8 ;
+assign op_and =(opcode_i8 == 4'b0001) && i_t_i8 ;
 assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
 assign op_subm = (opcode_i8 == 4'b0011) && i_t_i8 ;
 assign op_add = (opcode_i8 == 4'b0100) && i_t_i8 ;
@@ -327,25 +330,27 @@ assign op_sub = (opcode_i8 == 4'b0101) && i_t_i8 ;
 assign op_ldi =(opcode_i8 == 4'b0110) && i_t_i8 ;
 assign op_ldm =	(opcode_i8 == 4'b0111) && i_t_i8 ;
 assign op_bf = (opcode_i8 == 4'b1000) && i_t_i8 ;
-assign op_call =(opcode_i8 == 4'b1001) && i_t_i8 ;
-assign op_stm =(opcode_i8 == 4'b1010) && i_t_i8 ;
-assign op_setsp = (opcode_i8 == 4'b1011) && i_t_i8 ;
-assign op_bb = (opcode_i8 == 4'b1100) && i_t_i8 ;
+assign op_bb =(opcode_i8 == 4'b1001) && i_t_i8 ;
+assign op_call =(opcode_i8 == 4'b1010) && i_t_i8 ;
+assign op_stam = (opcode_i8 == 4'b1011) && i_t_i8 ;
+assign op_setsp = (opcode_i8 == 4'b1100) && i_t_i8 ;
 
 
 // i3 operations
-wire op_in, op_shl, op_shr, op_asr, op_out, op_setb ;
+wire op_in, op_shlz, op_shrz, op_shlo, op_asr, op_out, op_setb ;
 wire op_ldsp, op_stasp, op_incsp, op_decsp ;
-assign op_in = 	(opcode_i3 == 4'b0000) && i_t_i3 ;
-assign op_shl =	(opcode_i3 == 4'b0001) && i_t_i3 ;
-//assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
-assign op_shr = (opcode_i3 == 4'b0011) && i_t_i3 ;
-//assign op_add = (opcode_i8 == 4'b0100) && i_t_i8 ;
-assign op_asr = (opcode_i3 == 4'b0101) && i_t_i3 ;
-
+assign op_shlz = (opcode_i3 == 4'b0000) && i_t_i3 ;
+assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
+assign op_shrz =(opcode_i3 == 4'b0010) && i_t_i3 ;
+assign op_asr = (opcode_i3 == 4'b0011) && i_t_i3 ;
+assign op_ldsp = (opcode_i3 == 4'b0100) && i_t_i3 ;
+assign op_ina = (opcode_i3 == 4'b0101) && i_t_i3 ;
+//
+//
 assign op_out = (opcode_i3 == 4'b1000) && i_t_i3 ;
 assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
 assign op_ldsp =(opcode_i3 == 4'b1010) && i_t_i3 ;
+//
 //
 assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
 assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
@@ -353,11 +358,12 @@ assign op_incsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 
 
 // i0 operations
-wire op_return, op_not, op_nop, op_ldba, op_stab ;
-assign op_return = (opcode_i0 == 4'b0000) && i_t_i0 ;
-assign op_not = (opcode_i0 == 4'b0001) && i_t_i0 ;
-assign op_nop = (opcode_i0 == 4'b0010) && i_t_i0 ;
-assign op_ldba = (opcode_i0 == 4'b0011) && i_t_i0 ;
+wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda ;
+assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
+assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
+assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
+assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
+assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
 
 
@@ -366,17 +372,17 @@ wire source_acc, source_dmem, source_field, source_imm, source_sp ;
 wire dest_acc, dest_dmem, dest_field, dest_sp ;
 
 assign source_field = field_op ;
-assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub | (op_stm && !field_op) ;
-assign source_dmem = op_ldm | op_addm | op_subm ;
+assign source_acc = op_or | op_and | op_addm | op_subm | op_add | op_sub | (op_stam && !field_op) ; // | op_not missing
+assign source_dmem = op_ldm | op_addm | op_subm | op_orm | op_andm | op_ldm ;
 assign source_sp = 1'b0 ;
 assign source_imm = ~(source_acc | source_dmem | source_sp) ;
 
-assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
+assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
-assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ;
+assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ; // FIXME: Update
 
 // dmem op
-assign dest_dmem = op_stm ;
+assign dest_dmem = op_stam ;
 
 
 
@@ -388,17 +394,17 @@ wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
 wire [d_width-1:0] field_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_neg, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shr, op_asr) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or, op_and, op_not, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shlo, op_shr, op_asr) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or, op_and, op_not, (op_add | op_addm), (op_sub | op_subm), op_shl, op_shlo, op_shr, op_asr) ;
 
-/*
+/*`
 assign alu_a = source_field ? field_in :
 	       source_sp ? sp : acc ;
 */
 wire [d_width-1:0] data_in ;
 wire [d_adr_width-1:0] data_adr ;
 
-assign data_adr = immediate_i8 ;
+assign data_adr = op_lda ? acc : immediate_i8 ;
 reg [d_adr_width-1:0] data_write_adr ; 
 reg data_write ;
 
@@ -431,8 +437,8 @@ wire [d_width-1:0] field_result ;
 
 //assign alu_result = field_op ? field_alu_y : acc_alu_y ;
 //assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
-assign acc_result = (source_imm) ? immediate_i8 : acc_alu_y ;
-assign field_result = (source_imm) ? immediate_i8 : field_alu_y ;
+assign acc_result = (source_imm) ? immediate_i8 : (op_in) ? inputs[immediate_i3] : (op_ldba) ? field_in : acc_alu_y ;
+assign field_result = (source_imm) ? immediate_i8 : (op_stab) ? acc : field_alu_y ;
 
 
 
@@ -447,8 +453,11 @@ assign pc_offset = immediate_i8 ;
 
 
 wire [i_adr_width-1:0 ] pc_next ;
+wire [i_adr_width-1:0 ] return_address ;
+assign return_address = call_stack[call_stack_pointer] ;
 
-program_counter thePC(pc, pc_offset, op_bf, op_bb, op_return, call_stack[sp], pc_next) ;
+
+program_counter thePC(pc, pc_offset, op_bf, op_bb, op_return, return_address, pc_next) ;
 
 
 task updatePC ;
@@ -484,9 +493,31 @@ always @(posedge clk)
 		if (dest_acc) acc <= acc_result ;
 		else if (dest_field) field_out <= field_result ;
 		else if (dest_dmem) begin 
-			data_out <= field_op ? field_result : acc_result ;
+			data_out <= acc_result ;
 			data_write <= 1'b1 ;
 			data_write_adr <= immediate_i8 ;
+		end
+
+		if (op_call)
+		begin
+			// FIXME: I think this arrangement gives -1 size to call
+			call_stack[call_stack_pointer+1] <= pc ;
+			call_stack_pointer <= call_stack_pointer + 1 ; 
+		end
+
+		if (op_setsp)
+		begin
+			sp <= immediate_i8 ;
+		end
+
+		if (op_out)
+		begin
+			outputs[immediate_i3] <= acc ;
+		end
+
+		if (op_setb)
+		begin
+			bufp <= immediate_i3 ;
 		end
 
 	end
