@@ -1,11 +1,12 @@
-module program_counter(pc, immediate_i8, op_bf, op_bb, op_return, ret_adr, pc_next) ;
+module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
 parameter i_adr_width = 10 ;
-input [i_adr_width-1:0] pc ;
-input [i_adr_width-1:0] ret_adr ;
-input signed [7:0] immediate_i8 ;
+input clk, reset ;
+input [i_adr_width-1:0] return_adr ;
+input [7:0] immediate_i8 ;
 input op_bf, op_bb, op_return ;
 
-output [i_adr_width-1:0] pc_next ;
+output [i_adr_width-1:0] pc ;
+reg [i_adr_width-1:0] pc ; // program counter
 
 wire [i_adr_width-1:0] pcInc ;
 wire [i_adr_width-1:0] pcAdd ;
@@ -13,11 +14,22 @@ wire [i_adr_width-1:0] pcSub ;
 
 pc_inc pcIncr(pc, pcInc) ;
 pc_add pcAddr(pc, immediate_i8, pcAdd) ;
-//pc_sub pcSubr(pc, immediate_i8, pcSub) ;
+pc_sub pcSubr(pc, immediate_i8, pcSub) ;
 
-assign pc_next = op_bf ? pcAdd :
-	//	 op_bb ? pcSub :
-		 op_return ? ret_adr : pcInc ;
+//wire [i_adr_width-1:0 ] pc_next ;
+//assign pc_next = (op_return) ? return_adr : (op_bf) ? pcAdd : pcInc ;
+
+always @(posedge clk)
+	begin
+		if (reset) pc <= 0 ;
+		else 
+		begin
+			if (op_return) pc <= return_adr ;
+			else if (op_bf) pc <= pcAdd ;
+			else if (op_bb) pc <= pcSub ;
+			else pc <= pcInc ;
+		end
+	end
 
 
 endmodule
@@ -152,8 +164,8 @@ wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
 shifter theShifter(a, b[2:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
-adder theAdder(a, b, add_out) ;
-subtractor theSub(a, b, sub_out) ;
+//adder theAdder(a, b, add_out) ;
+//subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
 ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
@@ -217,7 +229,7 @@ begin
 end
 
 // write
-always @(data_write or data_in)
+always @(data_write or data_write_adr or data_in)
 begin
 	if (data_write) begin
 	dmem[data_write_adr] <= data_in ;
@@ -229,7 +241,7 @@ endmodule
 
 
 
-module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc, inputs, outputs) ;
+module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in, field_in, clk, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -242,7 +254,7 @@ parameter fieldp_width = 5 ;
 parameter buffer_width = 8 ;
 parameter opcode_i8_width = 4 ; // width of opcode for i8 instruction
 parameter opcode_i3_width = 4 ; // width of opcode for i3 instruction
-parameter opcode_i0_width = 5 ; // width of opcode for i0 instruction
+parameter opcode_i0_width = 4 ; // width of opcode for i0 instruction
 parameter field_latency = 4 ; // cycle count between field read and write
 
 `define i3_opcode_prefix 4'b1111  // prefix string from i8 space
@@ -256,12 +268,10 @@ input clk ;
 input [d_width-1:0] inputs [8] ;
 
 output [i_adr_width-1:0] pc ;
-output write_en ;
-//output [d_adr_width-1:0] data_adr ;
-//output [d_width-1:0] data_out ;
 output [bufp_width-1:0] bufp ;
 output [fieldp_width-1:0] fieldp ;
 output [fieldp_width-1:0] fieldwp ;
+output field_write_en ;
 output [buffer_width-1:0] field_out ;
 
 output [d_width-1:0] acc ; //FIXME: remove --- debug
@@ -270,16 +280,15 @@ output [d_width-1:0] outputs [8] ;
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
 
-reg [i_adr_width-1:0] pc ; // program counter
 
 reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
-reg write_en ;
 reg [d_width-1:0] data_out ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
+reg field_write_en ;
 reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 
@@ -309,17 +318,19 @@ wire field_op ; // 0 := ACC op ; 1 := field op
 
 assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = imem_in ;
 
-assign opcode_i3 = imem_in[6:3] ; // TODO: parameterise
+assign opcode_i3 = imem_in[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
 assign immediate_i3 = imem_in[2:0] ; 
-assign opcode_i0 = imem_in[opcode_i0_width-1:0] ;
+assign opcode_i0 = imem_in[3:0] ;
 
 
 // determine the type of operation
-assign i_t_i8 = (opcode_i8 != `i3_opcode_prefix) ? 1'b1 : 1'b0 ;
-assign i_t_i3 = (!i_t_i8) && (opcode_i3 != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
-assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
+//assign i_t_i8 = (opcode_i8[3:0] != `i3_opcode_prefix) ? 1'b1 : 1'b0 ;
+//assign i_t_i3 = (!i_t_i8) && (opcode_i3[3:0] != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
+//assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
-
+assign i_t_i8 = (opcode_i8 != 4'b1111) ;
+assign i_t_i3 = ((opcode_i8 != 4'b1111) && (opcode_i3 != 4'b1111)) ;
+assign i_t_i0 = (!opcode_i8 && !opcode_i3) ;
 
 // i8 operations
 wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stam, op_setsp, op_or ;
@@ -339,6 +350,7 @@ assign op_stam = (opcode_i8 == 4'b1011) && i_t_i8 ;
 assign op_setsp = (opcode_i8 == 4'b1100) && i_t_i8 ;
 assign op_orm = (opcode_i8 == 4'b1101) && i_t_i8 ;
 assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
+// 4'b1111 is i3 prefix
 
 
 // i3 operations
@@ -360,7 +372,7 @@ assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
 //assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
 assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
 assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
-
+// 4'b1111 is i0 prefix
 
 // i0 operations
 wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
@@ -384,7 +396,7 @@ assign source_field = field_op ;
 //assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
 assign source_dmem = op_ldsp | op_lda | op_ldm | op_addm | op_subm | op_orm | op_andm ;
 assign source_sp = op_incsp | op_decsp ;
-assign source_imm = ~(source_dmem | source_sp) ;
+assign source_imm = op_ldi | op_setsp | op_setb ;
 
 //assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
@@ -415,13 +427,13 @@ assign alu_a = source_field ? field_in :
 	       source_sp ? sp : acc ;
 */
 wire [d_width-1:0] data_in ;
-wire [d_adr_width-1:0] data_adr ;
+wire [d_adr_width-1:0] data_read_adr ;
 
-assign data_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
+assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 reg [d_adr_width-1:0] data_write_adr ; 
 reg data_write ;
 
-data_mem dmem(data_adr, data_write_adr, data_write, data_out, data_in) ;
+data_mem dmem(data_read_adr, data_write_adr, data_write, data_out, data_in) ;
 
 
 
@@ -441,18 +453,13 @@ assign alu_op = i_t_i8 ? opcode_i8[2:0] :  // FIXME: align with reality
 		i_t_i3 ? opcode_i3[2:0] :
 		i_t_i0 ? opcode_i0[2:0] : {3{1'bx}} ;
 
-// should I put the immediates through the ALU too.
-// TODO: SP, IN, OUT
-//wire [d_width-1:0] result ; // final result of the operation
-//wire [d_width-1:0] alu_result ; // result from the parallel ALUs
 wire [d_width-1:0] acc_result ; 
 wire [d_width-1:0] field_result ; 
+wire [d_width-1:0] result ; 
 
-//assign alu_result = field_op ? field_alu_y : acc_alu_y ;
-//assign result = (source_imm) ? immediate_i8 : alu_result ; // all non-immediate load ops go through the alu
 assign acc_result = (source_imm) ? immediate_i8 : (op_in) ? inputs[immediate_i3] : (op_ldba) ? field_in : acc_alu_y ;
 assign field_result = (source_imm) ? immediate_i8 : (op_stab) ? acc : field_alu_y ;
-
+assign result = (field_op) ? field_result : acc_result ;
 
 
 
@@ -465,20 +472,15 @@ wire [d_width-1:0] pc_offset ;
 assign pc_offset = immediate_i8 ;
 
 
-wire [i_adr_width-1:0 ] pc_next ;
-wire [i_adr_width-1:0 ] return_address ;
-assign return_address = call_stack[call_stack_pointer] ;
+program_counter thePC(clk, reset, pc, pc_offset, op_bf, op_bb, op_return, acc) ;
 
-
-program_counter thePC(pc, pc_offset, op_bf, op_bb, op_return, return_address, pc_next) ;
-
-
+/*
 task updatePC ;
 begin
 	pc <= pc_next ;
 end
 endtask
-
+*/
 // END PC
 
 
@@ -512,24 +514,36 @@ endtask
 
 always @(posedge clk)
 	begin
-		updatePC() ;
+		//updatePC() ;
           	getField() ;
 		updateFieldp() ;
 		updateFieldwp() ;
 
 		if (dest_acc) acc <= acc_result ;
-		else if (dest_field) field_out <= field_result ;
-		else if (dest_dmem) begin 
-			data_out <= acc_result ;
-			data_write <= 1'b1 ;
-			data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
+
+		if (dest_field) begin
+			field_out <= field_result ;
+			field_write_en <= 1'b1 ;
 		end
+		else field_write_en <= 1'b0 ;
+		
+		if (dest_dmem) begin 
+		data_out <= result ;
+		data_write <= 1'b1 ;
+		data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
+		end
+		else data_write <= 1'b0 ;
 
 		if (op_call)
 		begin
 			// FIXME: I think this arrangement gives -1 size to call
 			call_stack[call_stack_pointer+1] <= pc ;
 			call_stack_pointer <= call_stack_pointer + 1 ; 
+		end
+
+		if (op_return)
+		begin
+			call_stack_pointer <= call_stack_pointer - 1 ;
 		end
 
 		if (op_setsp)
