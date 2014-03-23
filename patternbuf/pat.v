@@ -343,33 +343,36 @@ assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
 
 // i3 operations
 wire op_in, op_shl, op_shr, op_shlo, op_asr, op_out, op_setb ;
-wire op_ldsp, op_stasp, op_incsp, op_decsp ;
+wire op_incsp, op_decsp ;
 assign op_shl = (opcode_i3 == 4'b0000) && i_t_i3 ;
 assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
 assign op_shr =(opcode_i3 == 4'b0010) && i_t_i3 ;
 assign op_asr = (opcode_i3 == 4'b0011) && i_t_i3 ;
-assign op_ldsp = (opcode_i3 == 4'b0100) && i_t_i3 ;
-assign op_ina = (opcode_i3 == 4'b0101) && i_t_i3 ;
+//assign op_ldsp = (opcode_i3 == 4'b0100) && i_t_i3 ;
+assign op_in = (opcode_i3 == 4'b0101) && i_t_i3 ;
 //
 //
 assign op_out = (opcode_i3 == 4'b1000) && i_t_i3 ;
 assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
-assign op_ldsp =(opcode_i3 == 4'b1010) && i_t_i3 ;
+//assign op_ldsp =(opcode_i3 == 4'b1010) && i_t_i3 ;
 //
 //
-assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
+//assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
 assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
-assign op_incsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
+assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 
 
 // i0 operations
-wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda ;
+wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
+assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
+assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
+
 
 
 // operation type selection
@@ -390,7 +393,7 @@ assign dest_from_alu = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
 				  | op_ldsp | op_in | op_not | op_ldba | op_lda ) ;
 assign dest_acc = (!field_op && dest_from_alu) ;
 assign dest_field = (field_op && dest_from_alu) ; 
-assign dest_dmem = op_stam ;
+assign dest_dmem = op_stam | op_stsp ;
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
 
@@ -414,7 +417,7 @@ assign alu_a = source_field ? field_in :
 wire [d_width-1:0] data_in ;
 wire [d_adr_width-1:0] data_adr ;
 
-assign data_adr = op_lda ? acc : immediate_i8 ;
+assign data_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 reg [d_adr_width-1:0] data_write_adr ; 
 reg data_write ;
 
@@ -516,10 +519,10 @@ always @(posedge clk)
 
 		if (dest_acc) acc <= acc_result ;
 		else if (dest_field) field_out <= field_result ;
-			else if (dest_dmem) begin 
+		else if (dest_dmem) begin 
 			data_out <= acc_result ;
 			data_write <= 1'b1 ;
-			data_write_adr <= immediate_i8 ;
+			data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
 		end
 
 		if (op_call)
@@ -532,6 +535,16 @@ always @(posedge clk)
 		if (op_setsp)
 		begin
 			sp <= immediate_i8 ;
+		end
+		
+		if (op_incsp)
+		begin
+			sp <= sp + immediate_i3 ;	
+		end
+
+		if (op_decsp)
+		begin
+			sp <= sp - immediate_i3 ;
 		end
 
 		if (op_out)
