@@ -356,6 +356,7 @@ assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
 // i3 operations
 wire op_in, op_shl, op_shr, op_shlo, op_asr, op_out, op_setb ;
 wire op_incsp, op_decsp ;
+
 assign op_shl = (opcode_i3 == 4'b0000) && i_t_i3 ;
 assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
 assign op_shr =(opcode_i3 == 4'b0010) && i_t_i3 ;
@@ -376,14 +377,15 @@ assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 
 // i0 operations
 wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
+
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
-assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
+//assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
-assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
-assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
+//assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
+//assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
 
 
 
@@ -429,7 +431,8 @@ assign alu_a = source_field ? field_in :
 wire [d_width-1:0] data_in ;
 wire [d_adr_width-1:0] data_read_adr ;
 
-assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
+//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
+assign data_read_adr = immediate_i8 ; // FIXME: options removed
 reg [d_adr_width-1:0] data_write_adr ; 
 reg data_write ;
 
@@ -530,7 +533,8 @@ always @(posedge clk)
 		if (dest_dmem) begin 
 		data_out <= result ;
 		data_write <= 1'b1 ;
-		data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
+		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
+		data_write_adr <= immediate_i8 ; //FIXME: sp removed
 		end
 		else data_write <= 1'b0 ;
 
@@ -575,7 +579,7 @@ always @(posedge clk)
 
 always @(negedge clk)
 	begin
-		data_write <= 1'b0 ; // disable write
+		//data_write <= 1'b0 ; // disable write
 	end
 
 endmodule
