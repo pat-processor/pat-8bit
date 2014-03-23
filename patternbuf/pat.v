@@ -219,7 +219,9 @@ end
 // write
 always @(data_write or data_in)
 begin
+	if (data_write) begin
 	dmem[data_write_adr] <= data_in ;
+	end
 end
 
 endmodule
@@ -334,14 +336,16 @@ assign op_bb =(opcode_i8 == 4'b1001) && i_t_i8 ;
 assign op_call =(opcode_i8 == 4'b1010) && i_t_i8 ;
 assign op_stam = (opcode_i8 == 4'b1011) && i_t_i8 ;
 assign op_setsp = (opcode_i8 == 4'b1100) && i_t_i8 ;
+assign op_orm = (opcode_i8 == 4'b1101) && i_t_i8 ;
+assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
 
 
 // i3 operations
-wire op_in, op_shlz, op_shrz, op_shlo, op_asr, op_out, op_setb ;
+wire op_in, op_shl, op_shr, op_shlo, op_asr, op_out, op_setb ;
 wire op_ldsp, op_stasp, op_incsp, op_decsp ;
-assign op_shlz = (opcode_i3 == 4'b0000) && i_t_i3 ;
+assign op_shl = (opcode_i3 == 4'b0000) && i_t_i3 ;
 assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
-assign op_shrz =(opcode_i3 == 4'b0010) && i_t_i3 ;
+assign op_shr =(opcode_i3 == 4'b0010) && i_t_i3 ;
 assign op_asr = (opcode_i3 == 4'b0011) && i_t_i3 ;
 assign op_ldsp = (opcode_i3 == 4'b0100) && i_t_i3 ;
 assign op_ina = (opcode_i3 == 4'b0101) && i_t_i3 ;
@@ -372,12 +376,12 @@ wire source_acc, source_dmem, source_field, source_imm, source_sp ;
 wire dest_acc, dest_dmem, dest_field, dest_sp ;
 
 assign source_field = field_op ;
-assign source_acc = op_or | op_and | op_not | op_addm | op_subm | op_add | op_sub | (op_stam && !field_op) ;
-assign source_dmem = op_ldm | op_addm | op_subm | op_orm | op_andm | op_ldm ;
+assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
+assign source_dmem = op_ldm | op_addm | op_subm | op_orm | op_andm ;
 assign source_sp = 1'b0 ;
 assign source_imm = ~(source_acc | source_dmem | source_sp) ;
 
-assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
+assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
 assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ; // FIXME: Update
 
