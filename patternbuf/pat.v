@@ -232,7 +232,7 @@ endmodule
 module pat(reset, pc, write_en, bufp, fieldp, fieldwp, field_out, imem_in, field_in, clk, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
-parameter i_width = 15 ; // instruction width
+parameter i_width = 20 ; // instruction width
 parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter call_stack_size = 8 ; // max call depth supported
@@ -243,6 +243,7 @@ parameter buffer_width = 8 ;
 parameter opcode_i8_width = 4 ; // width of opcode for i8 instruction
 parameter opcode_i3_width = 4 ; // width of opcode for i3 instruction
 parameter opcode_i0_width = 5 ; // width of opcode for i0 instruction
+parameter field_latency = 4 ; // cycle count between field read and write
 
 `define i3_opcode_prefix 4'b1111  // prefix string from i8 space
 `define i0_opcode_prefix 4'b1111  // prefix string from i3 space
@@ -280,6 +281,7 @@ reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
 reg [buffer_width-1:0] field_out ;
+reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 
 reg [d_width-1:0] field_value ; // after latching field in
 //reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
@@ -306,7 +308,6 @@ wire [opcode_i0_width-1:0] opcode_i0 ;
 wire field_op ; // 0 := ACC op ; 1 := field op
 
 assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = imem_in ;
-//assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = 20'b00001_11_1_1000_01010101 ;
 
 assign opcode_i3 = imem_in[6:3] ; // TODO: parameterise
 assign immediate_i3 = imem_in[2:0] ; 
@@ -374,19 +375,24 @@ assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
 // operation type selection
 wire source_acc, source_dmem, source_field, source_imm, source_sp ;
 wire dest_acc, dest_dmem, dest_field, dest_sp ;
+wire dest_from_alu ; // aids readability
 
 assign source_field = field_op ;
-assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
-assign source_dmem = op_ldm | op_addm | op_subm | op_orm | op_andm ;
-assign source_sp = 1'b0 ;
-assign source_imm = ~(source_acc | source_dmem | source_sp) ;
+//assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
+assign source_dmem = op_ldsp | op_lda | op_ldm | op_addm | op_subm | op_orm | op_andm ;
+assign source_sp = op_incsp | op_decsp ;
+assign source_imm = ~(source_dmem | source_sp) ;
 
-assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
+//assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
-assign dest_field = (field_op) && (i_t_i8 && opcode_i8[3] == 0) | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && opcode_i3[0] == 0) ; // FIXME: Update
-
-// dmem op
+assign dest_from_alu = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
+                                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo
+				  | op_ldsp | op_in | op_not | op_ldba | op_lda ) ;
+assign dest_acc = (!field_op && dest_from_alu) ;
+assign dest_field = (field_op && dest_from_alu) ; 
 assign dest_dmem = op_stam ;
+assign dest_sp = op_setsp | op_incsp | op_decsp ;
+assign dest_pc = op_bf | op_bb | op_call | op_return ;
 
 
 
@@ -487,16 +493,30 @@ task updateFieldp() ;
 	end
 endtask
 
+task updateFieldwp() ;
+	begin
+		integer i ;
+		fieldp_history[0] <= fieldp ;
+		fieldwp <= fieldp_history[field_latency-1] ;
+
+		for (i = 1 ; i < (field_latency) ; i++)
+		begin
+			fieldp_history[i] <= fieldp_history[i-1] ; 
+		end
+	end
+endtask
+
 
 always @(posedge clk)
 	begin
 		updatePC() ;
           	getField() ;
 		updateFieldp() ;
+		updateFieldwp() ;
 
 		if (dest_acc) acc <= acc_result ;
 		else if (dest_field) field_out <= field_result ;
-		else if (dest_dmem) begin 
+			else if (dest_dmem) begin 
 			data_out <= acc_result ;
 			data_write <= 1'b1 ;
 			data_write_adr <= immediate_i8 ;
