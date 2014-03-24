@@ -194,11 +194,12 @@ assign y = op_add ? add_out :
 */
 endmodule
 
-module data_mem(data_read_adr, data_write_adr, data_write, data_in, data_out) ;
+module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
 parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter dmemsize = 256 ;
 
+input clk ;
 input [d_adr_width-1:0] data_read_adr ;
 input [d_adr_width-1:0] data_write_adr ;
 input data_write ;
@@ -212,6 +213,7 @@ wire [d_width-1:0] read_bus [dmemsize] ;
 genvar i,j ;
 
 // read decoder 
+
 for (i = 0 ; i < dmemsize ; i++)
 begin
 	assign read_bus[i] = (data_read_adr == i) ? dmem[i] : {d_width{1'b0}} ;
@@ -228,6 +230,7 @@ begin
 	assign data_out[i] = | read_bus_transformed[i] ;
 end
 
+/*
 // write
 always @(data_write or data_write_adr or data_in)
 begin
@@ -235,6 +238,15 @@ begin
 	dmem[data_write_adr] <= data_in ;
 	end
 end
+*/
+
+//assign data_out = dmem[data_read_adr] ;
+
+always @(posedge clk) begin
+	if (data_write)
+		dmem[data_write_adr] <= data_in ;
+	end
+
 
 endmodule
 
@@ -434,9 +446,10 @@ wire [d_adr_width-1:0] data_read_adr ;
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 assign data_read_adr = immediate_i8 ; // FIXME: options removed
 reg [d_adr_width-1:0] data_write_adr ; 
-reg data_write ;
+wire data_write ;
+assign data_write = dest_dmem ;
 
-data_mem dmem(data_read_adr, data_write_adr, data_write, data_out, data_in) ;
+data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
 
 
 
@@ -530,6 +543,7 @@ always @(posedge clk)
 		end
 		else field_write_en <= 1'b0 ;
 		
+/*
 		if (dest_dmem) begin 
 		data_out <= result ;
 		data_write <= 1'b1 ;
@@ -537,6 +551,7 @@ always @(posedge clk)
 		data_write_adr <= immediate_i8 ; //FIXME: sp removed
 		end
 		else data_write <= 1'b0 ;
+*/
 
 		if (op_call)
 		begin
