@@ -253,7 +253,7 @@ endmodule
 
 
 
-module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in, field_in, clk, acc, inputs, outputs) ;
+module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, clk, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -273,7 +273,7 @@ parameter field_latency = 4 ; // cycle count between field read and write
 `define i0_opcode_prefix 4'b1111  // prefix string from i3 space
 
 input reset ;
-input [i_width-1:0] imem_in ;
+input [i_width-1:0] imem_in_port ;
 //input [d_width-1:0] data_in;
 input [buffer_width-1:0] field_in ;
 input clk ;
@@ -288,6 +288,7 @@ output [buffer_width-1:0] field_out ;
 
 output [d_width-1:0] acc ; //FIXME: remove --- debug
 output [d_width-1:0] outputs [8] ;
+reg [i_width-1:0] imem_in ;
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -487,8 +488,10 @@ assign result = (field_op) ? field_result : acc_result ;
 wire [d_width-1:0] pc_offset ;
 assign pc_offset = immediate_i8 ;
 
+wire [i_adr_width-1:0] return_address ;
+assign return_address = call_stack[call_stack_pointer] ;
 
-program_counter thePC(clk, reset, pc, pc_offset, op_bf, op_bb, op_return, acc) ;
+program_counter thePC(clk, reset, pc, pc_offset, op_bf, op_bb, op_return, return_address) ;
 
 /*
 task updatePC ;
@@ -530,6 +533,7 @@ endtask
 
 always @(posedge clk)
 	begin
+		imem_in <= imem_in_port ;
 		//updatePC() ;
           	getField() ;
 		updateFieldp() ;
