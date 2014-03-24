@@ -406,8 +406,9 @@ assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
 
 // operation type selection
 wire source_acc, source_dmem, source_field, source_imm, source_sp ;
-wire dest_acc, dest_dmem, dest_field, dest_sp ;
+wire dest_acc, dest_dmem, dest_field, dest_sp, dest_pc ;
 wire dest_from_alu ; // aids readability
+wire alu_op ;
 
 assign source_field = field_op ;
 //assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
@@ -534,7 +535,8 @@ endtask
 
 function checkCondition ;
 	input [1:0] cond ;
-	input z, n ; 
+	input z ;
+	input n ; 
 	begin
 	wire result ;
 
