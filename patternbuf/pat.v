@@ -292,6 +292,8 @@ reg [i_width-1:0] imem_in ;
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
+reg z ; // zero flag
+reg n ; // neg flag
 
 
 reg [i_adr_width-1:0] call_stack [call_stack_size] ;
@@ -530,6 +532,18 @@ task updateFieldwp() ;
 	end
 endtask
 
+function checkCondition ;
+	input [1:0] cond ;
+	input z, n ; 
+	wire result ;
+
+	assign result = (cond == 2'b11) ? 1'b1 : // always
+			(cond == 2'b01) ? n : // negative
+			(cond == 2'b00) ? z : // zero
+					1'b1 ; // default
+
+	checkCondition = result ; 
+endfunction
 
 always @(posedge clk)
 	begin
@@ -539,7 +553,15 @@ always @(posedge clk)
 		updateFieldp() ;
 		updateFieldwp() ;
 
-		if (dest_acc) acc <= acc_result ;
+
+	if (checkCondition(cond, z, n))
+	begin
+
+		if (dest_acc) begin
+			 acc <= acc_result ;
+			 z <= (acc_result == 0) ;
+			 n <= (acc_result < 0) ;
+		end
 
 		if (dest_field) begin
 			field_out <= field_result ;
@@ -593,6 +615,8 @@ always @(posedge clk)
 		begin
 			bufp <= immediate_i3 ;
 		end
+
+	end
 
 	end
 
