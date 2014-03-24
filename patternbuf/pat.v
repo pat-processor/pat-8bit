@@ -535,6 +535,7 @@ endtask
 function checkCondition ;
 	input [1:0] cond ;
 	input z, n ; 
+	begin
 	wire result ;
 
 	assign result = (cond == 2'b11) ? 1'b1 : // always
@@ -543,6 +544,7 @@ function checkCondition ;
 					1'b1 ; // default
 
 	checkCondition = result ; 
+	end
 endfunction
 
 always @(posedge clk)
