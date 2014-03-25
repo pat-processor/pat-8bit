@@ -19,7 +19,6 @@ parameter field_latency = 4 ; // cycle count between field read and write
 
 input reset ;
 input [i_width-1:0] imem_in_port ;
-//input [d_width-1:0] data_in;
 input [buffer_width-1:0] field_in ;
 input clk ;
 input [d_width-1:0] inputs [8] ;
@@ -121,16 +120,13 @@ assign op_shl = (opcode_i3 == 4'b0000) && i_t_i3 ;
 assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
 assign op_shr =(opcode_i3 == 4'b0010) && i_t_i3 ;
 assign op_asr = (opcode_i3 == 4'b0011) && i_t_i3 ;
-//assign op_ldsp = (opcode_i3 == 4'b0100) && i_t_i3 ;
 assign op_in = (opcode_i3 == 4'b0101) && i_t_i3 ;
 //
 //
 assign op_out = (opcode_i3 == 4'b1000) && i_t_i3 ;
 assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
-//assign op_ldsp =(opcode_i3 == 4'b1010) && i_t_i3 ;
 //
 //
-//assign op_stasp = (opcode_i3 == 4'b1100) && i_t_i3 ;
 assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
 assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 // 4'b1111 is i0 prefix
@@ -144,8 +140,8 @@ assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
-//assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
-//assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
+assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
+assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
 
 
 
@@ -174,12 +170,12 @@ assign dest_pc = op_bf | op_bb | op_call | op_return ;
 
 
 // register for next stage of the pipeline
-reg [d_width-1:0] immediate_i8_regd ;
+reg [d_width-1:0] immediate_regd ;
 reg [1:0] condition_regd ;
 
 task reg_instr ;
 	begin
-		immediate_i8_regd <= i_t_i8 ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
+		immediate_regd <= i_t_i8 ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 		condition_regd <= condition ;
 	end
 endtask
@@ -282,8 +278,8 @@ assign alu_a = source_field ? field_in :
 wire [d_width-1:0] data_in ;
 wire [d_adr_width-1:0] data_read_adr ;
 
-assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
-//assign data_read_adr = immediate_i8 ; 
+//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
+assign data_read_adr = immediate_i8 ; 
 reg [d_adr_width-1:0] data_write_adr ; 
 reg data_write ;
 reg [d_width-1:0] data_regd ; 
@@ -295,7 +291,7 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 
 
 assign acc_alu_a = acc ;
-assign acc_alu_b = source_dmem_regd ? data_regd : immediate_i8_regd ;  
+assign acc_alu_b = source_dmem_regd ? data_regd : immediate_regd ;  
 
 assign field_alu_a = field_in ;
 assign field_alu_b = acc_alu_b ;
@@ -305,8 +301,8 @@ wire [d_width-1:0] acc_result ;
 wire [d_width-1:0] field_result ; 
 wire [d_width-1:0] result ; 
 
-assign acc_result = (source_imm_regd) ? immediate_i8_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
-assign field_result = (source_imm_regd) ? immediate_i8_regd : (op_stab_regd) ? acc : field_alu_y ;
+assign acc_result = (source_imm_regd) ? immediate_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
+assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
 assign result = (field_op_regd) ? field_result : acc_result ;
 
 
@@ -332,7 +328,6 @@ end
 endtask
 */
 // END PC
-
 
 // control tasks
 
@@ -382,6 +377,9 @@ endfunction
 always @(posedge clk)
 	begin
 		imem_in <= imem_in_port ;
+		reg_instr() ;
+		reg_ops() ;
+		reg_srcdest() ;
 		//updatePC() ;
           	getField() ;
 		updateFieldp() ;
@@ -396,7 +394,7 @@ always @(posedge clk)
 			 acc <= acc_result ;
 		//	 z <= (acc_result == 0) ; // z and n take extra time
 		//	 in ALU pipeline
-			// n <= (acc_result < 0) ;
+			// n <= (acc_result < 0) ;your_library.db
 		end
 
 		if (dest_field_regd) begin
@@ -410,7 +408,7 @@ always @(posedge clk)
 		data_out <= result ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_i8 ; //FIXME: sp removed
+		data_write_adr <= immediate_regd ; //FIXME: sp removed
 		end
 		else data_write <= 1'b0 ;
 
@@ -429,27 +427,27 @@ always @(posedge clk)
 
 		if (op_setsp_regd)
 		begin
-			sp <= immediate_i8 ;
+			sp <= immediate_regd ;
 		end
 		
 		if (op_incsp_regd)
 		begin
-			sp <= sp + immediate_i3 ;	
+			sp <= sp + immediate_regd ;	
 		end
 
 		if (op_decsp_regd)
 		begin
-			sp <= sp - immediate_i3 ;
+			sp <= sp - immediate_regd ;
 		end
 
 		if (op_out_regd)
 		begin
-			outputs[immediate_i3] <= acc ;
+			outputs[immediate_regd] <= acc ;
 		end
 
 		if (op_setb_regd)
 		begin
-			bufp <= immediate_i3 ;
+			bufp <= immediate_regd ;
 		end
 
 	end
@@ -658,9 +656,9 @@ assign y = op_add ? add_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 8 ; // data address space size
+parameter d_adr_width = 7 ; // data address space size
 parameter d_width = 8 ; // data width
-parameter dmemsize = 256 ;
+parameter dmemsize = 128 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;
@@ -675,7 +673,14 @@ wire [d_width-1:0] read_bus [dmemsize] ;
 
 genvar i,j ;
 
+
 assign data_out = dmem[data_read_adr] ;
+always @(posedge clk) begin
+	if (data_write)
+		dmem[data_write_adr] <= data_in ;
+	end
+
+
 // read decoder 
 /*
 for (i = 0 ; i < dmemsize ; i++)
@@ -704,12 +709,23 @@ begin
 	end
 end
 */
+/*
+wire write_enable [dmemsize] ;
+// write decoder
+for (i = 0 ; i < dmemsize ; i++)
+begin
+	assign write_enable[i] = (data_write && data_write_adr == i)  ;
+end
 
 
-always @(posedge clk) begin
-	if (data_write)
-		dmem[data_write_adr] <= data_in ;
-	end
+for (i = 0 ; i < dmemsize ; i++)
+begin
+always @(posedge clk)
+	if (write_enable[i]) dmem[i] <= data_in ;
+end
+*/
+
+
 
 
 endmodule
