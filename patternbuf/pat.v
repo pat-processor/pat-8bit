@@ -172,11 +172,17 @@ assign dest_pc = op_bf | op_bb | op_call | op_return ;
 // register for next stage of the pipeline
 reg [d_width-1:0] immediate_regd ;
 reg [1:0] condition_regd ;
+reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 
+wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
-		immediate_regd <= i_t_i8 ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
+		//immediate_regd <= i_t_i8 ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 		condition_regd <= condition ;
+//		field_src_imm <= (source_imm) ? immediate_
+		alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
+//assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
+//assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
 	end
 endtask
 
@@ -273,7 +279,6 @@ alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_
 assign alu_a = source_field ? field_in :
 	       source_sp ? sp : acc ;
 */
-wire [d_width-1:0] data_in ;
 wire [d_adr_width-1:0] data_read_adr ;
 
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
@@ -289,7 +294,8 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 
 
 assign acc_alu_a = acc ;
-assign acc_alu_b = source_dmem_regd ? data_regd : immediate_regd ;  
+//assign acc_alu_b = source_dmem_regd ? data_regd : immediate_regd ;  
+assign acc_alu_b = alu_b_regd ;
 
 assign field_alu_a = field_in ;
 assign field_alu_b = acc_alu_b ;
@@ -300,8 +306,12 @@ wire [d_width-1:0] field_result ;
 wire [d_width-1:0] result ; 
 
 //assign acc_result = (source_imm_regd) ? immediate_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
-assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
-assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
+//assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
+//assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
+
+assign acc_result = (source_imm_regd) ? alu_b_regd : acc_alu_y ;
+assign field_result = (source_imm_regd) ? alu_b_regd : field_alu_y ;
+
 assign result = (field_op_regd) ? field_result : acc_result ;
 
 
