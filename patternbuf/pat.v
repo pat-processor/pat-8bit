@@ -181,7 +181,7 @@ task reg_instr ;
 endtask
 
 reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stam_regd, op_setsp_regd, op_or_regd ;
-reg op_and_regd, op_addm_regd, op_subm_regd, op_add_regd, op_sub_regd, op_orm_regd, op_andm_regd ;
+reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_orm_regd, op_andm_regd ;
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_nop_regd, op_ldba_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
@@ -197,10 +197,8 @@ task reg_ops ;
 		op_setsp_regd <= op_setsp ;
 		op_or_regd <= op_or ;
 		op_and_regd <= op_and ;
-		op_addm_regd <= op_addm ;
-		op_subm_regd <= op_subm ;
-		op_add_regd <= op_add ;
-		op_sub_regd <= op_sub ;
+		op_add_addm_regd <= op_add | op_addm ;
+		op_sub_subm_regd <= op_sub | op_subm ;
 		op_orm_regd <= op_orm ;
 		op_andm_regd <= op_andm ;
 		op_in_regd <= op_in ;
@@ -267,8 +265,8 @@ wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
 wire [d_width-1:0] field_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, (op_add_regd | op_addm_regd), (op_sub_regd | op_subm_regd), op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, (op_add_regd | op_addm_regd), (op_sub_regd | op_subm_regd), op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 /*`
@@ -301,7 +299,8 @@ wire [d_width-1:0] acc_result ;
 wire [d_width-1:0] field_result ; 
 wire [d_width-1:0] result ; 
 
-assign acc_result = (source_imm_regd) ? immediate_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
+//assign acc_result = (source_imm_regd) ? immediate_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
+assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
 assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
 assign result = (field_op_regd) ? field_result : acc_result ;
 
