@@ -52,12 +52,19 @@ reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-//reg [d_width-1:0] dmem [16] ; // TODO: Select this memory or external
-
 reg [d_width-1:0] outputs [8] ;
 
-// instruction type selection
 
+// =========================================================
+// ============== PIPELINE STAGE 1 =========================
+// =========================================================
+
+
+
+
+// **** DECODE ******
+
+// instruction type selection
 wire i_t_i0 ;
 wire i_t_i3 ;
 wire i_t_i8 ;
@@ -87,8 +94,8 @@ assign opcode_i0 = imem_in[3:0] ;
 //assign i_t_i3 = (!i_t_i8) && (opcode_i3[3:0] != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
 //assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
-assign i_t_i8 = (opcode_i8 != 4'b1111) ;
-assign i_t_i3 = ((opcode_i8 != 4'b1111) && (opcode_i3 != 4'b1111)) ;
+assign i_t_i8 = (opcode_i8[3:0] != `i3_opcode_prefix) ;
+assign i_t_i3 = ((opcode_i8[3:0] == `i3_opcode_prefix) && (opcode_i3 != `i0_opcode_prefix)) ;
 assign i_t_i0 = (!opcode_i8 && !opcode_i3) ;
 
 // i8 operations
@@ -145,25 +152,25 @@ assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
 
 
 
-
 // operation type selection
-wire source_acc, source_dmem, source_field, source_imm, source_sp ;
-wire dest_acc, dest_dmem, dest_field, dest_sp, dest_pc ;
+wire source_acc, source_dmem, source_field, source_imm, source_sp, source_in ;
+wire dest_acc, dest_dmem, dest_field, dest_sp, dest_pc, dest_reg ;
 wire dest_from_alu ; // aids readability
 
 assign source_field = field_op ;
-//assign source_acc = op_or | op_and | op_not | op_add | op_sub | (op_stam && !field_op) ;
 assign source_dmem = op_ldsp | op_lda | op_ldm | op_addm | op_subm | op_orm | op_andm ;
 assign source_sp = op_incsp | op_decsp ;
 assign source_imm = op_ldi | op_setsp | op_setb ;
+assign source_in = op_in ;
 
 //assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
-assign dest_from_alu = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
+// Which ops are committed to a register (ACC or Field_Out)
+assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
                                   | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo
 				  | op_ldsp | op_in | op_not | op_ldba | op_lda ) ;
-assign dest_acc = (!field_op && dest_from_alu) ;
-assign dest_field = (field_op && dest_from_alu) ; 
+assign dest_acc = (!field_op && dest_reg) ;
+assign dest_field = (field_op && dest_reg) ; 
 assign dest_dmem = op_stam | op_stsp ;
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
@@ -177,12 +184,8 @@ reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
-		//immediate_regd <= i_t_i8 ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 		condition_regd <= condition ;
-//		field_src_imm <= (source_imm) ? immediate_
-		alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
-//assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
-//assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
+		alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: Add src_in when fast enough or move src_in to next pipeline stage
 	end
 endtask
 
@@ -228,40 +231,62 @@ task reg_ops ;
 endtask
 
 
-reg field_op_regd ;
 reg source_field_regd ;
 reg source_dmem_regd  ;
 reg source_sp_regd  ;
 reg source_imm_regd ;
+reg source_in_regd ;
 reg dest_acc_regd  ;
 reg dest_field_regd ;
 reg dest_dmem_regd ;
 reg dest_sp_regd ;
-reg dest_pc_regd ;
 
 task reg_srcdest ;
 	begin
-		field_op_regd <= field_op ;
 		source_field_regd <= source_field ;
-		source_dmem_regd <= source_field ;
-		source_sp_regd <= source_field ;
-		source_imm_regd <= source_field ;
+		source_dmem_regd <= source_dmem ;
+		source_sp_regd <= source_sp ;
+		source_imm_regd <= source_imm ;
+		source_in_regd <= source_in ;
 		dest_acc_regd <= dest_acc ;
 		dest_field_regd <= dest_field ;
 		dest_dmem_regd <= dest_dmem ;
 		dest_sp_regd <= dest_sp ;
-		dest_pc_regd <= dest_pc ;
 	end
 endtask
 
 
+// **** Data memory ****
+wire [d_adr_width-1:0] data_read_adr ;
+reg [d_adr_width-1:0] data_write_adr ; 
+reg data_write ;
+reg [d_width-1:0] data_regd ; 
+
+assign data_read_adr = (op_ldsp) ? sp : immediate_i8 ;  
+// TODO: Consider role of op_lda
+//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
+
+data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
+
+// * End data memory * 
 
 
+// **** Program counter ****
 
+wire [d_width-1:0] pc_immediate ;
+wire [i_adr_width-1:0] return_address ;
 
+//assign pc_immediate = immediate_i8 ;
+assign pc_immediate = 0 ;
+assign return_address = call_stack[call_stack_pointer] ;
 
+program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_call, op_return, return_address) ; 
 
+// * End program counter *
 
+// =====================================================================
+// ================== PIPELINE STAGE 2: ALU and commit  ================
+// =====================================================================
 
 // instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] acc_alu_a ;
@@ -271,30 +296,7 @@ wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
 wire [d_width-1:0] field_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-
-
-/*`
-assign alu_a = source_field ? field_in :
-	       source_sp ? sp : acc ;
-*/
-wire [d_adr_width-1:0] data_read_adr ;
-
-//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
-assign data_read_adr = immediate_i8 ; 
-reg [d_adr_width-1:0] data_write_adr ; 
-reg data_write ;
-reg [d_width-1:0] data_regd ; 
-//assign data_write = dest_dmem ;
-//assign data_write_adr = immediate_i8 ;
-
-data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
-
-
-
 assign acc_alu_a = acc ;
-//assign acc_alu_b = source_dmem_regd ? data_regd : immediate_regd ;  
 assign acc_alu_b = alu_b_regd ;
 
 assign field_alu_a = field_in ;
@@ -303,40 +305,19 @@ assign field_alu_b = acc_alu_b ;
 	
 wire [d_width-1:0] acc_result ; 
 wire [d_width-1:0] field_result ; 
-wire [d_width-1:0] result ; 
-
-//assign acc_result = (source_imm_regd) ? immediate_regd : (op_in_regd) ? inputs[immediate_i3] : (op_ldba_regd) ? field_in : acc_alu_y ;
-//assign acc_result = (source_imm_regd) ? immediate_regd : (op_ldba_regd) ? field_in : acc_alu_y ;
-//assign field_result = (source_imm_regd) ? immediate_regd : (op_stab_regd) ? acc : field_alu_y ;
 
 assign acc_result = (source_imm_regd) ? alu_b_regd : acc_alu_y ;
 assign field_result = (source_imm_regd) ? alu_b_regd : field_alu_y ;
 
-assign result = (field_op_regd) ? field_result : acc_result ;
 
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
 
 
-// Program counter 
 
-wire [d_width-1:0] pc_offset ;
-assign pc_offset = immediate_i8 ;
-
-wire [i_adr_width-1:0] return_address ;
-assign return_address = call_stack[call_stack_pointer] ;
-
-program_counter thePC(clk, reset, pc, pc_offset, op_bf, op_bb, op_return, return_address) ; // TODO work_out what should happen to the PC w.r.t. which cycle of the pipeline it should update in.
-
-/*
-task updatePC ;
-begin
-	pc <= pc_next ;
-end
-endtask
-*/
-// END PC
 
 // control tasks
 
@@ -389,7 +370,6 @@ always @(posedge clk)
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
-		//updatePC() ;
           	getField() ;
 		updateFieldp() ;
 		updateFieldwp() ;
@@ -414,10 +394,10 @@ always @(posedge clk)
 		
 
 		if (dest_dmem_regd) begin 
-		data_out <= result ;
+		data_out <= (source_field_regd) ? field_value : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_regd ; //FIXME: sp removed
+		data_write_adr <= immediate_regd ; //TODO: sp removed. Re-add if fast enough
 		end
 		else data_write <= 1'b0 ;
 
@@ -425,6 +405,8 @@ always @(posedge clk)
 		if (op_call_regd)
 		begin
 			// FIXME: I think this arrangement gives -1 size to call
+			// TODO: ensure that this stores the
+			// next-to-currently-active instruction
 			call_stack[call_stack_pointer+1] <= pc ;
 			call_stack_pointer <= call_stack_pointer + 1 ; 
 		end
@@ -441,12 +423,12 @@ always @(posedge clk)
 		
 		if (op_incsp_regd)
 		begin
-			sp <= sp + immediate_regd ;	
+			sp <= sp + immediate_regd[2:0] ;	
 		end
 
 		if (op_decsp_regd)
 		begin
-			sp <= sp - immediate_regd ;
+			sp <= sp - immediate_regd[2:0] ;
 		end
 
 		if (op_out_regd)
@@ -456,7 +438,7 @@ always @(posedge clk)
 
 		if (op_setb_regd)
 		begin
-			bufp <= immediate_regd ;
+			bufp <= immediate_regd[2:0] ;
 		end
 
 	end
@@ -468,12 +450,12 @@ always @(posedge clk)
 endmodule
 
 
-module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
+module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_call, op_return, return_adr) ;
 parameter i_adr_width = 10 ;
 input clk, reset ;
 input [i_adr_width-1:0] return_adr ;
 input [7:0] immediate_i8 ;
-input op_bf, op_bb, op_return ;
+input op_bf, op_bb, op_call, op_return ;
 
 output [i_adr_width-1:0] pc ;
 reg [i_adr_width-1:0] pc ; // program counter
@@ -486,18 +468,16 @@ pc_inc pcIncr(pc, pcInc) ;
 pc_add pcAddr(pc, immediate_i8, pcAdd) ;
 pc_sub pcSubr(pc, immediate_i8, pcSub) ;
 
-//wire [i_adr_width-1:0 ] pc_next ;
-//assign pc_next = (op_return) ? return_adr : (op_bf) ? pcAdd : pcInc ;
-
 always @(posedge clk)
 	begin
 		if (reset) pc <= 0 ;
 		else 
 		begin
+			if (op_call) pc <= immediate_i8 ;
 			if (op_return) pc <= return_adr ;
-			else if (op_bf) pc <= pcAdd ;
-			else if (op_bb) pc <= pcSub ;
-			else pc <= pcInc ;
+			if (op_bf) pc <= pcAdd ;
+			if (op_bb) pc <= pcSub ;
+			if (!op_call && !op_return && !op_bf && !op_bb) pc <= pcInc ;
 		end
 	end
 
