@@ -94,8 +94,8 @@ assign opcode_i0 = imem_in[3:0] ;
 //assign i_t_i3 = (!i_t_i8) && (opcode_i3[3:0] != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
 //assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
 
-assign i_t_i8 = (opcode_i8[3:0] != `i3_opcode_prefix) ;
-assign i_t_i3 = ((opcode_i8[3:0] == `i3_opcode_prefix) && (opcode_i3 != `i0_opcode_prefix)) ;
+assign i_t_i8 = (opcode_i8 != 4'b1111) ;
+assign i_t_i3 = ((opcode_i8 == 4'b1111) && (opcode_i3 != 4'b1111)) ;
 assign i_t_i0 = (!opcode_i8 && !opcode_i3) ;
 
 // i8 operations
@@ -184,6 +184,7 @@ reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
+		immediate_regd <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
 		condition_regd <= condition ;
 		alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: Add src_in when fast enough or move src_in to next pipeline stage
 	end
