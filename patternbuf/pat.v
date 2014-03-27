@@ -276,11 +276,10 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 wire [d_width-1:0] pc_immediate ;
 wire [i_adr_width-1:0] return_address ;
 
-//assign pc_immediate = immediate_i8 ;
-assign pc_immediate = 0 ;
-assign return_address = call_stack[call_stack_pointer] ;
+assign pc_immediate = immediate_i8 ;
+assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
 
-program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_call, op_return, return_address) ; 
+program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_return | op_call , return_address) ; 
 
 // * End program counter *
 
@@ -450,12 +449,12 @@ always @(posedge clk)
 endmodule
 
 
-module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_call, op_return, return_adr) ;
+module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
 parameter i_adr_width = 10 ;
 input clk, reset ;
 input [i_adr_width-1:0] return_adr ;
 input [7:0] immediate_i8 ;
-input op_bf, op_bb, op_call, op_return ;
+input op_bf, op_bb, op_return ;
 
 output [i_adr_width-1:0] pc ;
 reg [i_adr_width-1:0] pc ; // program counter
@@ -473,7 +472,7 @@ always @(posedge clk)
 		if (reset) pc <= 0 ;
 		else 
 		begin
-			if (op_call) pc <= immediate_i8 ;
+		//	if (op_call) pc <= immediate_i8 ;
 			if (op_return) pc <= return_adr ;
 			if (op_bf) pc <= pcAdd ;
 			if (op_bb) pc <= pcSub ;
