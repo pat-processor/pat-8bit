@@ -1,4 +1,4 @@
-module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, clk, acc, inputs, outputs) ;
+module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, clk, acc, inputs, outputs, dmem_in_port) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -22,6 +22,7 @@ input [i_width-1:0] imem_in_port ;
 input [buffer_width-1:0] field_in ;
 input clk ;
 input [d_width-1:0] inputs [8] ;
+input [4:0] dmem_in_port ;
 
 output [i_adr_width-1:0] pc ;
 output [bufp_width-1:0] bufp ;
@@ -33,6 +34,8 @@ output [buffer_width-1:0] field_out ;
 output [d_width-1:0] acc ; //FIXME: remove --- debug
 output [d_width-1:0] outputs [8] ;
 reg [i_width-1:0] imem_in ;
+reg [i_width-1:0] imem_in_2 ; // duplicate for FO optimisation
+reg [4:0] dmem_in ;
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -178,20 +181,25 @@ assign dest_pc = op_bf | op_bb | op_call | op_return ;
 
 // register for next stage of the pipeline
 reg [d_width-1:0] immediate_regd ;
+reg [d_width-1:0] immediate_regd_2 ;
 reg [1:0] condition_regd ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
+reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
 
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
 		immediate_regd <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
+		immediate_regd_2 <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
 		condition_regd <= condition ;
-		alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: Add src_in when fast enough or move src_in to next pipeline stage
+		//alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: Add src_in when fast enough or move src_in to next pipeline stage
+		alu_b_regd <= data_in ;
+		alu_b_regd_2 <= data_in ;
 	end
 endtask
 
 reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stam_regd, op_setsp_regd, op_or_regd ;
-reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_orm_regd, op_andm_regd ;
+reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_addm_regd_2, op_orm_regd, op_andm_regd ;
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_nop_regd, op_ldba_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
@@ -208,7 +216,9 @@ task reg_ops ;
 		op_or_regd <= op_or ;
 		op_and_regd <= op_and ;
 		op_add_addm_regd <= op_add | op_addm ;
+		op_add_addm_regd_2 <= op_add | op_addm ;
 		op_sub_subm_regd <= op_sub | op_subm ;
+		op_sub_subm_regd_2 <= op_sub | op_subm ;
 		op_orm_regd <= op_orm ;
 		op_andm_regd <= op_andm ;
 		op_in_regd <= op_in ;
@@ -263,7 +273,7 @@ reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
 reg [d_width-1:0] data_regd ; 
 
-assign data_read_adr = (op_ldsp) ? sp : immediate_i8 ;  
+assign data_read_adr = dmem_in ;  
 // TODO: Consider role of op_lda
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
@@ -277,7 +287,7 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 wire [d_width-1:0] pc_immediate ;
 wire [i_adr_width-1:0] return_address ;
 
-assign pc_immediate = immediate_i8 ;
+assign pc_immediate = imem_in_2[7:0] ; // immediate_i8 ;
 assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
 
 program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_return | op_call , return_address) ; 
@@ -300,7 +310,7 @@ assign acc_alu_a = acc ;
 assign acc_alu_b = alu_b_regd ;
 
 assign field_alu_a = field_in ;
-assign field_alu_b = acc_alu_b ;
+assign field_alu_b = alu_b_regd_2 ;
 
 	
 wire [d_width-1:0] acc_result ; 
@@ -311,7 +321,7 @@ assign field_result = (source_imm_regd) ? alu_b_regd : field_alu_y ;
 
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd_2, op_sub_subm_regd_2, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -367,6 +377,8 @@ endfunction
 always @(posedge clk)
 	begin
 		imem_in <= imem_in_port ;
+		imem_in_2 <= imem_in_port ;
+		dmem_in <= dmem_in_port ;
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
@@ -376,7 +388,7 @@ always @(posedge clk)
 		getData() ;
 
 
-	if (checkCondition(condition_regd, z, n))
+//	if (checkCondition(condition_regd, z, n)) //TODO: Restore conditionality
 	begin
 
 		if (dest_acc_regd) begin
@@ -397,7 +409,7 @@ always @(posedge clk)
 		data_out <= (source_field_regd) ? field_value : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_regd ; //TODO: sp removed. Re-add if fast enough
+		data_write_adr <= immediate_regd_2 ; //TODO: sp removed. Re-add if fast enough
 		end
 		else data_write <= 1'b0 ;
 
@@ -433,7 +445,8 @@ always @(posedge clk)
 
 		if (op_out_regd)
 		begin
-			outputs[immediate_regd] <= acc ;
+			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs?
+			outputs[0] <= acc ; 
 		end
 
 		if (op_setb_regd)
@@ -473,11 +486,11 @@ always @(posedge clk)
 		if (reset) pc <= 0 ;
 		else 
 		begin
-		//	if (op_call) pc <= immediate_i8 ;
-			if (op_return) pc <= return_adr ;
+		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
+		//	if (op_return) pc <= return_adr ; // FIXME add return back
 			if (op_bf) pc <= pcAdd ;
-			if (op_bb) pc <= pcSub ;
-			if (!op_call && !op_return && !op_bf && !op_bb) pc <= pcInc ;
+			else if (op_bb) pc <= pcSub ;
+			else pc <= pcInc ;
 		end
 	end
 
@@ -539,7 +552,7 @@ assign shlo = shl ; //TODO: Implement shlo
 
 assign y = op_shl ? shl : 
 	   op_shr ? shr :
-	   op_shlo ? shlo :
+//	   op_shlo ? shlo :
 		asr ;
 
 endmodule
@@ -623,7 +636,7 @@ negator theNeg(a, neg_out) ;
 // enhancement from Introduction to Logic Synthesis Using Verilog HDL
 // By Robert Bryan Reese, Mitchell Aaron Thornton
 // seems to be quicker than my solution //TODO: see if still true
-wire op_addsub = op_add | op_sub ;
+wire op_addsub = op_add | op_sub ; // TODO: op_addsub could be pushed to previous pipeline cycle to speed
 wire [d_width-1:0] addsubi ;
 wire [d_width-1:0] addsubout ;
 assign addsubi = op_sub ? ~b : b ;
@@ -632,9 +645,9 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 assign y = op_or ? or_out :
 	   op_and ? and_out :
 	   op_not ? neg_out :
-//	   op_add ? add_out :
-//	   op_sub ? sub_out : 
-	   op_addsub ? addsubout :
+	   op_add ? add_out :
+	   op_sub ? sub_out : 
+//	   op_addsub ? addsubout :
 	   shift_out ; // any of the three shifts
 
 
@@ -647,7 +660,7 @@ endmodule
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
 parameter d_adr_width = 7 ; // data address space size
 parameter d_width = 8 ; // data width
-parameter dmemsize = 128 ;
+parameter dmemsize = 16 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;

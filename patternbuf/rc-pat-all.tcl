@@ -3,7 +3,7 @@ set_attribute lib_search_path /home/simon/cadence/kits/H18/liberty/h18_1.8V
 set_attribute library {h18_CORELIB_HV_TYP.lib h18_IOLIB_HV_TYP.lib}
 
 set_attribute information_level 2
-set_attribute auto_super_thread false
+#set_attribute auto_super_thread false
 set_attribute hdl_track_filename_row_col true
 
 # trade size for speed in optimisation
@@ -73,8 +73,10 @@ set_attribute ungroup_ok false [find /designs/pat/ -instance thePC ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theSub ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theOR ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theAND ]
-#set_attribute ungroup_ok false [find /designs/pat/ -instance theNeg ]
+##set_attribute ungroup_ok false [find /designs/pat/ -instance theNeg ]
+#set_attribute preserve [find / -instance imem_in*]
 #synthesize -to_mapped pat
+set_attribute optimize_merge_flops false /
 synthesize -to_mapped -effort high pat
 
 #write -mapped > design_mapped.v
