@@ -28,6 +28,7 @@ set_attribute dp_postmap_upsize true
 #read_hdl -sv buffers.v
 #read_hdl -sv testbench2.v
 read_hdl -sv pat.v
+read_hdl -sv digital.v
 
 # Scan chain commands
 #set_attribute dft_scan_type muxed_scan /
@@ -38,7 +39,7 @@ read_hdl -sv pat.v
 #set_attribute lp_insert_clock_gating true /
 #set_attribute lp_clock_gating_min_flops 3 [find /designs -design testbench]
 
-elaborate pat
+elaborate digital
 #set_attribute lp_clock_gating_cell [find / -libcell LGN*] /designs/testbench
 
 #set_attribute lp_clock_gating_test_signal *ssel* /
@@ -49,7 +50,7 @@ set clock [define_clock -period 1000 -name clk [find / -port clk]]
 # set_max_delay -from <node> -to <node> <delay>
 #set_max_delay -from bufp -to current_buffer 1000
 #external_delay -output 2000 [find / -port ports_out/*]
-dc::current_design pat
+dc::current_design digital
 dc::set_time_unit -picoseconds
 #dc::set_load_unit -femtofarads
 #dc::set_output_delay 2000 -clock sclk [all_outputs]
@@ -68,7 +69,7 @@ dc::set_time_unit -picoseconds
 #set_attribute external_pin_cap 26.5488 {/designs/adder/ports_out/*}
 #set_attribute ungroup_ok false [find /designs/pat/ -instance accALU ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance fieldALU ]
-set_attribute ungroup_ok false [find /designs/pat/ -instance thePC ]
+set_attribute ungroup_ok false [find /designs/digital/ -instance thePC ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theAdder ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theSub ]
 #set_attribute ungroup_ok false [find /designs/pat/ -instance theOR ]
@@ -77,7 +78,9 @@ set_attribute ungroup_ok false [find /designs/pat/ -instance thePC ]
 #set_attribute preserve [find / -instance imem_in*]
 #synthesize -to_mapped pat
 set_attribute optimize_merge_flops false /
-synthesize -to_mapped -effort high pat
+#dc::set_multicycle_path -setup 2 -from thePC/pc -to instructions_reg
+dc::set_multicycle_path -setup 2 -from [find / -inst iBuffer/imem_read_adr_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
+synthesize -to_mapped -effort high digital
 
 #write -mapped > design_mapped.v
 #write_script > design_script.script

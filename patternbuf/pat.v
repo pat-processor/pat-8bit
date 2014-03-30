@@ -731,35 +731,36 @@ end
 endmodule
 
 // Level sensitive write signal; not registered
-module inst_mem (data_read_adr, data_write_adr, data_write, data_in, data_out) ;
+module inst_mem (imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 
 parameter i_buffer_size = 2 ;
-parameter i_mem_size = 32 ;
+parameter i_mem_size = 1024 ;
+parameter i_mem_lines =  512 ; //imem_size / i_buffer_size ;
 parameter i_adr_width = 10 ; // instruction address space size
-parameter i_width = 40 ; // instruction width
+parameter i_width = 20 ; // instruction width
 
-input [i_adr_width-1:0] data_read_adr ;
-input [i_adr_width-1:0] data_write_adr ;
-input data_write ;
-input [i_width-1:0] data_in [i_buffer_size] ;
+input [i_adr_width-1:0] imem_read_adr ;
+input [i_adr_width-1:0] imem_write_adr ;
+input imem_write ;
+input [(i_buffer_size*i_width)-1:0] imem_in ;
 
-output [i_width-1:0] data_out [i_buffer_size] ;
+output [(i_buffer_size*i_width)-1:0] imem_out ;
 
-reg [i_width-1:0] imem [i_buffer_size][i_mem_size] ;
+reg [(i_buffer_size*i_width)-1:0] imem [i_mem_lines] ;
 
-assign data_out = imem[data_read_adr] ;
+assign imem_out = imem[imem_read_adr] ;
 
-always @(data_write or data_write_adr or data_in)
+always @(imem_write or imem_write_adr or imem_in)
 begin
-	if (data_write) imem[data_write_adr] <= data_in ;
+	if (imem_write) imem[imem_write_adr] <= imem_in ;
 end
 /*
 genvar i,j ;
 // read decoder 
-tri [i_adr_width-1:0] data_out ;
+tri [i_adr_width-1:0] imem_out ;
 for (i = 0 ; i < i_mem_size ; i++)
 begin
-	assign data_out = (data_read_adr == i) ? imem[i] : {i_width{1'bz}} ;
+	assign imem_out = (imem_read_adr == i) ? imem[i] : {i_width{1'bz}} ;
 end
 */
 /*
@@ -771,7 +772,7 @@ begin
 	begin
 		assign read_bus_transformed[i][j] = read_bus[j][i] ;
 	end
-	assign data_out[i] = | read_bus_transformed[i] ;
+	assign imem_out[i] = | read_bus_transformed[i] ;
 end
 */
 
@@ -790,13 +791,14 @@ input clk, reset ;
 input [i_adr_width-1:0] instruction_address ;
 input [i_adr_width-1:0] imem_write_adr ;
 input imem_write ;
-input [i_width-1:0] imem_in ;
+input [(i_buffer_size*i_width)-1:0] imem_in ;
 
 output [i_width-1:0] instruction_out ;
-reg    [i_width-1:0] instruction_out ;
+reg [i_width-1:0] instruction_out ;
 
-reg  [i_adr_width-1:0] imem_read_adr ; // TODO: Does this need to be registered seperately to the PC?
-wire [i_width-1:0] imem_out [i_buffer_size] ;
+
+reg [i_adr_width-1:0] imem_read_adr ;
+wire [(i_buffer_size*i_width)-1:0] imem_out ;
 
 reg [i_width-1:0] i_buffer [i_buffer_size] ;
 reg inst_index ;
@@ -813,12 +815,14 @@ begin
 	if (reset) inst_index <= 0 ;
 	else begin
 		if (inst_index == 0) begin
-			i_buffer <= imem_out ;
-			imem_read_adr <= instruction_address[i_adr_width-1:i_mem_adr_start_bit] ;
+			i_buffer[0] <= imem_out[19:0] ;
+			i_buffer[1] <= imem_out[39:20] ;
+			imem_read_adr <= instruction_address[i_adr_width-1:i_mem_adr_start_bit] ; // TODO: check this can't just come from the pc
 		end
-	instruction_out <= i_buffer[inst_index] ;
+	instruction_out <= i_buffer[instruction_address[0]] ;
 	inst_index <= ~inst_index ;
 	end
 end
 	
-endmodule	
+	
+endmodule

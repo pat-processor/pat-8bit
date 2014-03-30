@@ -3,6 +3,7 @@ module digital(clk, reset, inputs, imem_write_adr, imem_write, imem_in, field_in
 parameter d_width = 8 ;
 parameter i_adr_width = 10 ;
 parameter i_width = 20 ; // instruction width
+parameter i_buffer_size = 2 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
 
@@ -10,7 +11,7 @@ input clk, reset ;
 input [d_width-1:0] inputs [8] ;
 input [i_adr_width-1:0] imem_write_adr ;
 input imem_write ;
-input [d_width-1:0] imem_in ;
+input [(i_buffer_size*i_width)-1:0] imem_in ;
 input [d_width-1:0] field_in ;
 
 output [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
