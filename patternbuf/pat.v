@@ -1,4 +1,4 @@
-module pat(reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, clk, acc, inputs, outputs, dmem_in_port) ;
+module pat(clk, reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -22,7 +22,6 @@ input [i_width-1:0] imem_in_port ;
 input [buffer_width-1:0] field_in ;
 input clk ;
 input [d_width-1:0] inputs [8] ;
-input [4:0] dmem_in_port ;
 
 output [i_adr_width-1:0] pc ;
 output [bufp_width-1:0] bufp ;
@@ -35,7 +34,6 @@ output [d_width-1:0] acc ; //FIXME: remove --- debug
 output [d_width-1:0] outputs [8] ;
 reg [i_width-1:0] imem_in ;
 reg [i_width-1:0] imem_in_2 ; // duplicate for FO optimisation
-reg [4:0] dmem_in ;
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -273,7 +271,7 @@ reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
 reg [d_width-1:0] data_regd ; 
 
-assign data_read_adr = dmem_in ;  
+assign data_read_adr = immediate_i8 ;  
 // TODO: Consider role of op_lda
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
@@ -378,7 +376,7 @@ always @(posedge clk)
 	begin
 		imem_in <= imem_in_port ;
 		imem_in_2 <= imem_in_port ;
-		dmem_in <= dmem_in_port ;
+		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
@@ -660,7 +658,7 @@ endmodule
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
 parameter d_adr_width = 7 ; // data address space size
 parameter d_width = 8 ; // data width
-parameter dmemsize = 16 ;
+parameter dmemsize = 32 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;
@@ -682,9 +680,9 @@ always @(posedge clk) begin
 		dmem[data_write_adr] <= data_in ;
 	end
 
-
-// read decoder 
 /*
+// read decoder 
+
 for (i = 0 ; i < dmemsize ; i++)
 begin
 	assign read_bus[i] = (data_read_adr == i) ? dmem[i] : {d_width{1'b0}} ;
@@ -732,7 +730,95 @@ end
 
 endmodule
 
+// Level sensitive write signal; not registered
+module inst_mem (data_read_adr, data_write_adr, data_write, data_in, data_out) ;
+
+parameter i_buffer_size = 2 ;
+parameter i_mem_size = 32 ;
+parameter i_adr_width = 10 ; // instruction address space size
+parameter i_width = 40 ; // instruction width
+
+input [i_adr_width-1:0] data_read_adr ;
+input [i_adr_width-1:0] data_write_adr ;
+input data_write ;
+input [i_width-1:0] data_in [i_buffer_size] ;
+
+output [i_width-1:0] data_out [i_buffer_size] ;
+
+reg [i_width-1:0] imem [i_buffer_size][i_mem_size] ;
+
+assign data_out = imem[data_read_adr] ;
+
+always @(data_write or data_write_adr or data_in)
+begin
+	if (data_write) imem[data_write_adr] <= data_in ;
+end
+/*
+genvar i,j ;
+// read decoder 
+tri [i_adr_width-1:0] data_out ;
+for (i = 0 ; i < i_mem_size ; i++)
+begin
+	assign data_out = (data_read_adr == i) ? imem[i] : {i_width{1'bz}} ;
+end
+*/
+/*
+wire [i_mems_size-1:0] read_bus_transformed [i_width] ;
+
+for (i = 0 ; i < i_width ; i++)
+begin
+	for (j = 0 ; j < i_mem_size ; j++)
+	begin
+		assign read_bus_transformed[i][j] = read_bus[j][i] ;
+	end
+	assign data_out[i] = | read_bus_transformed[i] ;
+end
+*/
 
 
+endmodule
+
+module instruction_buffer(clk, reset, instruction_address, instruction_out, imem_write_adr, imem_write, imem_in) ;
+
+parameter i_buffer_size = 2 ;
+parameter i_mem_adr_start_bit = 1 ; // first address bit of significance for imem
+parameter i_adr_width = 10 ;
+parameter i_width = 20 ; // instruction width
 
 
+input clk, reset ;
+input [i_adr_width-1:0] instruction_address ;
+input [i_adr_width-1:0] imem_write_adr ;
+input imem_write ;
+input [i_width-1:0] imem_in ;
+
+output [i_width-1:0] instruction_out ;
+reg    [i_width-1:0] instruction_out ;
+
+reg  [i_adr_width-1:0] imem_read_adr ; // TODO: Does this need to be registered seperately to the PC?
+wire [i_width-1:0] imem_out [i_buffer_size] ;
+
+reg [i_width-1:0] i_buffer [i_buffer_size] ;
+reg inst_index ;
+
+inst_mem iMem(imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
+
+/* Mechanism
+/  If the PC shows an even number, go and fetch that instruction line from memory.
+/  Then, load both into the instruction buffer
+/  and MUX the next instruction out of this.
+*/
+always @(posedge clk)
+begin
+	if (reset) inst_index <= 0 ;
+	else begin
+		if (inst_index == 0) begin
+			i_buffer <= imem_out ;
+			imem_read_adr <= instruction_address[i_adr_width-1:i_mem_adr_start_bit] ;
+		end
+	instruction_out <= i_buffer[inst_index] ;
+	inst_index <= ~inst_index ;
+	end
+end
+	
+endmodule	
