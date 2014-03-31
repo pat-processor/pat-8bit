@@ -1,4 +1,4 @@
-module pat(clk, reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, imem_in_port, field_in, acc, inputs, outputs) ;
+module pat(clk, reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, instruction_in, field_in, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -17,10 +17,10 @@ parameter field_latency = 4 ; // cycle count between field read and write
 `define i3_opcode_prefix 4'b1111  // prefix string from i8 space
 `define i0_opcode_prefix 4'b1111  // prefix string from i3 space
 
-input reset ;
-input [i_width-1:0] imem_in_port ;
-input [buffer_width-1:0] field_in ;
 input clk ;
+input reset ;
+input [i_width-1:0] instruction_in ;
+input [buffer_width-1:0] field_in ;
 input [d_width-1:0] inputs [8] ;
 
 output [i_adr_width-1:0] pc ;
@@ -190,7 +190,6 @@ task reg_instr ;
 		immediate_regd <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
 		immediate_regd_2 <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
 		condition_regd <= condition ;
-		//alu_b_regd <= (source_dmem) ? data_in : (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: Add src_in when fast enough or move src_in to next pipeline stage
 		alu_b_regd <= data_in ;
 		alu_b_regd_2 <= data_in ;
 	end
@@ -374,8 +373,8 @@ endfunction
 
 always @(posedge clk)
 	begin
-		imem_in <= imem_in_port ;
-		imem_in_2 <= imem_in_port ;
+		imem_in <= instruction_in ;
+		imem_in_2 <= instruction_in ;
 		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
@@ -656,15 +655,15 @@ assign y = op_add ? add_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 7 ; // data address space size
+parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter dmemsize = 32 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;
 input [d_adr_width-1:0] data_write_adr ;
-input data_write ;
 input [d_width-1:0] data_in ;
+input data_write ;
 
 output [d_width-1:0] data_out ;
 
@@ -711,7 +710,7 @@ end
 */
 /*
 wire write_enable [dmemsize] ;
-// write decoder
+ write decoder
 for (i = 0 ; i < dmemsize ; i++)
 begin
 	assign write_enable[i] = (data_write && data_write_adr == i)  ;
@@ -756,7 +755,7 @@ begin
 end
 /*
 genvar i,j ;
-// read decoder 
+read decoder 
 tri [i_adr_width-1:0] imem_out ;
 for (i = 0 ; i < i_mem_size ; i++)
 begin
