@@ -7,7 +7,7 @@ check_design
 create_clock -name "clk" -period 1 -waveform { 0 0.5  }  { clk  }
 set_multicycle_path 2 -from iBuffer/imem_read_adr* -to iBuffer/i_buffer_reg*
 # balance_buffer
-balance_registers
+# balance_registers
 set_dont_touch reset
 set_ideal_network reset
 compile_ultra
