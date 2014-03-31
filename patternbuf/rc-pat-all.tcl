@@ -27,8 +27,8 @@ set_attribute dp_postmap_upsize true
 #read_hdl -sv patternbuf.v
 #read_hdl -sv buffers.v
 #read_hdl -sv testbench2.v
-read_hdl -sv pat.v
-read_hdl -sv digital.v
+read_hdl -sv pat.sv
+read_hdl -sv digital.sv
 
 # Scan chain commands
 #set_attribute dft_scan_type muxed_scan /
