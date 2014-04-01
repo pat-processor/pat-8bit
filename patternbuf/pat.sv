@@ -362,6 +362,13 @@ task getData() ;
 	end
 endtask
 
+task updateFlags() ;
+	begin
+		z <= (acc == 0) ;
+		n <= (acc < 0) ;
+	end
+endtask
+
 function checkCondition ;
 	input [1:0] cond ;
 	input z ;
@@ -387,9 +394,10 @@ always @(posedge clk)
 		updateFieldp() ;
 		updateFieldwp() ;
 		getData() ;
+		updateFlags() ;
 
 
-//	if (checkCondition(condition_regd, z, n)) //TODO: Restore conditionality
+	if (checkCondition(condition_regd, z, n)) //TODO: Restore conditionality
 	begin
 
 		if (dest_acc_regd) begin
