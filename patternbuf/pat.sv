@@ -557,17 +557,15 @@ assign shl = a << b ;
 assign shr = a >> b ;
 assign asr = a >>> b ;
 
-case (b)
-	0 : assign shlo = a ;
-	1 : assign shlo = {a << 1, {1{1'b1}}} ;
-	2 : assign shlo = {a << 2, {2{1'b1}}} ;
-	3 : assign shlo = {a << 3, {3{1'b1}}} ;
-	4 : assign shlo = {a << 4, {4{1'b1}}} ;
-	5 : assign shlo = {a << 5, {5{1'b1}}} ;
-	6 : assign shlo = {a << 6, {6{1'b1}}} ;
-	7 : assign shlo = {a << 7, {7{1'b1}}} ;
-	default : assign shlo = a ;
-endcase
+assign shlo =
+	(b == 0) ? a :
+	(b == 1) ? {a << 1, {1{1'b1}}} :
+	(b == 2) ? {a << 2, {2{1'b1}}} :
+	(b == 3) ? {a << 3, {3{1'b1}}} :
+	(b == 4) ? {a << 4, {4{1'b1}}} :
+	(b == 5) ? {a << 5, {5{1'b1}}} :
+	(b == 6) ? {a << 6, {6{1'b1}}} :
+	{a << 7, {7{1'b1}}} ; // b == 7 case
 
 
 assign y = op_shl ? shl : 
