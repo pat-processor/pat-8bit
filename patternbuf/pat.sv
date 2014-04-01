@@ -557,11 +557,22 @@ assign shl = a << b ;
 assign shr = a >> b ;
 assign asr = a >>> b ;
 
-assign shlo = shl ; //TODO: Implement shlo
+case (b)
+	0 : assign shlo = a ;
+	1 : assign shlo = {a << 1, {1{1'b1}}} ;
+	2 : assign shlo = {a << 2, {2{1'b1}}} ;
+	3 : assign shlo = {a << 3, {3{1'b1}}} ;
+	4 : assign shlo = {a << 4, {4{1'b1}}} ;
+	5 : assign shlo = {a << 5, {5{1'b1}}} ;
+	6 : assign shlo = {a << 6, {6{1'b1}}} ;
+	7 : assign shlo = {a << 7, {7{1'b1}}} ;
+	default : assign shlo = a ;
+endcase
+
 
 assign y = op_shl ? shl : 
 	   op_shr ? shr :
-//	   op_shlo ? shlo :
+	   op_shlo ? shlo :
 		asr ;
 
 endmodule
