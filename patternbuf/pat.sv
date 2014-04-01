@@ -35,7 +35,6 @@ output [d_width-1:0] outputs ;
 reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_2 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
-reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -87,8 +86,8 @@ wire field_op ; // 0 := ACC op ; 1 := field op
 assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
 
 assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
+assign opcode_i0 = instruction_3[3:0] ;
 assign immediate_i3 = instruction_1[2:0] ; 
-assign opcode_i0 = instruction_4[3:0] ;
 
 
 // determine the type of operation
@@ -147,10 +146,10 @@ assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
 //assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
-assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
-assign op_stab = (opcode_i0 == 4'b0100) && i_t_i0 ;
-assign op_ldsp = (opcode_i0 == 4'b0110) && i_t_i0 ;
-assign op_stsp = (opcode_i0 == 4'b0111) && i_t_i0 ;
+assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
+assign op_stsp = (opcode_i0 == 4'b1110) && i_t_i0 ;
+assign op_stab = (opcode_i0 == 4'b1000) && i_t_i0 ;
+assign op_ldsp = (opcode_i0 == 4'b1010) && i_t_i0 ;
 
 
 
@@ -185,14 +184,17 @@ reg [1:0] condition_regd ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
 
+wire [d_width-1:0] immediate_i_all ;
+assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
+
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
-		immediate_regd <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
-		immediate_regd_2 <= (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ; // TODO: de-duplicate with below (but may still be advantageous to leave for fan-out reasons)
+		immediate_regd <= immediate_i_all ; // Duplicated to aid fan-out. DC will merge if more optimal
+		immediate_regd_2 <= immediate_i_all ; 
 		condition_regd <= condition ;
-		alu_b_regd <= data_in ;
-		alu_b_regd_2 <= data_in ;
+		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ;
+		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
 	end
 endtask
 
@@ -314,8 +316,8 @@ assign field_alu_b = alu_b_regd_2 ;
 wire [d_width-1:0] acc_result ; 
 wire [d_width-1:0] field_result ; 
 
-assign acc_result = (source_imm_regd) ? alu_b_regd : acc_alu_y ;
-assign field_result = (source_imm_regd) ? alu_b_regd : field_alu_y ;
+assign acc_result = (source_imm_regd) ? alu_b_regd : (source_in_regd) ? inputs : acc_alu_y ;
+assign field_result = (source_imm_regd) ? alu_b_regd_2 : (source_in_regd) ? inputs : field_alu_y ;
 
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
@@ -377,7 +379,6 @@ always @(posedge clk)
 		instruction_1 <= instruction_in ;
 		instruction_2 <= instruction_in ;
 		instruction_3 <= instruction_in ;
-		instruction_4 <= instruction_in ;
 		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
@@ -393,7 +394,7 @@ always @(posedge clk)
 
 		if (dest_acc_regd) begin
 			 acc <= acc_result ;
-		//	 z <= (acc_result == 0) ; // z and n take extra time
+		//	 z <= (acc_result == 0) ; // z and n take extra tim0
 		//	 in ALU pipeline
 			// n <= (acc_result < 0) ;your_library.db
 		end
