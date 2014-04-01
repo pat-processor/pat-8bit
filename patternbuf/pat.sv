@@ -21,7 +21,7 @@ input clk ;
 input reset ;
 input [i_width-1:0] instruction_in ;
 input [buffer_width-1:0] field_in ;
-input [d_width-1:0] inputs [8] ;
+input [d_width-1:0] inputs ;
 
 output [i_adr_width-1:0] pc ;
 output [bufp_width-1:0] bufp ;
@@ -31,9 +31,11 @@ output field_write_en ;
 output [buffer_width-1:0] field_out ;
 
 output [d_width-1:0] acc ; //FIXME: remove --- debug
-output [d_width-1:0] outputs [8] ;
-reg [i_width-1:0] imem_in ;
-reg [i_width-1:0] imem_in_2 ; // duplicate for FO optimisation
+output [d_width-1:0] outputs ;
+reg [i_width-1:0] instruction_1 ;
+reg [i_width-1:0] instruction_2 ; // duplicate for FO optimisation
+reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
+reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -53,7 +55,7 @@ reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 
 reg [d_width-1:0] field_value ; // after latching field in
-reg [d_width-1:0] outputs [8] ;
+reg [d_width-1:0] outputs ;
 
 
 // =========================================================
@@ -75,7 +77,6 @@ wire i_t_i8 ;
 wire [7:0] immediate_i8 ;
 wire [2:0] immediate_i3 ;
 wire [fieldp_width-1:0] fieldp_next ;
-wire [i_width-1:0] instruction ;
 wire [1:0] condition ;
 wire [opcode_i8_width-1:0] opcode_i8 ;
 wire [opcode_i3_width-1:0] opcode_i3 ;
@@ -83,11 +84,11 @@ wire [opcode_i0_width-1:0] opcode_i0 ;
 
 wire field_op ; // 0 := ACC op ; 1 := field op
 
-assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = imem_in ;
+assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
 
-assign opcode_i3 = imem_in[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
-assign immediate_i3 = imem_in[2:0] ; 
-assign opcode_i0 = imem_in[3:0] ;
+assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
+assign immediate_i3 = instruction_1[2:0] ; 
+assign opcode_i0 = instruction_4[3:0] ;
 
 
 // determine the type of operation
@@ -284,7 +285,7 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 wire [d_width-1:0] pc_immediate ;
 wire [i_adr_width-1:0] return_address ;
 
-assign pc_immediate = imem_in_2[7:0] ; // immediate_i8 ;
+assign pc_immediate = instruction_2[7:0] ; // immediate_i8 ;
 assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
 
 program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_return | op_call , return_address) ; 
@@ -373,8 +374,10 @@ endfunction
 
 always @(posedge clk)
 	begin
-		imem_in <= instruction_in ;
-		imem_in_2 <= instruction_in ;
+		instruction_1 <= instruction_in ;
+		instruction_2 <= instruction_in ;
+		instruction_3 <= instruction_in ;
+		instruction_4 <= instruction_in ;
 		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
@@ -442,8 +445,8 @@ always @(posedge clk)
 
 		if (op_out_regd)
 		begin
-			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs?
-			outputs[0] <= acc ; 
+			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
+			outputs <= acc ; 
 		end
 
 		if (op_setb_regd)
