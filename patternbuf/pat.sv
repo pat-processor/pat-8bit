@@ -676,7 +676,7 @@ assign y = op_add ? add_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 5 ; // data address space size
+parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter dmemsize = 32 ;
 
@@ -756,7 +756,7 @@ module inst_mem (imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 parameter i_buffer_size = 2 ;
 parameter i_mem_size = 1024 ;
 parameter i_mem_lines =  512 ; //imem_size / i_buffer_size ;
-parameter i_adr_width = 9 ; // instruction address space size
+parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
 
 input [i_adr_width-1:0] imem_read_adr ;

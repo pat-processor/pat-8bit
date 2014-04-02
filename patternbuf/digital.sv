@@ -1,7 +1,7 @@
 module digital(clk, reset, inputs, imem_write_adr, imem_write, imem_in, outputs, acc_out) ;
 
 parameter d_width = 8 ;
-parameter i_adr_width = 9 ;
+parameter i_adr_width = 10 ;
 parameter i_width = 20 ; // instruction width
 parameter i_buffer_size = 2 ;
 parameter bufp_width = 3 ;
@@ -31,6 +31,8 @@ assign buf_fieldwp = {bufp, fieldwp} ;
 wire [i_adr_width-1:0] pc ;
 wire [i_width-1:0] instruction ;
 
+
+//inst_mem iMem(pc, imem_write_adr, imem_write, imem_in, instruction) ;
 instruction_buffer iBuffer(clk, reset, pc, instruction, imem_write_adr, imem_write, imem_in) ;
 
 patternbuffer dummyPatBuf(buf_fieldp, buf_fieldwp, field_write_en, field_in, field_out) ;
