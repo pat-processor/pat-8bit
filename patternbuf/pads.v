@@ -2,11 +2,11 @@ module pads (pad_clock, pad_sclk, pad_reset, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7) ;
 
-input pad_clock ;
-input pad_sclk ;
-input pad_reset ;
-input pad_modesel_0 ;
-input pad_modesel_1 ;
+inout pad_clock ;
+inout pad_sclk ;
+inout pad_reset ;
+inout pad_modesel_0 ;
+inout pad_modesel_1 ;
 
 inout pad_io_a0 ;
 inout pad_io_a1 ;
