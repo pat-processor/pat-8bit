@@ -35,6 +35,7 @@ output [d_width-1:0] outputs ;
 reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_2 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
+reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
@@ -273,7 +274,7 @@ reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
 reg [d_width-1:0] data_regd ; 
 
-assign data_read_adr = immediate_i8 ;  
+assign data_read_adr = instruction_4[7:0] ; // immediate_i8 ;  
 // TODO: Consider role of op_lda
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
@@ -386,6 +387,7 @@ always @(posedge clk)
 		instruction_1 <= instruction_in ;
 		instruction_2 <= instruction_in ;
 		instruction_3 <= instruction_in ;
+		instruction_4 <= instruction_in ;
 		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
