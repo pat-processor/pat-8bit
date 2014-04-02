@@ -31,6 +31,8 @@ assign buf_fieldwp = {bufp, fieldwp} ;
 wire [i_adr_width-1:0] pc ;
 wire [i_width-1:0] instruction ;
 
+
+//inst_mem iMem(pc, imem_write_adr, imem_write, imem_in, instruction) ;
 instruction_buffer iBuffer(clk, reset, pc, instruction, imem_write_adr, imem_write, imem_in) ;
 
 patternbuffer dummyPatBuf(buf_fieldp, buf_fieldwp, field_write_en, field_in, field_out) ;
