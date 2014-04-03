@@ -98,7 +98,7 @@ assign immediate_i3 = instruction_1[2:0] ;
 
 assign i_t_i8 = (opcode_i8 != 4'b1111) ;
 assign i_t_i3 = ((opcode_i8 == 4'b1111) && (opcode_i3 != 4'b1111)) ;
-assign i_t_i0 = (!opcode_i8 && !opcode_i3) ;
+assign i_t_i0 = (!i_t_i8 && !i_t_i3) ;
 
 // i8 operations
 wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stam, op_setsp, op_or ;
@@ -155,12 +155,11 @@ assign op_ldsp = (opcode_i0 == 4'b1010) && i_t_i0 ;
 
 
 // operation type selection
-wire source_acc, source_dmem, source_field, source_imm, source_sp, source_in ;
+wire source_dmem, source_field, source_imm, source_sp, source_in ;
 wire dest_acc, dest_dmem, dest_field, dest_sp, dest_pc, dest_reg ;
-wire dest_from_alu ; // aids readability
 
 assign source_field = field_op ;
-assign source_dmem = op_ldsp | op_lda | op_ldm | op_addm | op_subm | op_orm | op_andm ;
+assign source_dmem = op_ldsp | op_ldm | op_addm | op_subm | op_orm | op_andm ; // TODO: | op_lda if re-added
 assign source_sp = op_incsp | op_decsp ;
 assign source_imm = op_ldi | op_setsp | op_setb ;
 assign source_in = op_in ;
