@@ -39,8 +39,8 @@ reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
-reg z ; // zero flag
-reg n ; // neg flag
+//reg z ; // zero flag
+//reg n ; // neg flag
 
 
 reg [i_adr_width-1:0] call_stack [call_stack_size] ;
@@ -362,13 +362,14 @@ task getData() ;
 	end
 endtask
 
+/*
 task updateFlags() ;
 	begin
 		z <= (acc == 0) ;
 		n <= (acc[d_width-1] == 1) ;
 	end
 endtask
-
+*/
 function checkCondition ;
 	input [1:0] cond ;
 	input z ;
@@ -380,6 +381,11 @@ function checkCondition ;
 					1'b1 ; // default
 	end
 endfunction
+
+wire z ; 
+wire n ;
+assign z = (acc == 0) ;
+assign n = (acc[7] == 1) ;
 
 always @(posedge clk)
 	begin
@@ -395,7 +401,8 @@ always @(posedge clk)
 		updateFieldp() ;
 		updateFieldwp() ;
 		getData() ;
-		updateFlags() ;
+		//updateFlags() ; // Having this regd means two cycles of
+		//match, which gives unexpected execution results.
 
 
 	if (checkCondition(condition_regd, z, n)) //TODO: Restore conditionality
