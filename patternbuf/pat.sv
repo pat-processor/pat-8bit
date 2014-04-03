@@ -365,7 +365,7 @@ endtask
 task updateFlags() ;
 	begin
 		z <= (acc == 0) ;
-		n <= (acc < 0) ;
+		n <= (acc[d_width-1] == 1) ;
 	end
 endtask
 
