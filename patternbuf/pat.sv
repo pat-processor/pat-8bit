@@ -39,8 +39,8 @@ reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
 reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
-//reg z ; // zero flag
-//reg n ; // neg flag
+reg z ; // zero flag
+reg n ; // neg flag
 
 
 reg [i_adr_width-1:0] call_stack [call_stack_size] ;
@@ -141,11 +141,12 @@ assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 // 4'b1111 is i0 prefix
 
 // i0 operations
-wire op_return, op_not, op_nop, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
+wire op_return, op_not, op_nop, op_test, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
-//assign op_lda = (opcode_i0 == 4'b0010) && i_t_i0 ;
+assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
+//assign op_lda = (opcode_i0 == 4'b0100) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
 assign op_stsp = (opcode_i0 == 4'b1110) && i_t_i0 ;
@@ -202,7 +203,7 @@ reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stam_regd
 reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_addm_regd_2, op_orm_regd, op_andm_regd ;
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
-reg op_return_regd, op_not_regd, op_nop_regd, op_ldba_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
+reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_ldba_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 
 task reg_ops ;
 	begin
@@ -233,6 +234,7 @@ task reg_ops ;
 		op_return_regd <= op_return ;
 		op_not_regd <= op_not ;
 		op_nop_regd <= op_nop ;
+		op_test_regd <= op_test ;
 		op_ldba_regd <= op_ldba ;
 		op_stab_regd <= op_stab ;
 		op_lda_regd <= op_lda ;
@@ -362,14 +364,13 @@ task getData() ;
 	end
 endtask
 
-/*
 task updateFlags() ;
 	begin
 		z <= (acc == 0) ;
 		n <= (acc[d_width-1] == 1) ;
 	end
 endtask
-*/
+
 function checkCondition ;
 	input [1:0] cond ;
 	input z ;
@@ -381,11 +382,6 @@ function checkCondition ;
 					1'b1 ; // default
 	end
 endfunction
-
-wire z ; 
-wire n ;
-assign z = (acc == 0) ;
-assign n = (acc[7] == 1) ;
 
 always @(posedge clk)
 	begin
@@ -429,6 +425,8 @@ always @(posedge clk)
 		data_write_adr <= immediate_regd_2 ; //TODO: sp removed. Re-add if fast enough
 		end
 		else data_write <= 1'b0 ;
+
+		if (op_test) updateFlags() ;
 
 
 		if (op_call_regd)
