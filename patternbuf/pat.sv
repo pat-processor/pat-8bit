@@ -1,4 +1,5 @@
-module pat(clk, reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, instruction_in, field_in, acc, inputs, outputs) ;
+`define INSTR_NOP 20'h06ff5
+module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en, field_out, instruction_in, field_in, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -24,6 +25,7 @@ input [buffer_width-1:0] field_in ;
 input [d_width-1:0] inputs ;
 
 output [i_adr_width-1:0] pc ;
+output jump ;
 output [bufp_width-1:0] bufp ;
 output [fieldp_width-1:0] fieldp ;
 output [fieldp_width-1:0] fieldwp ;
@@ -176,7 +178,7 @@ assign dest_field = (field_op && dest_reg) ;
 assign dest_dmem = op_stam | op_stsp ;
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
-
+assign jump = dest_pc ;
 
 // register for next stage of the pipeline
 reg [d_width-1:0] immediate_regd ;
@@ -805,7 +807,7 @@ end
 
 endmodule
 
-module instruction_buffer(clk, reset, instruction_address, instruction_out, imem_write_adr, imem_write, imem_in) ;
+module instruction_buffer(clk, reset, instruction_address, instruction_out, imem_write_adr, imem_write, imem_in, jump) ;
 
 parameter i_buffer_size = 2 ;
 parameter i_mem_adr_start_bit = 1 ; // first address bit of significance for imem
@@ -818,6 +820,7 @@ input [i_adr_width-1:0] instruction_address ;
 input [i_adr_width-1:0] imem_write_adr ;
 input imem_write ;
 input [(i_buffer_size*i_width)-1:0] imem_in ;
+input jump ;
 
 output [i_width-1:0] instruction_out ;
 reg [i_width-1:0] instruction_out ;
@@ -828,8 +831,11 @@ wire [(i_buffer_size*i_width)-1:0] imem_out ;
 
 reg [i_width-1:0] i_buffer [i_buffer_size] ;
 reg inst_index ;
+reg [1:0] jump_bubble ;
 
 inst_mem iMem(imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
+
+assign imem_read_adr = instruction_address[i_adr_width-1:i_mem_adr_start_bit] ;
 
 /* Mechanism
 /  If the PC shows an even number, go and fetch that instruction line from memory.
@@ -838,17 +844,35 @@ inst_mem iMem(imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 */
 always @(posedge clk)
 begin
-	if (reset) inst_index <= 0 ;
-	else begin
-		if (inst_index == 0) begin
-			i_buffer[0] <= imem_out[19:0] ;
-			i_buffer[1] <= imem_out[39:20] ;
-			imem_read_adr <= instruction_address[i_adr_width-1:i_mem_adr_start_bit] ; // TODO: check this can't just come from the pc
-		end
-	instruction_out <= i_buffer[instruction_address[0]] ;
-	inst_index <= ~inst_index ;
+	if (reset)
+	begin
+		instruction_out <= `INSTR_NOP ;
+		jump_bubble <= 1 ;
 	end
-end
-	
+
+	else if (jump) 
+	begin
+		instruction_out <= `INSTR_NOP ;
+		jump_bubble <= 2 ;
+	end
+
+	else if (jump_bubble > 0)
+	begin
+		instruction_out <= `INSTR_NOP ;
+		jump_bubble <= jump_bubble - 1 ;
+	end
+
+	else
+	begin
+		instruction_out <= instruction_address[0] ?  
+			i_buffer[0] : i_buffer[1] ;
+	end
+
+	if (instruction_address[0] == 0)
+	begin
+		i_buffer[0] <=  imem_out[19:0] ;
+		i_buffer[1] <= 	imem_out[39:20] ;
+	end
+end	
 	
 endmodule

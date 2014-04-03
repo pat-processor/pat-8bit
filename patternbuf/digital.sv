@@ -33,11 +33,11 @@ wire [i_width-1:0] instruction ;
 
 
 //inst_mem iMem(pc, imem_write_adr, imem_write, imem_in, instruction) ;
-instruction_buffer iBuffer(clk, reset, pc, instruction, imem_write_adr, imem_write, imem_in) ;
+instruction_buffer iBuffer(clk, reset, pc, instruction, imem_write_adr, imem_write, imem_in, jump) ;
 
 patternbuffer dummyPatBuf(buf_fieldp, buf_fieldwp, field_write_en, field_in, field_out) ;
 
-pat thePAT(clk, reset, pc, bufp, fieldp, fieldwp, field_write_en, field_out, instruction, field_in, acc_out, inputs, outputs) ;
+pat thePAT(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en, field_out, instruction, field_in, acc_out, inputs, outputs) ;
 
 endmodule
 
