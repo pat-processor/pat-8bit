@@ -646,8 +646,8 @@ wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
 shifter theShifter(a, b[2:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
-//adder theAdder(a, b, add_out) ;
-//subtractor theSub(a, b, sub_out) ;
+adder theAdder(a, b, add_out) ;
+subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
 ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
