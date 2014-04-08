@@ -208,9 +208,11 @@ reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
+reg field_op_regd ;
 
 task reg_ops ;
 	begin
+		field_op_regd <= field_op ;
 		op_bf_regd <= op_bf ;
 		op_bb_regd <= op_bb ;
 		op_call_regd <= op_call ;
@@ -370,8 +372,16 @@ endtask
 
 task updateFlags() ;
 	begin
-		z <= (acc == 0) ;
-		n <= (acc[d_width-1] == 1) ;
+		if (field_op_regd)
+		begin
+			z <= (field_value == 0) ;
+			n <= (field_value[d_width-1] == 1) ;
+		end
+		else
+		begin
+			z <= (acc == 0) ;
+			n <= (acc[d_width-1] == 1) ;
+		end
 	end
 endtask
 
