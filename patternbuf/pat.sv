@@ -143,10 +143,10 @@ assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
 // 4'b1111 is i0 prefix
 
 // i0 operations
-wire op_return, op_not, op_nop, op_test, op_ldba, op_stab, op_lda, op_ldsp, op_stsp ;
+wire op_return, op_not, op_nop, op_test, op_mov, op_stab, op_lda, op_ldsp, op_stsp ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
-assign op_ldba = (opcode_i0 == 4'b0001) && i_t_i0 ;
+assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
 //assign op_lda = (opcode_i0 == 4'b0100) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
@@ -155,6 +155,9 @@ assign op_stsp = (opcode_i0 == 4'b1110) && i_t_i0 ;
 assign op_stab = (opcode_i0 == 4'b1000) && i_t_i0 ;
 assign op_ldsp = (opcode_i0 == 4'b1010) && i_t_i0 ;
 
+// Move operations buffer<->acc
+wire op_ldba = op_mov && !field_op ;
+wire op_ldab = op_mov && field_op ;
 
 
 // operation type selection
@@ -167,12 +170,11 @@ assign source_sp = op_incsp | op_decsp ;
 assign source_imm = op_ldi | op_setsp | op_setb ;
 assign source_in = op_in ;
 
-//assign dest_acc = (!field_op) && (i_t_i8 && opcode_i8[3] == 0) | op_orm | op_andm | (i_t_i3 && opcode_i3[3] == 0) | (i_t_i0 && (op_not | op_ldba | op_lda)) ;
 
 // Which ops are committed to a register (ACC or Field_Out)
 assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
-                                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo
-				  | op_ldsp | op_in | op_not | op_ldba | op_lda ) ;
+                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo  
+		  | op_ldsp | op_in | op_not | op_mov | op_lda ) ;
 assign dest_acc = (!field_op && dest_reg) ;
 assign dest_field = (field_op && dest_reg) ; 
 assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
@@ -205,7 +207,7 @@ reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stm_regd,
 reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_addm_regd_2, op_orm_regd, op_andm_regd ;
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
-reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_ldba_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
+reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 
 task reg_ops ;
 	begin
@@ -237,7 +239,7 @@ task reg_ops ;
 		op_not_regd <= op_not ;
 		op_nop_regd <= op_nop ;
 		op_test_regd <= op_test ;
-		op_ldba_regd <= op_ldba ;
+		op_mov_regd <= op_mov ;
 		op_stab_regd <= op_stab ;
 		op_lda_regd <= op_lda ;
 		op_ldsp_regd <= op_ldsp ;
@@ -407,14 +409,16 @@ always @(posedge clk)
 	begin
 
 		if (dest_acc_regd) begin
-			 acc <= acc_result ;
+			// TODO: How to speed up below MUX
+			 acc <= (source_field_regd) ? field_value : acc_result ;
 		//	 z <= (acc_result == 0) ; // z and n take extra tim0
 		//	 in ALU pipeline
 			// n <= (acc_result < 0) ;your_library.db
 		end
 
 		if (dest_field_regd) begin
-			field_out <= field_result ;
+			// TODO: Below may work from a different signal
+			field_out <= (op_mov_regd) ? acc : field_result ;
 			field_write_en <= 1'b1 ;
 		end
 		else field_write_en <= 1'b0 ;
