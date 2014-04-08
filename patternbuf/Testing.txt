@@ -1,1 +1,0 @@
-iBuffer read/write works. :)
