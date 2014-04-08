@@ -103,7 +103,7 @@ assign i_t_i3 = ((opcode_i8 == 4'b1111) && (opcode_i3 != 4'b1111)) ;
 assign i_t_i0 = (!i_t_i8 && !i_t_i3) ;
 
 // i8 operations
-wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stam, op_setsp, op_or ;
+wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
 wire op_and, op_addm, op_subm, op_add, op_sub, op_orm, op_andm ;
 assign op_or =	(opcode_i8 == 4'b0000) && i_t_i8 ;
 assign op_and =(opcode_i8 == 4'b0001) && i_t_i8 ;
@@ -116,7 +116,7 @@ assign op_ldm =	(opcode_i8 == 4'b0111) && i_t_i8 ;
 assign op_bf = (opcode_i8 == 4'b1000) && i_t_i8 ;
 assign op_bb =(opcode_i8 == 4'b1001) && i_t_i8 ;
 assign op_call =(opcode_i8 == 4'b1010) && i_t_i8 ;
-assign op_stam = (opcode_i8 == 4'b1011) && i_t_i8 ;
+assign op_stm = (opcode_i8 == 4'b1011) && i_t_i8 ;
 assign op_setsp = (opcode_i8 == 4'b1100) && i_t_i8 ;
 assign op_orm = (opcode_i8 == 4'b1101) && i_t_i8 ;
 assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
@@ -175,7 +175,7 @@ assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
 				  | op_ldsp | op_in | op_not | op_ldba | op_lda ) ;
 assign dest_acc = (!field_op && dest_reg) ;
 assign dest_field = (field_op && dest_reg) ; 
-assign dest_dmem = op_stam | op_stsp ;
+assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
 assign jump = dest_pc ;
@@ -201,7 +201,7 @@ task reg_instr ;
 	end
 endtask
 
-reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stam_regd, op_setsp_regd, op_or_regd ;
+reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stm_regd, op_setsp_regd, op_or_regd ;
 reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_addm_regd_2, op_orm_regd, op_andm_regd ;
 reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
 reg op_incsp_regd, op_decsp_regd ;
@@ -214,7 +214,7 @@ task reg_ops ;
 		op_call_regd <= op_call ;
 		op_ldi_regd <= op_ldi ;
 		op_ldm_regd <= op_ldm ;
-		op_stam_regd <= op_stam ;
+		op_stm_regd <= op_stm ;
 		op_setsp_regd <= op_setsp ;
 		op_or_regd <= op_or ;
 		op_and_regd <= op_and ;
@@ -420,6 +420,9 @@ always @(posedge clk)
 		else field_write_en <= 1'b0 ;
 		
 
+		// TODO: Mem writes only happen as part of a dedicated
+		// memory write instruction. Is mutually exclusive to
+		// acc or field updates, so acc will not change.
 		if (dest_dmem_regd) begin 
 		data_out <= (source_field_regd) ? field_value : acc ;
 		data_write <= 1'b1 ;
