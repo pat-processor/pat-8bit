@@ -447,8 +447,19 @@ always @(posedge clk)
 
 		if (op_test) updateFlags() ;
 
+		if (op_out_regd)
+		begin
+			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
+			outputs <= acc ; 
+		end
 
-		if (op_call_regd)
+		if (op_setb_regd)
+		begin
+			bufp <= immediate_regd[2:0] ;
+		end
+
+/* REMOVED OPS FOR PERFORMANCE REASONS 
+ * if (op_call_regd)
 		begin
 			// FIXME: I think this arrangement gives -1 size to call
 			// TODO: ensure that this stores the
@@ -476,17 +487,9 @@ always @(posedge clk)
 		begin
 			sp <= sp - immediate_regd[2:0] ;
 		end
+		*/
 
-		if (op_out_regd)
-		begin
-			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
-			outputs <= acc ; 
-		end
 
-		if (op_setb_regd)
-		begin
-			bufp <= immediate_regd[2:0] ;
-		end
 
 	end
 
