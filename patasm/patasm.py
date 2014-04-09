@@ -60,6 +60,20 @@ def get_opcode(instr):
 			return (opcode, 0, instr)
 		i+=1
 
+def is_branch(instr):
+	return instr.startswith("B")
+
+def calculate_branch(address, immediate):
+	offset = immediate - address
+	if (offset >= 0):
+		print("Branch forward by:", offset)
+		return (offset, "BF")
+	else:
+		offset = abs(offset)
+		print("Branch backward by:", offset)
+		return (offset, "BB")
+
+
 # see if the destination is a field or the acc
 def get_dest(instr):
 	if instr.startswith("F"):
@@ -104,6 +118,14 @@ for instr in input_file:
 			immediate = labels[immediate]
 
 		cond, instr = get_condition(instr)
+		
+		if (is_branch(instr)):
+			print ("Branch")
+			immediate, branchtype = calculate_branch(address, immediate)
+			instr = instr.replace("B", branchtype)
+			print("Updated branch instruction is:", instr)
+			
+
 		opcode, shift, instr = get_opcode(instr)
 		dest = get_dest(instr)
 		#print (cond, opcode, shift, dest, immediate, instr)
