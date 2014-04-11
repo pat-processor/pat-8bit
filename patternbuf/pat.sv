@@ -716,7 +716,7 @@ endmodule
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
 parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
-parameter dmemsize = 32 ;
+parameter dmemsize = 16 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;
