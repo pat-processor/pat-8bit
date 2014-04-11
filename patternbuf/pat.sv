@@ -500,15 +500,16 @@ always @(posedge clk)
 endmodule
 
 
-module program_counter(clk, reset, pc, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
+module program_counter(clk, reset, pc_out, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
 parameter i_adr_width = 10 ;
 input clk, reset ;
 input [i_adr_width-1:0] return_adr ;
 input [7:0] immediate_i8 ;
 input op_bf, op_bb, op_return ;
 
-output [i_adr_width-1:0] pc ;
+output [i_adr_width-1:0] pc_out ;
 reg [i_adr_width-1:0] pc ; // program counter
+reg [i_adr_width-1:0] pc_out ; // program counter copy to drive memory
 
 wire [i_adr_width-1:0] pcInc ;
 wire [i_adr_width-1:0] pcAdd ;
@@ -525,9 +526,18 @@ always @(posedge clk)
 		begin
 		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
 		//	if (op_return) pc <= return_adr ; // FIXME add return back
-			if (op_bf) pc <= pcAdd ;
-			else if (op_bb) pc <= pcSub ;
-			else pc <= pcInc ;
+			if (op_bf) begin
+			  pc <= pcAdd ;
+			  pc_out <= pcAdd ;
+			end
+			else if (op_bb) begin 
+				pc <= pcSub ;
+				pc_out <= pcSub ;
+			end
+			else begin
+				pc <= pcInc ;
+				pc_out <= pcInc ;
+			end
 		end
 	end
 
