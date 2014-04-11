@@ -516,8 +516,9 @@ wire [i_adr_width-1:0] pcAdd ;
 wire [i_adr_width-1:0] pcSub ;
 
 pc_inc pcIncr(pc, pcInc) ;
-pc_add pcAddr(pc, immediate_i8, pcAdd) ;
-pc_sub pcSubr(pc, immediate_i8, pcSub) ;
+//pc_add pcAddr(pc, immediate_i8, pcAdd) ;
+//pc_sub pcSubr(pc, immediate_i8, pcSub) ;
+pc_add_signed pcAddrSigned(pc, immediate_i8, pcAdd) ;
 
 always @(posedge clk)
 	begin
@@ -526,7 +527,7 @@ always @(posedge clk)
 		begin
 		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
 		//	if (op_return) pc <= return_adr ; // FIXME add return back
-			if (op_bf) begin
+/*			if (op_bf) begin
 			  pc <= pcAdd ;
 			  pc_out <= pcAdd ;
 			end
@@ -534,6 +535,11 @@ always @(posedge clk)
 				pc <= pcSub ;
 				pc_out <= pcSub ;
 			end
+			*/
+		       if (op_bf) begin
+			       pc <= pcAdd ;
+			       pc_out <= pcAdd ;
+		       end
 			else begin
 				pc <= pcInc ;
 				pc_out <= pcInc ;
@@ -559,7 +565,7 @@ module pc_add(pc, offset, pc_next) ;
 parameter i_adr_width = 10 ;
 parameter d_width = 8 ;
 input [i_adr_width-1:0] pc ;
-input signed [d_width-1:0] offset ;
+input [d_width-1:0] offset ;
 output [i_adr_width-1:0] pc_next ;
 
 assign pc_next = pc + offset ;
@@ -575,6 +581,21 @@ output [i_adr_width-1:0] pc_next ;
 assign pc_next = pc - offset ;
 endmodule
 
+module pc_add_signed(pc, offset, pc_next) ;
+parameter i_adr_width = 10 ;
+parameter d_width = 8 ;
+
+input [i_adr_width-1:0] pc ;
+input [d_width-1:0] offset ;
+output [i_adr_width-1:0] pc_next ;
+
+wire [i_adr_width-1:0] offset_extended ;
+
+assign offset_extended = {{i_adr_width-d_width{offset[d_width-1]}}, offset} ;
+
+assign pc_next = pc + offset_extended ;
+
+endmodule
 
 module shifter(a, b, y, op_shl, op_shlo, op_shr, op_asr) ;
 
