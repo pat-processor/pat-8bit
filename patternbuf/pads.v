@@ -159,11 +159,6 @@ wire [9:0] imem_write_adr ;
 wire [39:0] imem_in ;
 
 // shift data address and value to write in on port a
-//
-// TODO: The shifter is partly optimised out. Why?
-// Pattern: *: optimised out; X: in use
-// 9876543210 9876543210 9876543210 9876543210 9876543210
-// XX******** XXXXXXXX** ******XXXX XXXX****** **XXXXXXXX
 always @(posedge modesel_1) begin
 	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a ;
 end

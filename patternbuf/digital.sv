@@ -29,6 +29,7 @@ assign buf_fieldp = {bufp, fieldp} ;
 assign buf_fieldwp = {bufp, fieldwp} ;
 
 wire [i_adr_width-1:0] pc ;
+wire jump ;
 wire [i_width-1:0] instruction ;
 
 
