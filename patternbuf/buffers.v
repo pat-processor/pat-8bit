@@ -32,7 +32,7 @@ endmodule
 `define SEQCTRLADR 2 // address of globally visible sequence control
 module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
-parameter buffer_size = 32 ; // bytes
+parameter buffer_size = 12 ; // bytes
 parameter buffer_width = 8 ; // bits
 parameter no_bufs = 8 ;      // patternbuf instances
 

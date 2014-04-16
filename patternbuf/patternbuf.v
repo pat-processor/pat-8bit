@@ -17,8 +17,8 @@ endmodule
 `timescale 1ns / 1ns
 module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
+parameter buffer_size = 12 ;
 parameter buffer_width = 8 ;
-parameter buffer_size = 32 ;
 
 input ssel ;
 input sin ;
