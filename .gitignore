@@ -1,0 +1,7 @@
+*.pvl
+*.syn
+*.mr
+*.swp
+*.log*
+*.cmd*
+*~
