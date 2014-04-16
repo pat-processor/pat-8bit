@@ -15,7 +15,7 @@ end
 endmodule
 
 `timescale 1ns / 1ns
-module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk, bufsel) ;
+module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_width = 8 ;
 parameter buffer_size = 32 ;
@@ -28,7 +28,6 @@ input [buffer_size-1:0] fieldwp ;
 input [buffer_width-1:0] field_in ;
 input field_write ;
 input clk ;
-input bufsel ;
 
 output [buffer_width-1:0] field_byte ;
 output [buffer_width-1:0] pattern [buffer_size] ;
@@ -193,11 +192,7 @@ wire [buffer_width-1:0] fields[buffer_size] ;
 
 for (g = 0 ; g < buffer_size ; g++)
 begin
-	//assign fields[g] = (fieldp[g] == 1 && bufsel) ? pattern[g] : {buffer_width{1'bz}} ;
-	//assign field_byte = fields[g] ;
-	
         assign fields[g] = (fieldp[g] == 1) ? pattern[g] : {buffer_width{1'b0}} ;
-	//assign fields[g] = (fieldp[g] == 1 && bufsel) ? pattern[g] : {buffer_width{1'b0}} ;
 end
 
 wire [buffer_size-1:0] field_bits [buffer_width] ;

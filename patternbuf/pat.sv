@@ -813,9 +813,9 @@ endmodule
 module inst_mem (imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 
 parameter i_buffer_size = 2 ;
-parameter i_mem_size = 1024 ;
-parameter i_mem_lines =  512 ; //imem_size / i_buffer_size ;
-parameter i_adr_width = 10 ; // instruction address space size
+parameter i_mem_size = 128 ;
+parameter i_mem_lines =  64 ; //imem_size / i_buffer_size ;
+parameter i_adr_width = 7 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
 
 input [i_adr_width-1:0] imem_read_adr ;
