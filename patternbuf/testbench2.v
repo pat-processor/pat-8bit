@@ -1,8 +1,8 @@
 `timescale 1ns / 1ns
 module testbench(sin, ssel, saddr, sclk, sout, pattern_out, field_byte_out, clk, bufp_in, buffer_select_in, fieldp_in, fieldwp_in, field_in_in, field_write_in) ;
 
-parameter buffer_size = 32 ;
-parameter buffer_width = 6 ;
+parameter buffer_size = 12 ;
+parameter buffer_width = 8 ;
 
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
