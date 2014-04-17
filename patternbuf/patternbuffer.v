@@ -44,8 +44,6 @@ reg [buffer_width-1:0] field_byte_out ;
 wire [buffer_width-1:0] field_byte ;
 wire [buffer_width-1:0] current_buffer [buffer_size] ;
 
-wire [buffer_width-1:0] tweak_sense ;
-
 input [2:0] bufp_in ;
 input [buffer_size-1:0] fieldp_in ;
 input [buffer_size-1:0] fieldwp_in ;
