@@ -22,6 +22,9 @@ set_ideal_network reset
 #compile_ultra -retime
 compile_ultra
 
+# set_fanout_load 2 [get_ports "tweak*"]
+# set_load <NF?>
+
 
 #dc shell -t
 # include <script name>

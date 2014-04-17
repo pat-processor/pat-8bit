@@ -1,7 +1,7 @@
 `timescale 1ns / 1ns
-module patternbuffer(clk, pwm, sclk, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
+module patternbuffer(clk, pwm, sclk, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_sense, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
 
-parameter buffer_size = 12 ;
+parameter buffer_size = 22 ;
 parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
 
@@ -24,6 +24,7 @@ output [buffer_width-1:0] field_byte_out ;
 output [buffer_width-1:0] p_drive ;
 output [buffer_width-1:0] n_drive ;
 output [buffer_width-1:0] tweak_delay ;
+output [buffer_width-1:0] tweak_sense ;
 output [buffer_width-1:0] tweak_drive_0 ;
 output [buffer_width-1:0] tweak_drive_1 ;
 output [buffer_width-1:0] tweak_drive_2 ;
@@ -59,20 +60,33 @@ buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_bu
 // define field offsets for the pattern data
 `define PDRIVE 0
 `define NDRIVE 1
-`define TWEAKSENSE 2
-`define TWEAKDELAY 3
-`define TWEAK0 4
-`define TWEAK1 5
-`define TWEAK2 6
-`define TWEAK3 7
-`define TWEAK4 8
-`define TWEAK5 9
-`define TWEAK6 10
-`define TWEAK7 11
+`define PTWEAKSENSE 2
+`define PTWEAKDELAY 3
+`define PTWEAK0 4
+`define PTWEAK1 5
+`define PTWEAK2 6
+`define PTWEAK3 7
+`define PTWEAK4 8
+`define PTWEAK5 9
+`define PTWEAK6 10
+`define PTWEAK7 11
+
+`define NTWEAKSENSE 12
+`define NTWEAKDELAY 13
+`define NTWEAK0 14
+`define NTWEAK1 15
+`define NTWEAK2 16
+`define NTWEAK3 17
+`define NTWEAK4 18
+`define NTWEAK5 19
+`define NTWEAK6 20
+`define NTWEAK7 21
+
 
 reg [buffer_width-1:0] p_drive ;
 reg [buffer_width-1:0] n_drive ;
 reg [buffer_width-1:0] tweak_delay ;
+reg [buffer_width-1:0] tweak_sense ;
 reg [buffer_width-1:0] tweak_drive_0 ;
 reg [buffer_width-1:0] tweak_drive_1 ;
 reg [buffer_width-1:0] tweak_drive_2 ;
@@ -81,6 +95,21 @@ reg [buffer_width-1:0] tweak_drive_4 ;
 reg [buffer_width-1:0] tweak_drive_5 ;
 reg [buffer_width-1:0] tweak_drive_6 ;
 reg [buffer_width-1:0] tweak_drive_7 ;
+
+
+/*
+reg [buffer_width-1:0] n_drive ;
+reg [buffer_width-1:0] tweak_delay_n ;
+reg [buffer_width-1:0[ tweak_sense_n ;
+reg [buffer_width-1:0] tweak_drive_n0 ;
+reg [buffer_width-1:0] tweak_drive_n1 ;
+reg [buffer_width-1:0] tweak_drive_n2 ;
+reg [buffer_width-1:0] tweak_drive_n3 ;
+reg [buffer_width-1:0] tweak_drive_n4 ;
+reg [buffer_width-1:0] tweak_drive_n5 ;
+reg [buffer_width-1:0] tweak_drive_n6 ;
+reg [buffer_width-1:0] tweak_drive_n7 ;
+*/
 
 /*
 assign p_drive = current_buffer[`PDRIVE] ;
@@ -101,8 +130,7 @@ assign tweak_drive_7 = current_buffer[`TWEAK7] && (tweak_sense[7] == pwm) ;
 
 
 
-reg [buffer_width-1:0] tweak_sense_prev ;
-//assign tweak_sense = current_buffer[`TWEAKSENSE] ;
+
 reg pwm_prev ;
 
 always @(posedge clk)
@@ -123,28 +151,45 @@ begin
  // change and stays at its maximum value
  if (pwm != pwm_prev) begin
 	 buffer_select <= 0 ;
-	 tweak_sense_prev <= {buffer_width{1'b?}} ; // TODO: Decide!
  end
  else begin
-	 tweak_sense_prev <= current_buffer[`TWEAKSENSE] ;
 	 if (buffer_select == (no_bufs-1)) buffer_select <= (no_bufs-1) ;
 	 else buffer_select <= buffer_select + 1 ;
  end
 
-// driver buffer globals
-p_drive <= current_buffer[`PDRIVE] ;
-n_drive <= current_buffer[`NDRIVE] ;
-tweak_delay <= current_buffer[`TWEAKDELAY] ;
 
-// gate tweak drive based on the programmed sense w.r.t. the pwm signal
-tweak_drive_0 <= current_buffer[`TWEAK0] & {buffer_width{(tweak_sense_prev[0] == pwm)}} ;
-tweak_drive_1 <= current_buffer[`TWEAK1] & {buffer_width{(tweak_sense_prev[1] == pwm)}} ;
-tweak_drive_2 <= current_buffer[`TWEAK2] & {buffer_width{(tweak_sense_prev[2] == pwm)}} ;
-tweak_drive_3 <= current_buffer[`TWEAK3] & {buffer_width{(tweak_sense_prev[3] == pwm)}} ;
-tweak_drive_4 <= current_buffer[`TWEAK4] & {buffer_width{(tweak_sense_prev[4] == pwm)}} ;
-tweak_drive_5 <= current_buffer[`TWEAK5] & {buffer_width{(tweak_sense_prev[5] == pwm)}} ;
-tweak_drive_6 <= current_buffer[`TWEAK6] & {buffer_width{(tweak_sense_prev[6] == pwm)}} ;
-tweak_drive_7 <= current_buffer[`TWEAK7] & {buffer_width{(tweak_sense_prev[7] == pwm)}} ;
+// high-driving phase
+if (pwm_prev) begin
+	p_drive <= current_buffer[`PDRIVE] ;
+	n_drive <= {buffer_width{1'b0}} ; // off
+	// gate tweak drive based on the programmed sense w.r.t. the pwm signal
+	tweak_delay <= current_buffer[`PTWEAKDELAY] ;
+	tweak_sense <= current_buffer[`PTWEAKSENSE] ;
+	tweak_drive_0 <= current_buffer[`PTWEAK0] ;
+	tweak_drive_1 <= current_buffer[`PTWEAK1] ;
+	tweak_drive_2 <= current_buffer[`PTWEAK2] ;
+	tweak_drive_3 <= current_buffer[`PTWEAK3] ;
+	tweak_drive_4 <= current_buffer[`PTWEAK4] ;
+	tweak_drive_5 <= current_buffer[`PTWEAK5] ;
+	tweak_drive_6 <= current_buffer[`PTWEAK6] ;
+	tweak_drive_7 <= current_buffer[`PTWEAK7] ;
+end
+// low-driving phase
+else begin
+	n_drive <= current_buffer[`NDRIVE] ;
+	p_drive <= {buffer_width{1'b1}} ; // off TODO: Check what sense David wants for off
+	// gate tweak drive based on the programmed sense w.r.t. the pwm signal
+	tweak_delay <= current_buffer[`NTWEAKDELAY] ;
+	tweak_sense <= current_buffer[`NTWEAKSENSE] ;
+	tweak_drive_0 <= current_buffer[`NTWEAK0] ;
+	tweak_drive_1 <= current_buffer[`NTWEAK1] ;
+	tweak_drive_2 <= current_buffer[`NTWEAK2] ;
+	tweak_drive_3 <= current_buffer[`NTWEAK3] ;
+	tweak_drive_4 <= current_buffer[`NTWEAK4] ;
+	tweak_drive_5 <= current_buffer[`NTWEAK5] ;
+	tweak_drive_6 <= current_buffer[`NTWEAK6] ;
+	tweak_drive_7 <= current_buffer[`NTWEAK7] ;
+end
 
 
 end
