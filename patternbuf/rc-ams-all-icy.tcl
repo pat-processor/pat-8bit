@@ -20,7 +20,7 @@ read_hdl -sv patternbuffer.v
 #define_dft test_clock -period 10000
 
 # enable clock gating
-set_attribute lp_insert_clock_gating true /
+#set_attribute lp_insert_clock_gating true /
 #set_attribute lp_clock_gating_min_flops 3 [find /designs -design testbench]
 #set_attribute lp_asserted_toggle_rate 0.01 *buf*
 
