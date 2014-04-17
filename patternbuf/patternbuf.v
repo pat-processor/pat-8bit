@@ -36,7 +36,7 @@ output sout ;
 
 // pattern buffer as array
 reg [buffer_width-1:0] pattern [buffer_size] ;
-reg [buffer_width-1:0] field_byte ;
+wire [buffer_width-1:0] field_byte ;
 
 
 assign sout = pattern[buffer_size-1][buffer_width-1] ;
@@ -60,11 +60,38 @@ begin
     end
 
 	// write from PAT. TODO: Ensure mutually exclusive with ssel
-	else if (field_write) pattern[fieldwp] <= field_in ;
+	else begin
+		
+		for (i=0 ; i < buffer_size ; i++) begin
+			if (field_write && fieldwp[i]) pattern[i] <= field_in ;
+		end
+	end
 
-	// generate byte output for PAT
-	field_byte <= pattern[fieldp] ;
 end
+
+
+// generate byte output for PAT
+// fieldp is one-hot
+genvar g ;
+genvar h ;
+wire [buffer_width-1:0] fields[buffer_size] ;
+
+for (g = 0 ; g < buffer_size ; g++)
+begin
+        assign fields[g] = (fieldp[g] == 1) ? pattern[g] : {buffer_width{1'b0}} ;
+end
+
+wire [buffer_size-1:0] field_bits [buffer_width] ;
+
+for (g = 0 ; g < buffer_width ; g++)
+begin
+	for (h = 0 ; h < buffer_size ; h++)
+	begin
+		assign field_bits[g][h] = fields[h][g] ;
+	end
+	assign field_byte[g] = | field_bits[g] ; // unary reduction OR
+end
+
 
 
 

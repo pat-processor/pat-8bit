@@ -127,6 +127,17 @@ wire souts[8] ;
 assign sout = ssel ? souts[saddr] : 1'bz ;
 //assign sout = souts[0] ;
 
+// TRYME: How about using tri-state drivers off each buffer,
+// rather than MUXing?
+assign current_buffer = bufs[buffer_select] ;
+
+// assign the patternbyte to the relevant
+// buffer,
+//
+assign field_byte = field_bytes[bufp] ; // -96ps
+//
+
+
 
 /*
 wire [3:0] bufmux1_1in ;
@@ -208,16 +219,7 @@ generate for (i = 0 ; i < buffer_size ; i = i+1)
 endgenerate
 */
 
-// TRYME: How about using tri-state drivers off each buffer,
-// rather than MUXing?
-assign current_buffer = bufs[buffer_select] ;
 
-
-// assign the patternbyte to the relevant
-// buffer,
-//
-assign field_byte = field_bytes[bufp] ; // -96ps
-//
 
 // below code seems to save 1ps over the direct assign above.
 /*

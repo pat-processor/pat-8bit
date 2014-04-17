@@ -10,7 +10,7 @@ create_clock -name "input_clock" -period 10 -waveform {0 5} {pad_modesel_1}
 set_multicycle_path 2 -from theCore/thePAT/thePC/pc_out_reg* -to theCore/iBuffer/i_buffer_reg*
 # below removes register merging from entire design
 # set_attribute [get_designs digital] compile_enable_register_merging false
-set compile_enable_register_merging false
+optimize_merge_flops false
 #set_register_merging <name> false
 #  below enables re-timing. use with -retime flag on compile_ultra
 # set_optimize_registers [get_designs digital]
