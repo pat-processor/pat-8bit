@@ -17,8 +17,8 @@ endmodule
 `timescale 1ns / 1ns
 module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
-parameter buffer_size = 12 ;
-parameter buffer_width = 8 ;
+parameter buffer_size = 22;
+parameter buffer_width = 8;
 
 input ssel ;
 input sin ;
@@ -34,12 +34,69 @@ output [buffer_width-1:0] pattern [buffer_size] ;
 output sout ;
 
 
-// array as a collection of 
+// pattern buffer as array
 reg [buffer_width-1:0] pattern [buffer_size] ;
+wire [buffer_width-1:0] field_byte ;
 
 
+assign sout = pattern[buffer_size-1][buffer_width-1] ;
+
+integer i ;
+//genvar h ;
+
+
+
+always @(posedge clk)
+begin
+  // if serial is selected, shift all the buffer left by one 
+  // and add in 'sin'
+  if (ssel)
+     begin
+    	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
+    	for(i=1 ; i<=buffer_size-1 ; i=i+1)
+    	begin
+      		pattern[i] <= {pattern[i][buffer_width-2:0], pattern[i-1][buffer_width-1]} ;
+    	end
+    end
+
+	// write from PAT. TODO: Ensure mutually exclusive with ssel
+	else begin
+		
+		for (i=0 ; i < buffer_size ; i++) begin
+			if (field_write && fieldwp[i]) pattern[i] <= field_in ;
+		end
+	end
+
+end
+
+
+// generate byte output for PAT
+// fieldp is one-hot
 genvar g ;
 genvar h ;
+wire [buffer_width-1:0] fields[buffer_size] ;
+
+for (g = 0 ; g < buffer_size ; g++)
+begin
+        assign fields[g] = (fieldp[g] == 1) ? pattern[g] : {buffer_width{1'b0}} ;
+end
+
+wire [buffer_size-1:0] field_bits [buffer_width] ;
+
+for (g = 0 ; g < buffer_width ; g++)
+begin
+	for (h = 0 ; h < buffer_size ; h++)
+	begin
+		assign field_bits[g][h] = fields[h][g] ;
+	end
+	assign field_byte[g] = | field_bits[g] ; // unary reduction OR
+end
+
+
+
+
+
+
 
 /* The below maps to physical cells and works, but synthesis optimisation
 * removes and replaces with combinatoral logic. */
@@ -185,7 +242,7 @@ endgenerate
 * buffers! (overall still -370ps) */
 // fy
 // full single-stage tri-state type MUX with FO=256 has 3500ps delay!
-
+/*
 wire [buffer_width-1:0] fields[buffer_size] ;
 
 
@@ -205,12 +262,13 @@ begin
 	end
 	assign field_byte[g] = | field_bits[g] ; // unary reduction OR
 end
+*/
 
 
 //assign field_byte = pattern[fieldp] ; // slower than above by ~300ps (if you
 	//believe that --- I don't... 
 
-
+/* SJH 17/03/2014 commnented out
 wire [buffer_width-1:0] flopq [buffer_size] ;
 wire [buffer_width-1:0] flopqn [buffer_size] ; // not connected wire (to supress error messages)
 
@@ -250,8 +308,9 @@ begin
 end
 endgenerate
 
+SJH 17/03/2014 commnented out end
+*/
 
-assign sout = pattern[buffer_size-1][buffer_width-1] ;
 
 
 

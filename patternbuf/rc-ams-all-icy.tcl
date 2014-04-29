@@ -20,15 +20,18 @@ read_hdl -sv patternbuffer.v
 #define_dft test_clock -period 10000
 
 # enable clock gating
-set_attribute lp_insert_clock_gating true /
+
 #set_attribute lp_clock_gating_min_flops 3 [find /designs -design testbench]
-#set_attribute lp_asserted_toggle_rate 0.01 *buf*
+#set_attribute lp_asserted_toggle_rate 0.01 /
+
+
+#set_attribute lp_clock_gating_cell [find / -libcell LGNX6_HV] /designs/patternbuffer
+#set_attribute lp_insert_clock_gating true /
 
 elaborate patternbuffer
-#set_attribute lp_clock_gating_cell [find / -libcell LGN*] /designs/testbench
 
 #set_attribute lp_clock_gating_test_signal *ssel* /
-report clock_gating -preview -gated_ff -clock_pin clk
+#report clock_gating -preview -gated_ff -clock_pin clk
 
 
 set clock [define_clock -period 1000 -name clk [find / -port clk]]
@@ -54,6 +57,7 @@ dc::set_time_unit -picoseconds
 #set_attribute external_driver [find [find / -libcell DFFX1] -libpin D] {/designs/adder/ports_in/*}
 #set_attribute external_pin_cap 26.5488 {/designs/adder/ports_out/*}
 
+set_attribute optimize_merge_flops false /
 synthesize -to_mapped patternbuffer
 #synthesize -to_mapped -effort high
 
