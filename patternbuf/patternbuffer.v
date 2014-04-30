@@ -148,6 +148,8 @@ begin
 
  // implement counter which is reset by pwm
  // change and stays at its maximum value
+ 
+ /* One hot implementation
  if (pwm != pwm_prev) begin
 	 buffer_select <= 8'b00000001 ;
  end
@@ -159,6 +161,22 @@ begin
 		 buffer_select <= buffer_select << 1 ;
 	 end
  end
+ */
+
+ /* standard counter implementation */
+ if (pwm != pwm_prev) begin
+	 buffer_select <= 0 ;
+ end
+ else begin
+	 if (buffer_select == 7) begin
+		 buffer_select <= 7 ;
+	 end
+	 else begin
+		 buffer_select <= buffer_select + 1 ;
+	 end
+ end
+
+
 
 
 // high-driving phase

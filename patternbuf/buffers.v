@@ -127,9 +127,9 @@ wire souts[8] ;
 assign sout = ssel ? souts[saddr] : 1'bz ;
 //assign sout = souts[0] ;
 
-//assign current_buffer = bufs[buffer_select] ;
+assign current_buffer = bufs[buffer_select] ;
 
-
+/*
 // Buffer select one-hot for fanout optimisation
 wire [buffer_width-1:0] null_buffer [buffer_size] ;
 genvar g ;
@@ -149,7 +149,7 @@ assign current_buffer = (buffer_select[0]) ? bufs[0] :
 // not-allowed to not be selected since one-hot
 			//null_buffer ;
 			
-			
+*/		
 
 /*
 assign current_buffer = {8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx} ;
