@@ -137,14 +137,14 @@ begin
 	assign null_buffer[g] = {buffer_width{1'bx}} ;
 end
 
-assign current_buffer = (buffer_select[0]) ? bufs[0] :
-			(buffer_select[1]) ? bufs[1] :
-			(buffer_select[2]) ? bufs[2] :
-			(buffer_select[3]) ? bufs[3] :
-			(buffer_select[4]) ? bufs[4] :
-			(buffer_select[5]) ? bufs[5] :
-			(buffer_select[6]) ? bufs[6] :
-			(buffer_select[7]) ? bufs[7] :
+assign current_buffer = (buffer_select == 8'bxxxxxxx1) ? bufs[0] :
+			(buffer_select == 8'bxxxxxx1x) ? bufs[1] :
+			(buffer_select == 8'bxxxxx1xx) ? bufs[2] :
+			(buffer_select == 8'bxxxx1xxx) ? bufs[3] :
+			(buffer_select == 8'bxxx1xxxx) ? bufs[4] :
+			(buffer_select == 8'bxx1xxxxx) ? bufs[5] :
+			(buffer_select == 8'bx1xxxxxx) ? bufs[6] :
+			(buffer_select == 8'b1xxxxxxx) ? bufs[7] :
 // not-allowed to not be selected since one-hot
 			null_buffer ;
 			
