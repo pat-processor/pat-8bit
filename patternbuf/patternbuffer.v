@@ -14,7 +14,7 @@ input pwm ;
 input [2:0] saddr ;
 input [buffer_width-1:0] field_in_in ;
 input field_write_in ;
-input [2:0] bufp_in ;
+input [7:0] bufp_in ;
 input [buffer_size-1:0] fieldp_in ;
 input [buffer_size-1:0] fieldwp_in ;
 
@@ -37,7 +37,7 @@ output [buffer_width-1:0] tweak_drive_5 ;
 output [buffer_width-1:0] tweak_drive_6 ;
 output [buffer_width-1:0] tweak_drive_7 ;
 
-reg [2:0] bufp ;
+reg [7:0] bufp ;
 reg [7:0] buffer_select ;
 reg [buffer_size-1:0] fieldp ;
 reg [buffer_size-1:0] fieldwp ;

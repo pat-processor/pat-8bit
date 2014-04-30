@@ -39,7 +39,7 @@ parameter no_bufs = 8 ;      // patternbuf instances
 
 input sclk, sin, ssel ;
 input [2:0] saddr ;
-input [2:0] bufp ;
+input [buffer_width-1:0] bufp ;
 input [7:0] buffer_select ; // one-hot
 input [buffer_size-1:0] fieldp ; 
 input [buffer_size-1:0] fieldwp ; 
@@ -128,8 +128,9 @@ assign sout = ssel ? souts[saddr] : 1'bz ;
 //assign sout = souts[0] ;
 
 //assign current_buffer = bufs[buffer_select] ;
-// Buffer select one-hot for fanout optimisation
 
+
+// Buffer select one-hot for fanout optimisation
 wire [buffer_width-1:0] null_buffer [buffer_size] ;
 genvar g ;
 for (g = 0 ; g < buffer_size ; g++)
@@ -137,16 +138,16 @@ begin
 	assign null_buffer[g] = {buffer_width{1'bx}} ;
 end
 
-assign current_buffer = (buffer_select == 8'bxxxxxxx1) ? bufs[0] :
-			(buffer_select == 8'bxxxxxx1x) ? bufs[1] :
-			(buffer_select == 8'bxxxxx1xx) ? bufs[2] :
-			(buffer_select == 8'bxxxx1xxx) ? bufs[3] :
-			(buffer_select == 8'bxxx1xxxx) ? bufs[4] :
-			(buffer_select == 8'bxx1xxxxx) ? bufs[5] :
-			(buffer_select == 8'bx1xxxxxx) ? bufs[6] :
-			(buffer_select == 8'b1xxxxxxx) ? bufs[7] :
+assign current_buffer = (buffer_select[0]) ? bufs[0] :
+			(buffer_select[1]) ? bufs[1] :
+			(buffer_select[2]) ? bufs[2] :
+			(buffer_select[3]) ? bufs[3] :
+			(buffer_select[4]) ? bufs[4] :
+			(buffer_select[5]) ? bufs[5] :
+			(buffer_select[6]) ? bufs[6] :
+			bufs[7] ;
 // not-allowed to not be selected since one-hot
-			null_buffer ;
+			//null_buffer ;
 			
 			
 
@@ -157,8 +158,18 @@ assign current_buffer = {8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx,
 // assign the patternbyte to the relevant
 // buffer,
 //
-assign field_byte = field_bytes[bufp] ; // -96ps
+//assign field_byte = field_bytes[bufp] ; // -96ps
 //
+
+assign field_byte = (bufp[0]) ? field_bytes[0] :
+		    (bufp[1]) ? field_bytes[1] :
+		    (bufp[2]) ? field_bytes[2] :
+		    (bufp[3]) ? field_bytes[3] :
+		    (bufp[4]) ? field_bytes[4] :
+		    (bufp[5]) ? field_bytes[5] :
+		    (bufp[6]) ? field_bytes[6] :
+		    field_bytes[7] ;
+
 
 
 
@@ -296,14 +307,14 @@ wire field_write6 ;
 wire field_write7 ;
 wire field_write8 ;
 
-assign field_write1 = (bufp == 0 && field_write) ;
-assign field_write2 = (bufp == 1 && field_write) ;
-assign field_write3 = (bufp == 2 && field_write) ;
-assign field_write4 = (bufp == 3 && field_write) ;
-assign field_write5 = (bufp == 4 && field_write) ;
-assign field_write6 = (bufp == 5 && field_write) ;
-assign field_write7 = (bufp == 6 && field_write) ;
-assign field_write8 = (bufp == 7 && field_write) ;
+assign field_write1 = (bufp[0] && field_write) ;
+assign field_write2 = (bufp[1] && field_write) ;
+assign field_write3 = (bufp[2] && field_write) ;
+assign field_write4 = (bufp[3] && field_write) ;
+assign field_write5 = (bufp[4] && field_write) ;
+assign field_write6 = (bufp[5] && field_write) ;
+assign field_write7 = (bufp[6] && field_write) ;
+assign field_write8 = (bufp[7] && field_write) ;
 
 
 defparam buffer1.buffer_width = buffer_width ;
