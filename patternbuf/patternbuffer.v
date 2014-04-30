@@ -38,8 +38,7 @@ output [buffer_width-1:0] tweak_drive_6 ;
 output [buffer_width-1:0] tweak_drive_7 ;
 
 reg [2:0] bufp ;
-reg [2:0] buffer_select_1 ;
-//reg [2:0] buffer_select_2 ;
+reg [7:0] buffer_select ;
 reg [buffer_size-1:0] fieldp ;
 reg [buffer_size-1:0] fieldwp ;
 reg [buffer_width-1:0] field_byte_out ;
@@ -53,7 +52,7 @@ wire [buffer_width-1:0] current_buffer [buffer_size] ;
 reg [buffer_width-1:0] field_in ;
 reg field_write ;
 
-buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select_1, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 
 
@@ -150,17 +149,14 @@ begin
  // implement counter which is reset by pwm
  // change and stays at its maximum value
  if (pwm != pwm_prev) begin
-	 buffer_select_1 <= 0 ;
-//	 buffer_select_2 <= 0 ;
+	 buffer_select <= 8'b00000001 ;
  end
  else begin
-	 if (buffer_select_1 == (no_bufs-1)) begin
-		 buffer_select_1 <= (no_bufs-1) ;
-//		 buffer_select_2 <= (no_bufs-1) ;
+	 if (buffer_select[no_bufs-1] == 1'b1) begin
+		 buffer_select <= {1'b1, {no_bufs-1{1'b0}}} ;
 	 end
 	 else begin
-		 buffer_select_1 <= buffer_select_1 + 1 ;
-//		 buffer_select_2 <= buffer_select_2 + 1 ;
+		 buffer_select <= buffer_select << 1 ;
 	 end
  end
 

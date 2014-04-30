@@ -40,7 +40,7 @@ parameter no_bufs = 8 ;      // patternbuf instances
 input sclk, sin, ssel ;
 input [2:0] saddr ;
 input [2:0] bufp ;
-input [2:0] buffer_select ;
+input [7:0] buffer_select ; // one-hot
 input [buffer_size-1:0] fieldp ; 
 input [buffer_size-1:0] fieldwp ; 
 input clk ;
@@ -127,9 +127,32 @@ wire souts[8] ;
 assign sout = ssel ? souts[saddr] : 1'bz ;
 //assign sout = souts[0] ;
 
-// TRYME: How about using tri-state drivers off each buffer,
-// rather than MUXing?
-assign current_buffer = bufs[buffer_select] ;
+//assign current_buffer = bufs[buffer_select] ;
+// Buffer select one-hot for fanout optimisation
+
+wire [buffer_width-1:0] null_buffer [buffer_size] ;
+genvar g ;
+for (g = 0 ; g < buffer_size ; g++)
+begin
+	assign null_buffer[g] = {buffer_width{1'bx}} ;
+end
+
+assign current_buffer = (buffer_select == 8'b00000001) ? bufs[0] :
+			(buffer_select == 8'b00000010) ? bufs[1] :
+			(buffer_select == 8'b00000100) ? bufs[2] :
+			(buffer_select == 8'b00001000) ? bufs[3] :
+			(buffer_select == 8'b00010000) ? bufs[4] :
+			(buffer_select == 8'b00100000) ? bufs[5] :
+			(buffer_select == 8'b01000000) ? bufs[6] :
+			(buffer_select == 8'b10000000) ? bufs[7] :
+// not-allowed to not be selected since one-hot
+			null_buffer ;
+			
+			
+
+/*
+assign current_buffer = {8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx} ;
+*/
 
 // assign the patternbyte to the relevant
 // buffer,
