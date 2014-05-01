@@ -30,7 +30,7 @@ endmodule
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 22 ; // bytes
 parameter buffer_width = 8 ; // bits
@@ -42,6 +42,7 @@ input [2:0] saddr ;
 input [buffer_width-1:0] bufp ;
 input [7:0] buffer_select ; // one-hot
 input [buffer_size-1:0] fieldp ; 
+input [buffer_size-1:0] fieldp2 ; 
 input [buffer_size-1:0] fieldwp ; 
 input clk ;
 input [buffer_width-1:0] field_in ;
@@ -175,16 +176,14 @@ assign current_buffer = (buffer_select[0]) ? bufs[0] :
 			
 */		
 
-/*
-assign current_buffer = {8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx, 8'hxx} ;
-*/
-
 // assign the patternbyte to the relevant
 // buffer,
 //
-//assign field_byte = field_bytes[bufp] ; // -96ps
+//assign field_byte = field_bytes[bufp] ;
 //
 
+
+// I could pipeline this to meet timing, like for the current_buffer above.
 assign field_byte = (bufp[0]) ? field_bytes[0] :
 		    (bufp[1]) ? field_bytes[1] :
 		    (bufp[2]) ? field_bytes[2] :
@@ -362,9 +361,9 @@ patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, fieldwp, field_byte
 patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, fieldwp, field_bytes[1], field_in, field_write2, clk) ;
 patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, fieldwp, field_bytes[2], field_in, field_write3, clk) ;
 patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, fieldwp, field_bytes[3], field_in, field_write4, clk) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, fieldwp, field_bytes[4], field_in, field_write5, clk) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, fieldwp, field_bytes[5], field_in, field_write6, clk) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, fieldwp, field_bytes[6], field_in, field_write7, clk) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
+patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp2, fieldwp, field_bytes[4], field_in, field_write5, clk) ;
+patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp2, fieldwp, field_bytes[5], field_in, field_write6, clk) ;
+patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp2, fieldwp, field_bytes[6], field_in, field_write7, clk) ;
+patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp2, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
 
 endmodule

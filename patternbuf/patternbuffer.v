@@ -40,6 +40,7 @@ output [buffer_width-1:0] tweak_drive_7 ;
 reg [7:0] bufp ;
 reg [7:0] buffer_select ;
 reg [buffer_size-1:0] fieldp ;
+reg [buffer_size-1:0] fieldp2 ;
 reg [buffer_size-1:0] fieldwp ;
 reg [buffer_width-1:0] field_byte_out ;
 
@@ -52,7 +53,7 @@ wire [buffer_width-1:0] current_buffer [buffer_size] ;
 reg [buffer_width-1:0] field_in ;
 reg field_write ;
 
-buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldwp, field_byte, field_in, field_write, clk) ;
 
 
 
@@ -138,6 +139,7 @@ begin
  // bufp and fieldp cannot be simulaneously incremented
  bufp <= bufp_in ;	 
  fieldp <= fieldp_in ;
+ fieldp2 <= fieldp_in ;
  fieldwp <= fieldwp_in ;
  field_byte_out <= field_byte ;
  field_write <= field_write_in ;
