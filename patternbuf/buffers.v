@@ -50,6 +50,7 @@ output sout ;
 output [buffer_width-1:0] field_byte ;
 
 output [buffer_width-1:0] current_buffer [buffer_size] ; 
+reg [buffer_width-1:0] current_buffer [buffer_size] ; 
 
 
 wire [buffer_width-1:0] bufs [no_bufs][buffer_size] ;
@@ -127,7 +128,30 @@ wire souts[8] ;
 assign sout = ssel ? souts[saddr] : 1'bz ;
 //assign sout = souts[0] ;
 
-assign current_buffer = bufs[buffer_select] ;
+//assign current_buffer = bufs[buffer_select] ;
+
+// null, invalid buffer
+wire [buffer_width-1:0] null_buffer [buffer_size] ;
+genvar g ;
+for (g = 0 ; g < buffer_size ; g++)
+begin
+	assign null_buffer[g] = {buffer_width{1'bx}} ;
+end
+
+always @(buffer_select)
+begin
+	casex (buffer_select)
+		8'b00000001: current_buffer <= bufs[0] ;
+		8'b00000010: current_buffer <= bufs[1] ;
+		8'b00000100: current_buffer <= bufs[2] ;
+		8'b00001000: current_buffer <= bufs[3] ;
+		8'b00010000: current_buffer <= bufs[4] ;
+		8'b00100000: current_buffer <= bufs[5] ;
+		8'b01000000: current_buffer <= bufs[6] ;
+		8'b10000000: current_buffer <= bufs[7] ;
+		default: current_buffer <= null_buffer ; // impossible condition
+	endcase
+end
 
 /*
 // Buffer select one-hot for fanout optimisation
