@@ -59,7 +59,17 @@ wire [buffer_width-1:0] current_buffer [buffer_size] ;
 reg [buffer_width-1:0] field_in ;
 reg field_write ;
 
-buffers theBuffers(sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
+// synchronisation flops
+reg ssel_sync_1 ;
+reg ssel_sync_2 ;
+reg sin_sync_1 ;
+reg sin_sync_2 ;
+reg [2:0] saddr_sync_1 ;
+reg [2:0] saddr_sync_2 ;
+
+
+// instantiate the pattern buffers
+buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
 
 
 
@@ -106,6 +116,14 @@ reg pwm_prev ;
 
 always @(posedge clk)
 begin
+
+ // two-flop synchroniser on input signals
+ ssel_sync_1 <= ssel ;
+ ssel_sync_2 <= ssel_sync_1 ;
+ sin_sync_1 <= sin ;
+ sin_sync_2 <= sin_sync_1 ;
+ saddr_sync_1 <= saddr ;
+ saddr_sync_2 <= saddr_sync_1 ;
 
  // convert pat signals
  case (bufp_in)
