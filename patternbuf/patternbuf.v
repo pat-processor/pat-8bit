@@ -15,14 +15,13 @@ end
 endmodule
 
 `timescale 1ns / 1ns
-module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+module patternbuf(pattern, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 22;
 parameter buffer_width = 8;
 
 input ssel ;
 input sin ;
-input sclk ;
 input [buffer_size-1:0] fieldp ;
 input [buffer_size-1:0] fieldwp ;
 input [buffer_width-1:0] field_in ;
@@ -165,12 +164,6 @@ endgenerate
 
 
 
-//integer i ;
-
-//wire flopClock ;
-//assign flopClock = ssel ? sclk : clk  ;
-//
-//*/
 
 /*
 always @(posedge clk)

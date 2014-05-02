@@ -1,7 +1,9 @@
 `timescale 1ns / 1ns
-module patternbuffer(clk, pwm, sclk, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_sense, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
+module patternbuffer(clk, pwm, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_sense, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
 
 // TODO: Sort out the clocking in and sout w.r.t. external clocks.
+// Also set the input delay constraints on fieldp_in, fieldwp_in,
+// field_write_in, field_in_in
 
 parameter buffer_size = 22 ;
 parameter buffer_width = 8 ;
@@ -10,7 +12,7 @@ parameter no_bufs = 8 ;
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
 
-input sin, sclk, ssel ;
+input sin, ssel ;
 input clk ; 
 input pwm ;
 input [2:0] saddr ;
@@ -57,7 +59,7 @@ wire [buffer_width-1:0] current_buffer [buffer_size] ;
 reg [buffer_width-1:0] field_in ;
 reg field_write ;
 
-buffers theBuffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
+buffers theBuffers(sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
 
 
 
