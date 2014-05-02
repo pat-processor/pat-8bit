@@ -367,6 +367,6 @@ patternbuf buffer4(buf4, ssel4, sin, souts[3], fieldp2, fieldwp, field_bytes[3],
 patternbuf buffer5(buf5, ssel5, sin, souts[4], fieldp3, fieldwp, field_bytes[4], field_in, field_write5, clk) ;
 patternbuf buffer6(buf6, ssel6, sin, souts[5], fieldp3, fieldwp, field_bytes[5], field_in, field_write6, clk) ;
 patternbuf buffer7(buf7, ssel7, sin, souts[6], fieldp4, fieldwp, field_bytes[6], field_in, field_write7, clk) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp4, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
+patternbuf buffer8(buf8, ssel8, sin, souts[7], fieldp4, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
 
 endmodule
