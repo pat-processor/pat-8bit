@@ -1,8 +1,7 @@
 `timescale 1ns / 1ns
 module patternbuffer(clk, pwm, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_sense, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
 
-// TODO: Sort out the clocking in and sout w.r.t. external clocks.
-// Also set the input delay constraints on fieldp_in, fieldwp_in,
+// TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
 
 parameter buffer_size = 22 ;
