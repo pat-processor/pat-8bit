@@ -1,6 +1,8 @@
 `timescale 1ns / 1ns
 module patternbuffer(clk, pwm, sclk, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_delay, tweak_sense, tweak_drive_0, tweak_drive_1, tweak_drive_2, tweak_drive_3, tweak_drive_4, tweak_drive_5, tweak_drive_6, tweak_drive_7) ;
 
+// TODO: Sort out the clocking in and sout w.r.t. external clocks.
+
 parameter buffer_size = 22 ;
 parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
@@ -14,9 +16,9 @@ input pwm ;
 input [2:0] saddr ;
 input [buffer_width-1:0] field_in_in ;
 input field_write_in ;
-input [7:0] bufp_in ;
-input [buffer_size-1:0] fieldp_in ;
-input [buffer_size-1:0] fieldwp_in ;
+input [2:0] bufp_in ;
+input [4:0] fieldp_in ;
+input [4:0] fieldwp_in ;
 
 // test output
 output sout ;
@@ -98,46 +100,164 @@ reg [buffer_width-1:0] tweak_drive_5 ;
 reg [buffer_width-1:0] tweak_drive_6 ;
 reg [buffer_width-1:0] tweak_drive_7 ;
 
-
-/*
-reg [buffer_width-1:0] n_drive ;
-reg [buffer_width-1:0] tweak_delay_n ;
-reg [buffer_width-1:0[ tweak_sense_n ;
-reg [buffer_width-1:0] tweak_drive_n0 ;
-reg [buffer_width-1:0] tweak_drive_n1 ;
-reg [buffer_width-1:0] tweak_drive_n2 ;
-reg [buffer_width-1:0] tweak_drive_n3 ;
-reg [buffer_width-1:0] tweak_drive_n4 ;
-reg [buffer_width-1:0] tweak_drive_n5 ;
-reg [buffer_width-1:0] tweak_drive_n6 ;
-reg [buffer_width-1:0] tweak_drive_n7 ;
-*/
-
-/*
-assign p_drive = current_buffer[`PDRIVE] ;
-assign n_drive = current_buffer[`NDRIVE] ;
-assign tweak_sense = current_buffer[`TWEAKSENSE] ;
-assign tweak_delay = current_buffer[`TWEAKDELAY] ;
-
-// gate tweak drive based on the programmed sense w.r.t. the pwm signal
-assign tweak_drive_0 = current_buffer[`TWEAK0] && (tweak_sense[0] == pwm) ;
-assign tweak_drive_1 = current_buffer[`TWEAK1] && (tweak_sense[1] == pwm) ;
-assign tweak_drive_2 = current_buffer[`TWEAK2] && (tweak_sense[2] == pwm) ;
-assign tweak_drive_3 = current_buffer[`TWEAK3] && (tweak_sense[3] == pwm) ;
-assign tweak_drive_4 = current_buffer[`TWEAK4] && (tweak_sense[4] == pwm) ;
-assign tweak_drive_5 = current_buffer[`TWEAK5] && (tweak_sense[5] == pwm) ;
-assign tweak_drive_6 = current_buffer[`TWEAK6] && (tweak_sense[6] == pwm) ;
-assign tweak_drive_7 = current_buffer[`TWEAK7] && (tweak_sense[7] == pwm) ;
-*/
-
-
-
-
 reg pwm_prev ;
 
 always @(posedge clk)
 begin
- // pat signals
+
+ // convert pat signals
+ case (bufp_in)
+	 0: bufp <= 8'b00000001 ;
+	 1: bufp <= 8'b00000010 ;
+	 2: bufp <= 8'b00000100 ;
+	 3: bufp <= 8'b00001000 ;
+	 4: bufp <= 8'b00010000 ;
+	 5: bufp <= 8'b00100000 ;
+	 6: bufp <= 8'b01000000 ;
+	 7: bufp <= 8'b10000000 ;
+	 default: bufp <= 8'b00000001 ;
+ endcase
+
+// duplicate fieldps for fanout reasons
+// use via multiple identical cases
+
+ case (fieldp_in)
+	 0: fieldp <= 22'b0000000000000000000001 ;
+	 1: fieldp <= 22'b0000000000000000000010 ;
+	 2: fieldp <= 22'b0000000000000000000100 ;
+	 3: fieldp <= 22'b0000000000000000001000 ;
+	 4: fieldp <= 22'b0000000000000000010000 ;
+	 5: fieldp <= 22'b0000000000000000100000 ;
+	 6: fieldp <= 22'b0000000000000001000000 ;
+	 7: fieldp <= 22'b0000000000000010000000 ;
+	 8: fieldp <= 22'b0000000000000100000000 ;
+	 9: fieldp <= 22'b0000000000001000000000 ;
+	 10: fieldp <= 22'b0000000000010000000000 ;
+	 11: fieldp <= 22'b0000000000100000000000 ;
+	 12: fieldp <= 22'b0000000001000000000000 ;
+	 13: fieldp <= 22'b0000000010000000000000 ;
+	 14: fieldp <= 22'b0000000100000000000000 ;
+	 15: fieldp <= 22'b0000001000000000000000 ;
+	 16: fieldp <= 22'b0000010000000000000000 ;
+	 17: fieldp <= 22'b0000100000000000000000 ;
+	 18: fieldp <= 22'b0001000000000000000000 ;
+	 19: fieldp <= 22'b0010000000000000000000 ;
+	 20: fieldp <= 22'b0100000000000000000000 ;
+	 21: fieldp <= 22'b1000000000000000000000 ;
+	 default: fieldp <= 22'b0000000000000000000001 ;
+ endcase
+
+  case (fieldp_in)
+	 0: fieldp2 <= 22'b0000000000000000000001 ;
+	 1: fieldp2 <= 22'b0000000000000000000010 ;
+	 2: fieldp2 <= 22'b0000000000000000000100 ;
+	 3: fieldp2 <= 22'b0000000000000000001000 ;
+	 4: fieldp2 <= 22'b0000000000000000010000 ;
+	 5: fieldp2 <= 22'b0000000000000000100000 ;
+	 6: fieldp2 <= 22'b0000000000000001000000 ;
+	 7: fieldp2 <= 22'b0000000000000010000000 ;
+	 8: fieldp2 <= 22'b0000000000000100000000 ;
+	 9: fieldp2 <= 22'b0000000000001000000000 ;
+	 10: fieldp2 <= 22'b0000000000010000000000 ;
+	 11: fieldp2 <= 22'b0000000000100000000000 ;
+	 12: fieldp2 <= 22'b0000000001000000000000 ;
+	 13: fieldp2 <= 22'b0000000010000000000000 ;
+	 14: fieldp2 <= 22'b0000000100000000000000 ;
+	 15: fieldp2 <= 22'b0000001000000000000000 ;
+	 16: fieldp2 <= 22'b0000010000000000000000 ;
+	 17: fieldp2 <= 22'b0000100000000000000000 ;
+	 18: fieldp2 <= 22'b0001000000000000000000 ;
+	 19: fieldp2 <= 22'b0010000000000000000000 ;
+	 20: fieldp2 <= 22'b0100000000000000000000 ;
+	 21: fieldp2 <= 22'b1000000000000000000000 ;
+	 default: fieldp2 <= 22'b0000000000000000000001 ;
+ endcase
+
+  case (fieldp_in)
+	 0: fieldp3 <= 22'b0000000000000000000001 ;
+	 1: fieldp3 <= 22'b0000000000000000000010 ;
+	 2: fieldp3 <= 22'b0000000000000000000100 ;
+	 3: fieldp3 <= 22'b0000000000000000001000 ;
+	 4: fieldp3 <= 22'b0000000000000000010000 ;
+	 5: fieldp3 <= 22'b0000000000000000100000 ;
+	 6: fieldp3 <= 22'b0000000000000001000000 ;
+	 7: fieldp3 <= 22'b0000000000000010000000 ;
+	 8: fieldp3 <= 22'b0000000000000100000000 ;
+	 9: fieldp3 <= 22'b0000000000001000000000 ;
+	 10: fieldp3 <= 22'b0000000000010000000000 ;
+	 11: fieldp3 <= 22'b0000000000100000000000 ;
+	 12: fieldp3 <= 22'b0000000001000000000000 ;
+	 13: fieldp3 <= 22'b0000000010000000000000 ;
+	 14: fieldp3 <= 22'b0000000100000000000000 ;
+	 15: fieldp3 <= 22'b0000001000000000000000 ;
+	 16: fieldp3 <= 22'b0000010000000000000000 ;
+	 17: fieldp3 <= 22'b0000100000000000000000 ;
+	 18: fieldp3 <= 22'b0001000000000000000000 ;
+	 19: fieldp3 <= 22'b0010000000000000000000 ;
+	 20: fieldp3 <= 22'b0100000000000000000000 ;
+	 21: fieldp3 <= 22'b1000000000000000000000 ;
+	 default: fieldp3 <= 22'b0000000000000000000001 ;
+ endcase
+
+   case (fieldp_in)
+	 0: fieldp4 <= 22'b0000000000000000000001 ;
+	 1: fieldp4 <= 22'b0000000000000000000010 ;
+	 2: fieldp4 <= 22'b0000000000000000000100 ;
+	 3: fieldp4 <= 22'b0000000000000000001000 ;
+	 4: fieldp4 <= 22'b0000000000000000010000 ;
+	 5: fieldp4 <= 22'b0000000000000000100000 ;
+	 6: fieldp4 <= 22'b0000000000000001000000 ;
+	 7: fieldp4 <= 22'b0000000000000010000000 ;
+	 8: fieldp4 <= 22'b0000000000000100000000 ;
+	 9: fieldp4 <= 22'b0000000000001000000000 ;
+	 10: fieldp4 <= 22'b0000000000010000000000 ;
+	 11: fieldp4 <= 22'b0000000000100000000000 ;
+	 12: fieldp4 <= 22'b0000000001000000000000 ;
+	 13: fieldp4 <= 22'b0000000010000000000000 ;
+	 14: fieldp4 <= 22'b0000000100000000000000 ;
+	 15: fieldp4 <= 22'b0000001000000000000000 ;
+	 16: fieldp4 <= 22'b0000010000000000000000 ;
+	 17: fieldp4 <= 22'b0000100000000000000000 ;
+	 18: fieldp4 <= 22'b0001000000000000000000 ;
+	 19: fieldp4 <= 22'b0010000000000000000000 ;
+	 20: fieldp4 <= 22'b0100000000000000000000 ;
+	 21: fieldp4 <= 22'b1000000000000000000000 ;
+	 default: fieldp4 <= 22'b0000000000000000000001 ;
+ endcase
+
+
+ case (fieldwp_in)
+	 0: fieldwp <= 22'b0000000000000000000001 ;
+	 1: fieldwp <= 22'b0000000000000000000010 ;
+	 2: fieldwp <= 22'b0000000000000000000100 ;
+	 3: fieldwp <= 22'b0000000000000000001000 ;
+	 4: fieldwp <= 22'b0000000000000000010000 ;
+	 5: fieldwp <= 22'b0000000000000000100000 ;
+	 6: fieldwp <= 22'b0000000000000001000000 ;
+	 7: fieldwp <= 22'b0000000000000010000000 ;
+	 8: fieldwp <= 22'b0000000000000100000000 ;
+	 9: fieldwp <= 22'b0000000000001000000000 ;
+	 10: fieldwp <= 22'b0000000000010000000000 ;
+	 11: fieldwp <= 22'b0000000000100000000000 ;
+	 12: fieldwp <= 22'b0000000001000000000000 ;
+	 13: fieldwp <= 22'b0000000010000000000000 ;
+	 14: fieldwp <= 22'b0000000100000000000000 ;
+	 15: fieldwp <= 22'b0000001000000000000000 ;
+	 16: fieldwp <= 22'b0000010000000000000000 ;
+	 17: fieldwp <= 22'b0000100000000000000000 ;
+	 18: fieldwp <= 22'b0001000000000000000000 ;
+	 19: fieldwp <= 22'b0010000000000000000000 ;
+	 20: fieldwp <= 22'b0100000000000000000000 ;
+	 21: fieldwp <= 22'b1000000000000000000000 ;
+	 default: fieldwp <= 22'b0000000000000000000001 ;
+ endcase
+ 
+
+ field_byte_out <= field_byte ;
+ field_write <= field_write_in ;
+ field_in <= field_in_in ;
+
+ /* Obsolted by cases
  // bufp and fieldp cannot be simulaneously incremented
  bufp <= bufp_in ;	 
  fieldp <= fieldp_in ;
@@ -145,10 +265,10 @@ begin
  fieldp3 <= fieldp_in ;
  fieldp4 <= fieldp_in ;
  fieldwp <= fieldwp_in ;
- field_byte_out <= field_byte ;
- field_write <= field_write_in ;
- field_in <= field_in_in ;
+ */
 
+ // **************************************
+ // **************************************
  // now for the buffer selection
  pwm_prev <= pwm ;
 
