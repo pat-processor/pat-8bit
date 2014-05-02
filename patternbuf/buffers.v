@@ -128,7 +128,8 @@ assign ssel8 = ssel && saddr == 7 ;
 // assign the scan chain outputs
 // tri-state if disabled.
 wire souts[8] ;
-assign sout = ssel ? souts[saddr] : 1'bz ;
+//assign sout = ssel ? souts[saddr] : 1'bz ;
+assign sout = souts[saddr] ;
 //assign sout = souts[0] ;
 
 //assign current_buffer = bufs[buffer_select] ;

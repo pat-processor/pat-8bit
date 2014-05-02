@@ -44,13 +44,14 @@ integer i ;
 //genvar h ;
 
 
-
+reg ssel_prev ;
 always @(posedge clk)
 begin
   // if serial is selected, shift all the buffer left by one 
   // and add in 'sin'
-  if (ssel)
-     begin
+  ssel_prev <= ssel ;
+  if (ssel && !ssel_prev) // check for new +ve transition on ssel
+      begin
     	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
     	for(i=1 ; i<=buffer_size-1 ; i=i+1)
     	begin
