@@ -5,7 +5,7 @@ module patternbuffer(clk, pwm, sin, ssel, saddr, sout, field_byte_out, bufp_in, 
 // field_write_in, field_in_in
 
 parameter buffer_size = 22 ;
-parameter buffer_width = 7 ;
+parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
 
 defparam theBuffers.buffer_size = buffer_size ;
