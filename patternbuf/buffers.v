@@ -39,7 +39,7 @@ parameter no_bufs = 8 ;      // patternbuf instances
 
 input sin, ssel ;
 input [2:0] saddr ;
-input [buffer_width-1:0] bufp ;
+input [no_bufs-1:0] bufp ;
 input [7:0] buffer_select ; // one-hot
 input [buffer_size-1:0] fieldp ; 
 input [buffer_size-1:0] fieldp2 ; 
