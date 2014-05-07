@@ -15,14 +15,13 @@ end
 endmodule
 
 `timescale 1ns / 1ns
-module patternbuf(pattern, sclk, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+module patternbuf(pattern, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 22;
 parameter buffer_width = 8;
 
 input ssel ;
 input sin ;
-input sclk ;
 input [buffer_size-1:0] fieldp ;
 input [buffer_size-1:0] fieldwp ;
 input [buffer_width-1:0] field_in ;
@@ -45,13 +44,14 @@ integer i ;
 //genvar h ;
 
 
-
+reg ssel_prev ;
 always @(posedge clk)
 begin
   // if serial is selected, shift all the buffer left by one 
   // and add in 'sin'
-  if (ssel)
-     begin
+  ssel_prev <= ssel ;
+  if (ssel && !ssel_prev) // check for new +ve transition on ssel
+      begin
     	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
     	for(i=1 ; i<=buffer_size-1 ; i=i+1)
     	begin
@@ -165,12 +165,6 @@ endgenerate
 
 
 
-//integer i ;
-
-//wire flopClock ;
-//assign flopClock = ssel ? sclk : clk  ;
-//
-//*/
 
 /*
 always @(posedge clk)

@@ -30,18 +30,21 @@ endmodule
 `define SEQ1ADR 0 // address of globally visible sequence buffer (1)
 `define SEQ2ADR 1 // address of globally visible sequence buffer (2)
 `define SEQCTRLADR 2 // address of globally visible sequence control
-module buffers(sclk, sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+module buffers(sin, sout, ssel, saddr, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 22 ; // bytes
 parameter buffer_width = 8 ; // bits
 parameter no_bufs = 8 ;      // patternbuf instances
 
 
-input sclk, sin, ssel ;
+input sin, ssel ;
 input [2:0] saddr ;
-input [2:0] bufp ;
-input [2:0] buffer_select ;
+input [buffer_width-1:0] bufp ;
+input [7:0] buffer_select ; // one-hot
 input [buffer_size-1:0] fieldp ; 
+input [buffer_size-1:0] fieldp2 ; 
+input [buffer_size-1:0] fieldp3 ; 
+input [buffer_size-1:0] fieldp4 ; 
 input [buffer_size-1:0] fieldwp ; 
 input clk ;
 input [buffer_width-1:0] field_in ;
@@ -50,6 +53,7 @@ output sout ;
 output [buffer_width-1:0] field_byte ;
 
 output [buffer_width-1:0] current_buffer [buffer_size] ; 
+reg [buffer_width-1:0] current_buffer [buffer_size] ; 
 
 
 wire [buffer_width-1:0] bufs [no_bufs][buffer_size] ;
@@ -124,18 +128,74 @@ assign ssel8 = ssel && saddr == 7 ;
 // assign the scan chain outputs
 // tri-state if disabled.
 wire souts[8] ;
-assign sout = ssel ? souts[saddr] : 1'bz ;
+//assign sout = ssel ? souts[saddr] : 1'bz ;
+assign sout = souts[saddr] ;
 //assign sout = souts[0] ;
 
-// TRYME: How about using tri-state drivers off each buffer,
-// rather than MUXing?
-assign current_buffer = bufs[buffer_select] ;
+//assign current_buffer = bufs[buffer_select] ;
+
+// null, invalid buffer
+wire [buffer_width-1:0] null_buffer [buffer_size] ;
+genvar g ;
+for (g = 0 ; g < buffer_size ; g++)
+begin
+	assign null_buffer[g] = {buffer_width{1'bx}} ;
+end
+
+always @(buffer_select)
+begin
+	casex (buffer_select)
+		8'b00000001: current_buffer <= bufs[0] ;
+		8'b00000010: current_buffer <= bufs[1] ;
+		8'b00000100: current_buffer <= bufs[2] ;
+		8'b00001000: current_buffer <= bufs[3] ;
+		8'b00010000: current_buffer <= bufs[4] ;
+		8'b00100000: current_buffer <= bufs[5] ;
+		8'b01000000: current_buffer <= bufs[6] ;
+		8'b10000000: current_buffer <= bufs[7] ;
+		default: current_buffer <= null_buffer ; // impossible condition
+	endcase
+end
+
+/*
+// Buffer select one-hot for fanout optimisation
+wire [buffer_width-1:0] null_buffer [buffer_size] ;
+genvar g ;
+for (g = 0 ; g < buffer_size ; g++)
+begin
+	assign null_buffer[g] = {buffer_width{1'bx}} ;
+end
+
+assign current_buffer = (buffer_select[0]) ? bufs[0] :
+			(buffer_select[1]) ? bufs[1] :
+			(buffer_select[2]) ? bufs[2] :
+			(buffer_select[3]) ? bufs[3] :
+			(buffer_select[4]) ? bufs[4] :
+			(buffer_select[5]) ? bufs[5] :
+			(buffer_select[6]) ? bufs[6] :
+			bufs[7] ;
+// not-allowed to not be selected since one-hot
+			//null_buffer ;
+			
+*/		
 
 // assign the patternbyte to the relevant
 // buffer,
 //
-assign field_byte = field_bytes[bufp] ; // -96ps
+//assign field_byte = field_bytes[bufp] ;
 //
+
+
+// I could pipeline this to meet timing, like for the current_buffer above.
+assign field_byte = (bufp[0]) ? field_bytes[0] :
+		    (bufp[1]) ? field_bytes[1] :
+		    (bufp[2]) ? field_bytes[2] :
+		    (bufp[3]) ? field_bytes[3] :
+		    (bufp[4]) ? field_bytes[4] :
+		    (bufp[5]) ? field_bytes[5] :
+		    (bufp[6]) ? field_bytes[6] :
+		    field_bytes[7] ;
+
 
 
 
@@ -273,14 +333,14 @@ wire field_write6 ;
 wire field_write7 ;
 wire field_write8 ;
 
-assign field_write1 = (bufp == 0 && field_write) ;
-assign field_write2 = (bufp == 1 && field_write) ;
-assign field_write3 = (bufp == 2 && field_write) ;
-assign field_write4 = (bufp == 3 && field_write) ;
-assign field_write5 = (bufp == 4 && field_write) ;
-assign field_write6 = (bufp == 5 && field_write) ;
-assign field_write7 = (bufp == 6 && field_write) ;
-assign field_write8 = (bufp == 7 && field_write) ;
+assign field_write1 = (bufp[0] && field_write) ;
+assign field_write2 = (bufp[1] && field_write) ;
+assign field_write3 = (bufp[2] && field_write) ;
+assign field_write4 = (bufp[3] && field_write) ;
+assign field_write5 = (bufp[4] && field_write) ;
+assign field_write6 = (bufp[5] && field_write) ;
+assign field_write7 = (bufp[6] && field_write) ;
+assign field_write8 = (bufp[7] && field_write) ;
 
 
 defparam buffer1.buffer_width = buffer_width ;
@@ -300,13 +360,13 @@ defparam buffer7.buffer_size = buffer_size ;
 defparam buffer8.buffer_width = buffer_width ;
 defparam buffer8.buffer_size = buffer_size ;
 
-patternbuf buffer1(buf1, sclk, ssel1, sin, souts[0], fieldp, fieldwp, field_bytes[0], field_in, field_write1, clk) ;
-patternbuf buffer2(buf2, sclk, ssel2, sin, souts[1], fieldp, fieldwp, field_bytes[1], field_in, field_write2, clk) ;
-patternbuf buffer3(buf3, sclk, ssel3, sin, souts[2], fieldp, fieldwp, field_bytes[2], field_in, field_write3, clk) ;
-patternbuf buffer4(buf4, sclk, ssel4, sin, souts[3], fieldp, fieldwp, field_bytes[3], field_in, field_write4, clk) ;
-patternbuf buffer5(buf5, sclk, ssel5, sin, souts[4], fieldp, fieldwp, field_bytes[4], field_in, field_write5, clk) ;
-patternbuf buffer6(buf6, sclk, ssel6, sin, souts[5], fieldp, fieldwp, field_bytes[5], field_in, field_write6, clk) ;
-patternbuf buffer7(buf7, sclk, ssel7, sin, souts[6], fieldp, fieldwp, field_bytes[6], field_in, field_write7, clk) ;
-patternbuf buffer8(buf8, sclk, ssel8, sin, souts[7], fieldp, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
+patternbuf buffer1(buf1, ssel1, sin, souts[0], fieldp, fieldwp, field_bytes[0], field_in, field_write1, clk) ;
+patternbuf buffer2(buf2, ssel2, sin, souts[1], fieldp, fieldwp, field_bytes[1], field_in, field_write2, clk) ;
+patternbuf buffer3(buf3, ssel3, sin, souts[2], fieldp2, fieldwp, field_bytes[2], field_in, field_write3, clk) ;
+patternbuf buffer4(buf4, ssel4, sin, souts[3], fieldp2, fieldwp, field_bytes[3], field_in, field_write4, clk) ;
+patternbuf buffer5(buf5, ssel5, sin, souts[4], fieldp3, fieldwp, field_bytes[4], field_in, field_write5, clk) ;
+patternbuf buffer6(buf6, ssel6, sin, souts[5], fieldp3, fieldwp, field_bytes[5], field_in, field_write6, clk) ;
+patternbuf buffer7(buf7, ssel7, sin, souts[6], fieldp4, fieldwp, field_bytes[6], field_in, field_write7, clk) ;
+patternbuf buffer8(buf8, ssel8, sin, souts[7], fieldp4, fieldwp, field_bytes[7], field_in, field_write8, clk) ;
 
 endmodule
