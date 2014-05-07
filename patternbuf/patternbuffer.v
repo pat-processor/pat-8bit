@@ -10,6 +10,7 @@ parameter no_bufs = 8 ;
 
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
+defparam theBuffers.no_bufs = no_bufs ;
 
 input sin, ssel ;
 input clk ; 
