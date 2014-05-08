@@ -33,18 +33,35 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 # end load
 
 # floorplan
-floorPlan -site ams018hvSite -r 0.999130170932 0.50 50.4 50.4 50.0 50.0
+floorPlan -site ams018hvSite -r 0.985468919242 0.60 50.4 50.4 50.0 50.0
 selectObject Module theBuffers
-setObjFPlanBox Module theBuffers 60.925 70.976 681.829 684.908
+setObjFPlanBox Module theBuffers 54.320 56.225 698.392 680.400
 
+# ams scripts
 amsUserGrid
 # connect power (both if with I/O), "core" if not
 #amsGlobalConnect both
 amsGlobalConnect core
-amsHVringBlk corebox
+#amsHVringBlk corebox
+amsHVringBlk corebox 10 40
+
+
+
+# set pin locations
+# outputs
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4 -start 0.0 0.0 -pin {{tweak_sense[0]} {tweak_sense[1]} {tweak_sense[2]} {tweak_sense[3]} {tweak_sense[4]} {tweak_sense[5]} {tweak_sense[6]} {tweak_sense[7]} {tweak_delay[0]} {tweak_delay[1]} {tweak_delay[2]} {tweak_delay[3]} {tweak_delay[4]} {tweak_delay[5]} {tweak_delay[6]} {tweak_delay[7]} {tweak_drive_0[0]} {tweak_drive_0[1]} {tweak_drive_0[2]} {tweak_drive_0[3]} {tweak_drive_0[4]} {tweak_drive_0[5]} {tweak_drive_0[6]} {tweak_drive_0[7]} {tweak_drive_1[0]} {tweak_drive_1[1]} {tweak_drive_1[2]} {tweak_drive_1[3]} {tweak_drive_1[4]} {tweak_drive_1[5]} {tweak_drive_1[6]} {tweak_drive_1[7]} {tweak_drive_2[0]} {tweak_drive_2[1]} {tweak_drive_2[2]} {tweak_drive_2[3]} {tweak_drive_2[4]} {tweak_drive_2[5]} {tweak_drive_2[6]} {tweak_drive_2[7]} {tweak_drive_3[0]} {tweak_drive_3[1]} {tweak_drive_3[2]} {tweak_drive_3[3]} {tweak_drive_3[4]} {tweak_drive_3[5]} {tweak_drive_3[6]} {tweak_drive_3[7]} {tweak_drive_4[0]} {tweak_drive_4[1]} {tweak_drive_4[2]} {tweak_drive_4[3]} {tweak_drive_4[4]} {tweak_drive_4[5]} {tweak_drive_4[6]} {tweak_drive_4[7]} {tweak_drive_5[0]} {tweak_drive_5[1]} {tweak_drive_5[2]} {tweak_drive_5[3]} {tweak_drive_5[4]} {tweak_drive_5[5]} {tweak_drive_5[6]} {tweak_drive_5[7]} {tweak_drive_6[0]} {tweak_drive_6[1]} {tweak_drive_6[2]} {tweak_drive_6[3]} {tweak_drive_6[4]} {tweak_drive_6[5]} {tweak_drive_6[6]} {tweak_drive_6[7]} {tweak_drive_7[0]} {tweak_drive_7[1]} {tweak_drive_7[2]} {tweak_drive_7[3]} {tweak_drive_7[4]} {tweak_drive_7[5]} {tweak_drive_7[6]} {tweak_drive_7[7]} {p_drive[0]} {p_drive[1]} {p_drive[2]} {p_drive[3]} {p_drive[4]} {p_drive[5]} {p_drive[6]} {p_drive[7]} {n_drive[0]} {n_drive[1]} {n_drive[2]} {n_drive[3]} {n_drive[4]} {n_drive[5]} {n_drive[6]} {n_drive[7]}}
+
+# PAT connections
+editPin -side Left -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}}
+
+# external connections
+editPin -side Top -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 1.0 -start 0.0 0.0 -pin {clk pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sin sout ssel}
+
+
+
 
 # Do the work!
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 10 -spacing 2.8 -offset 4.9
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 10 -spacing 4.0 -offset 4.9
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 2.8 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
@@ -63,7 +80,7 @@ undo
 #amsPowerRoute
 
 # optimise for speed
-setOptMode -fixCap true -fixTran true -fixFanoutLoad false
+setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
 
 clockDesign -specFile Clock.ctstch -outDir clock_report -fixedInstBeforeCTS
