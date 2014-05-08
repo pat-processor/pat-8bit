@@ -104,7 +104,7 @@ timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefi
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 
 # from AMS FAQ
-optDesign -postRoute -setup -noECORoute
+optDesign -postRoute
 # TODO: Now need to invoke wroute with options Continue Final Route after Buffer Insertion and Gate Resizing
 
 
@@ -115,7 +115,7 @@ optDesign -postRoute -setup -noECORoute
 #optDesign -postRoute
 
 # save result
-saveDesign -cellview {patternbuffer patternbuffer layout}
+#saveDesign -cellview {patternbuffer patternbuffer layout}
 
 # open GUI
 win

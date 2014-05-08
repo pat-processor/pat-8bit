@@ -4,7 +4,7 @@ module patternbuffer(clk, reset, pwm, sin, ssel, saddr, sout, field_byte_out, bu
 // TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
 
-parameter buffer_size = 22 ;
+parameter buffer_size = 14 ;
 parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
 
@@ -48,6 +48,7 @@ reg [buffer_size-1:0] fieldp2 ;
 reg [buffer_size-1:0] fieldp3 ;
 reg [buffer_size-1:0] fieldp4 ;
 reg [buffer_size-1:0] fieldwp ;
+reg [buffer_size-1:0] fieldwp_2 ;
 reg [buffer_width-1:0] field_byte_out ;
 
 
@@ -69,7 +70,7 @@ reg [2:0] saddr_sync_2 ;
 
 
 // instantiate the pattern buffers
-buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, field_byte, field_in, field_write, clk) ;
+buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, fieldwp_2, field_byte, field_in, field_write, clk) ;
 
 
 
@@ -274,6 +275,35 @@ begin
 	endcase
 
 
+		case (fieldwp_in)
+		0: fieldwp_2 <= 22'b0000000000000000000001 ;
+		1: fieldwp_2 <= 22'b0000000000000000000010 ;
+		2: fieldwp_2 <= 22'b0000000000000000000100 ;
+		3: fieldwp_2 <= 22'b0000000000000000001000 ;
+		4: fieldwp_2 <= 22'b0000000000000000010000 ;
+		5: fieldwp_2 <= 22'b0000000000000000100000 ;
+		6: fieldwp_2 <= 22'b0000000000000001000000 ;
+		7: fieldwp_2 <= 22'b0000000000000010000000 ;
+		8: fieldwp_2 <= 22'b0000000000000100000000 ;
+		9: fieldwp_2 <= 22'b0000000000001000000000 ;
+		10: fieldwp_2 <= 22'b0000000000010000000000 ;
+		11: fieldwp_2 <= 22'b0000000000100000000000 ;
+		12: fieldwp_2 <= 22'b0000000001000000000000 ;
+		13: fieldwp_2 <= 22'b0000000010000000000000 ;
+		14: fieldwp_2 <= 22'b0000000100000000000000 ;
+		15: fieldwp_2 <= 22'b0000001000000000000000 ;
+		16: fieldwp_2 <= 22'b0000010000000000000000 ;
+		17: fieldwp_2 <= 22'b0000100000000000000000 ;
+		18: fieldwp_2 <= 22'b0001000000000000000000 ;
+		19: fieldwp_2 <= 22'b0010000000000000000000 ;
+		20: fieldwp_2 <= 22'b0100000000000000000000 ;
+		21: fieldwp_2 <= 22'b1000000000000000000000 ;
+		default: fieldwp_2 <= 22'b0000000000000000000001 ;
+	endcase
+
+
+
+
 	field_byte_out <= field_byte ;
 	field_write <= field_write_in ;
 	field_in <= field_in_in ;
@@ -339,14 +369,14 @@ begin
 		       // gate tweak drive based on the programmed sense w.r.t. the pwm signal
 		       tweak_delay <= current_buffer[`NTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`NTWEAKSENSE] ;
-		       tweak_drive_0 <= current_buffer[`NTWEAK0] ;
-		       tweak_drive_1 <= current_buffer[`NTWEAK1] ;
-		       tweak_drive_2 <= current_buffer[`NTWEAK2] ;
-		       tweak_drive_3 <= current_buffer[`NTWEAK3] ;
-		       tweak_drive_4 <= current_buffer[`NTWEAK4] ;
-		       tweak_drive_5 <= current_buffer[`NTWEAK5] ;
-		       tweak_drive_6 <= current_buffer[`NTWEAK6] ;
-		       tweak_drive_7 <= current_buffer[`NTWEAK7] ;
+//		       tweak_drive_0 <= current_buffer[`NTWEAK0] ;
+//		       tweak_drive_1 <= current_buffer[`NTWEAK1] ;
+//		       tweak_drive_2 <= current_buffer[`NTWEAK2] ;
+//		       tweak_drive_3 <= current_buffer[`NTWEAK3] ;
+//		       tweak_drive_4 <= current_buffer[`NTWEAK4] ;
+//		       tweak_drive_5 <= current_buffer[`NTWEAK5] ;
+//		       tweak_drive_6 <= current_buffer[`NTWEAK6] ;
+//		       tweak_drive_7 <= current_buffer[`NTWEAK7] ;
 	       end
        end // end if (!dead_time)
 
