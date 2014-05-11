@@ -33,9 +33,15 @@ elaborate patternbuffer
 #set_attribute lp_clock_gating_test_signal *ssel* /
 #report clock_gating -preview -gated_ff -clock_pin clk
 
-
 set clock [define_clock -period 1000 -name clk [find / -port clk]]
-set clock [define_clock -period 100000 -name sclk [find / -port sclk]]
+
+# setup delay for level-shifter inputs
+external_delay -clock clk -input 500 -name input_delays [find /des* -port ports_in/*]
+external_delay -clock clk -input 0 -name clk_nodelay [find /des* -port clk]
+# set the driving strength of the inputs to be equivalent to std cell output
+set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
+
+
 # set_max_delay -from <node> -to <node> <delay>
 #set_max_delay -from bufp -to current_buffer 1000
 #external_delay -output 2000 [find / -port ports_out/*]

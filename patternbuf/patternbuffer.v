@@ -4,7 +4,7 @@ module patternbuffer(clk, reset, pwm, sin, ssel, saddr, sout, field_byte_out, bu
 // TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
 
-parameter buffer_size = 14 ;
+parameter buffer_size = 18 ;
 parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
 
@@ -84,20 +84,20 @@ buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_sel
 `define PTWEAK3 6
 `define PTWEAK4 7
 `define PTWEAK5 8
-`define PTWEAK6 9
-`define PTWEAK7 10
+//`define PTWEAK6 9
+//`define PTWEAK7 10
 
-`define NDRIVE 11
-`define NTWEAKSENSE 12
-`define NTWEAKDELAY 13
-`define NTWEAK0 14
-`define NTWEAK1 15
-`define NTWEAK2 16
-`define NTWEAK3 17
-`define NTWEAK4 18
-`define NTWEAK5 19
-`define NTWEAK6 20
-`define NTWEAK7 21
+`define NDRIVE 9
+`define NTWEAKSENSE 10
+`define NTWEAKDELAY 11
+`define NTWEAK0 12
+`define NTWEAK1 13
+`define NTWEAK2 14
+`define NTWEAK3 15
+`define NTWEAK4 16
+`define NTWEAK5 17
+//`define NTWEAK6 20
+//`define NTWEAK7 21
 
 
 reg [buffer_width-1:0] p_drive ;
@@ -359,8 +359,8 @@ begin
 		       tweak_drive_3 <= current_buffer[`PTWEAK3] ;
 		       tweak_drive_4 <= current_buffer[`PTWEAK4] ;
 		       tweak_drive_5 <= current_buffer[`PTWEAK5] ;
-		       tweak_drive_6 <= current_buffer[`PTWEAK6] ;
-		       tweak_drive_7 <= current_buffer[`PTWEAK7] ;
+//		       tweak_drive_6 <= current_buffer[`PTWEAK6] ;
+//		       tweak_drive_7 <= current_buffer[`PTWEAK7] ;
 	       end
 	       // low-driving phase
 	       else begin
@@ -369,12 +369,12 @@ begin
 		       // gate tweak drive based on the programmed sense w.r.t. the pwm signal
 		       tweak_delay <= current_buffer[`NTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`NTWEAKSENSE] ;
-//		       tweak_drive_0 <= current_buffer[`NTWEAK0] ;
-//		       tweak_drive_1 <= current_buffer[`NTWEAK1] ;
-//		       tweak_drive_2 <= current_buffer[`NTWEAK2] ;
-//		       tweak_drive_3 <= current_buffer[`NTWEAK3] ;
-//		       tweak_drive_4 <= current_buffer[`NTWEAK4] ;
-//		       tweak_drive_5 <= current_buffer[`NTWEAK5] ;
+		       tweak_drive_0 <= current_buffer[`NTWEAK0] ;
+		       tweak_drive_1 <= current_buffer[`NTWEAK1] ;
+		       tweak_drive_2 <= current_buffer[`NTWEAK2] ;
+		       tweak_drive_3 <= current_buffer[`NTWEAK3] ;
+		       tweak_drive_4 <= current_buffer[`NTWEAK4] ;
+		       tweak_drive_5 <= current_buffer[`NTWEAK5] ;
 //		       tweak_drive_6 <= current_buffer[`NTWEAK6] ;
 //		       tweak_drive_7 <= current_buffer[`NTWEAK7] ;
 	       end
