@@ -36,7 +36,7 @@ elaborate patternbuffer
 set clock [define_clock -period 1000 -name clk [find / -port clk]]
 
 # setup delay for level-shifter inputs
-external_delay -clock clk -input 500 -name input_delays [find /des* -port ports_in/*]
+external_delay -clock clk -input 350 -name level_shifter_delay [find /des* -port ports_in/*]
 external_delay -clock clk -input 0 -name clk_nodelay [find /des* -port clk]
 # set the driving strength of the inputs to be equivalent to std cell output
 set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
