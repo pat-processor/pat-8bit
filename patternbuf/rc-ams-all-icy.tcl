@@ -36,7 +36,7 @@ elaborate patternbuffer
 set clock [define_clock -period 1000 -name clk [find / -port clk]]
 
 # setup delay for level-shifter inputs
-external_delay -clock clk -input 350 -name level_shifter_delay [find /des* -port ports_in/*]
+external_delay -clock clk -input 250 -name level_shifter_delay [find /des* -port ports_in/*]
 external_delay -clock clk -input 0 -name clk_nodelay [find /des* -port clk]
 # set the driving strength of the inputs to be equivalent to std cell output
 set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
@@ -65,7 +65,42 @@ dc::set_time_unit -picoseconds
 
 set_attribute optimize_merge_flops false /
 #synthesize -to_mapped patternbuffer
-synthesize -to_mapped -effort high patternbuffer
+
+synthesize -to_mapped  patternbuffer
+#synthesize -to_mapped -effort high patternbuffer
+
+# SCAN CHAIN
+#synthesize -to_generic
+
+set_attribute dft_scan_style muxed_scan /
+#define_dft shift_enable [find / -pin scan_enable]
+#set_attribute dft_dont_scan true {instance | subdesign | design}
+define_dft test_clock -period 100000
+#set_attribute dft_identify_top_level_test_clocks false / 
+#set_attribute dft_identify_test_signals f
+check_dft_rules
+report dft_registers
+# allow dft engine to determine if output scan is inverted or not
+set_attribute dft_scan_output_preference auto patternbuffer
+# map all flops that pass DFT rules to scannable
+set_attr dft_scan_map_mode tdrc_pass patternbuffer
+# set for synthesis drive
+set_attr dft_connect_scan_data_pins_during_mapping loopback patternbuffer
+report dft_setup
+
+set_attribute dft_prefix SCAN_
+
+connect_scan_chains -preview -auto_create_chains [-pack]
+
+connect_scan_chains [-auto_create_chains]
+report dft_chains > patternbuffer_scanchains
+report dft_setup > patternbuffer_dftsetup
+# END SCAN CHAIN
+
+# improve timing now the scan chain is there
+synthesize -incremental -effort high
+
+
 
 write -mapped > patternbuffer-mapped.v
 #write_script > design_script.script
