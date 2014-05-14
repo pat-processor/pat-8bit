@@ -4,7 +4,7 @@ module patternbuffer(clk, reset, pwm, sin, ssel, saddr, sout, field_byte_out, bu
 // TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
 
-parameter buffer_size = 20 ;
+parameter buffer_size = 16 ;
 parameter buffer_width = 8 ;
 parameter no_bufs = 8 ;
 parameter delay_width = 3 ; // size of tweak delay value
@@ -90,19 +90,15 @@ buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_sel
 `define PTWEAK1 5
 `define PTWEAK2 6
 `define PTWEAK3 7
-`define PTWEAK4 8
-`define PTWEAK5 9
 
-`define NDRIVE 10
-`define NTWEAKENABLE 11
-`define NTWEAKSENSE 12
-`define NTWEAKDELAY 13
-`define NTWEAK0 14
-`define NTWEAK1 15
-`define NTWEAK2 16
-`define NTWEAK3 17
-`define NTWEAK4 18
-`define NTWEAK5 19
+`define NDRIVE 8
+`define NTWEAKENABLE 9
+`define NTWEAKSENSE 10
+`define NTWEAKDELAY 11
+`define NTWEAK0 12
+`define NTWEAK1 13
+`define NTWEAK2 14
+`define NTWEAK3 15
 
 
 reg [buffer_width-1:0] p_drive ;
@@ -364,19 +360,19 @@ begin
 		       tweak_global_delay <= current_buffer[`PTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`PTWEAKSENSE] ;
 		       tweak_enable <= current_buffer[`PTWEAKENABLE] ;
-		       tweak_delay_0 <= current_buffer[`PTWEAK0][delay_width-1:0] ;
-		       tweak_delay_1 <= current_buffer[`PTWEAK1][delay_width-1:0] ;
-		       tweak_delay_2 <= current_buffer[`PTWEAK2][delay_width-1:0] ;
-		       tweak_delay_3 <= current_buffer[`PTWEAK3][delay_width-1:0] ;
-		       tweak_delay_4 <= current_buffer[`PTWEAK4][delay_width-1:0] ;
-		       tweak_delay_5 <= current_buffer[`PTWEAK5][delay_width-1:0] ;
+		       tweak_delay_0 <= current_buffer[`PTWEAK0][2:0] ;
+		       tweak_delay_1 <= current_buffer[`PTWEAK0][5:3] ;
+		       tweak_delay_2 <= current_buffer[`PTWEAK1][2:0] ;
+		       tweak_delay_3 <= current_buffer[`PTWEAK1][5:3] ;
+		       tweak_delay_4 <= current_buffer[`PTWEAK2][2:0] ;
+		       tweak_delay_5 <= current_buffer[`PTWEAK2][5:3] ;
 		       // gate tweak pulse duration
-			tweak_duration_0 <= current_buffer[`PTWEAK0][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_1 <= current_buffer[`PTWEAK1][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_2 <= current_buffer[`PTWEAK2][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_3 <= current_buffer[`PTWEAK3][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_4 <= current_buffer[`PTWEAK4][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_5 <= current_buffer[`PTWEAK5][(pulse_duration+delay_width-1):delay_width] ;
+			tweak_duration_0 <= current_buffer[`PTWEAK0][7:6] ;
+			tweak_duration_1 <= current_buffer[`PTWEAK1][7:6] ;
+			tweak_duration_2 <= current_buffer[`PTWEAK2][7:6] ;
+			tweak_duration_3 <= current_buffer[`PTWEAK3][1:0] ;
+			tweak_duration_4 <= current_buffer[`PTWEAK3][3:2] ;
+			tweak_duration_5 <= current_buffer[`PTWEAK3][5:4] ;
 
 
 	       end
@@ -388,19 +384,20 @@ begin
 		       tweak_global_delay <= current_buffer[`NTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`NTWEAKSENSE] ;
 		       tweak_enable <= current_buffer[`NTWEAKENABLE] ;
-		       tweak_delay_0 <= current_buffer[`NTWEAK0][delay_width-1:0] ;
-		       tweak_delay_1 <= current_buffer[`NTWEAK1][delay_width-1:0] ;
-		       tweak_delay_2 <= current_buffer[`NTWEAK2][delay_width-1:0] ;
-		       tweak_delay_3 <= current_buffer[`NTWEAK3][delay_width-1:0] ;
-		       tweak_delay_4 <= current_buffer[`NTWEAK4][delay_width-1:0] ;
-		       tweak_delay_5 <= current_buffer[`NTWEAK5][delay_width-1:0] ;
+		       tweak_delay_0 <= current_buffer[`NTWEAK0][2:0] ;
+		       tweak_delay_1 <= current_buffer[`NTWEAK0][5:3] ;
+		       tweak_delay_2 <= current_buffer[`NTWEAK1][2:0] ;
+		       tweak_delay_3 <= current_buffer[`NTWEAK1][5:3] ;
+		       tweak_delay_4 <= current_buffer[`NTWEAK2][2:0] ;
+		       tweak_delay_5 <= current_buffer[`NTWEAK2][5:3] ;
 		       // gate tweak pulse duration
-			tweak_duration_0 <= current_buffer[`NTWEAK0][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_1 <= current_buffer[`NTWEAK1][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_2 <= current_buffer[`NTWEAK2][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_3 <= current_buffer[`NTWEAK3][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_4 <= current_buffer[`NTWEAK4][(pulse_duration+delay_width-1):delay_width] ;
-			tweak_duration_5 <= current_buffer[`NTWEAK5][(pulse_duration+delay_width-1):delay_width] ;
+			tweak_duration_0 <= current_buffer[`NTWEAK0][7:6] ;
+			tweak_duration_1 <= current_buffer[`NTWEAK1][7:6] ;
+			tweak_duration_2 <= current_buffer[`NTWEAK2][7:6] ;
+			tweak_duration_3 <= current_buffer[`NTWEAK3][1:0] ;
+			tweak_duration_4 <= current_buffer[`NTWEAK3][3:2] ;
+			tweak_duration_5 <= current_buffer[`NTWEAK3][5:4] ;
+
 	       end
        end // end if (!dead_time)
 

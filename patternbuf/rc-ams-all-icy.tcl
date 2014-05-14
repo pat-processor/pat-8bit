@@ -3,21 +3,11 @@ set_attribute library {h18_CORELIB_HV_TYP.lib h18_IOLIB_HV_TYP.lib}
 
 set_attribute information_level 2
 
-#set_attribute preserve true MUX4X1_HV
-#set_attribute preserve true MUX2X1_HV
-#set_attribute preserve true MUX4X1_HV
-#set_attribute preserve true MUX2X1_HV
-#set_attribute preserve true DFSX1_HV
 #set_attribute preserve true DFSX3_HV
 
 read_hdl -sv patternbuf.v
 read_hdl -sv buffers.v
 read_hdl -sv patternbuffer.v
-
-# Scan chain commands
-#set_attribute dft_scan_type muxed_scan /
-#set_attribute dft_dont_scan true testbench
-#define_dft test_clock -period 10000
 
 # enable clock gating
 
@@ -66,18 +56,23 @@ dc::set_time_unit -picoseconds
 set_attribute optimize_merge_flops false /
 #synthesize -to_mapped patternbuffer
 
-synthesize -to_mapped  patternbuffer
+
 #synthesize -to_mapped -effort high patternbuffer
 
 # SCAN CHAIN
 #synthesize -to_generic
 
 set_attribute dft_scan_style muxed_scan /
-#define_dft shift_enable [find / -pin scan_enable]
 #set_attribute dft_dont_scan true {instance | subdesign | design}
-define_dft test_clock -period 100000
+define_dft test_clock -name scan_clock -period 1000 /designs/patternbuffer/ports_in/clk
+define_dft shift_enable -active high /designs/patternbuffer/ports_in/ssel
+# TODO: Redefine the scan enable pin! And scan in and out pins
 #set_attribute dft_identify_top_level_test_clocks false / 
 #set_attribute dft_identify_test_signals f
+
+# choose what to scan and what not to
+set_attribute dft_dont_scan true /designs/patternbuffer/instances_hier/theBuffers/
+
 check_dft_rules
 report dft_registers
 # allow dft engine to determine if output scan is inverted or not
@@ -86,20 +81,29 @@ set_attribute dft_scan_output_preference auto patternbuffer
 set_attr dft_scan_map_mode tdrc_pass patternbuffer
 # set for synthesis drive
 set_attr dft_connect_scan_data_pins_during_mapping loopback patternbuffer
+set_attribute dft_prefix SCAN_ / 
 report dft_setup
 
-set_attribute dft_prefix SCAN_
 
-connect_scan_chains -preview -auto_create_chains [-pack]
+#synthesize -to_mapped  patternbuffer
 
-connect_scan_chains [-auto_create_chains]
+# if already mapped, use "replace_scan" before running the next scan commands
+connect_scan_chains -preview -auto_create_chains -pack
+
+#define_dft scan_chain -name scanchain1 -sdi scan_in_pin -sdo scan_out_pin -shift_enable scan_enable
+
+# TODO: enable below to make scan chains
+#connect_scan_chains -auto_create_chains
 report dft_chains > patternbuffer_scanchains
 report dft_setup > patternbuffer_dftsetup
-# END SCAN CHAIN
+
 
 # improve timing now the scan chain is there
-synthesize -incremental -effort high
+#synthesize -incremental -effort high
 
+# END SCAN CHAIN
+
+synthesize -to_mapped -effort high patternbuffer
 
 
 write -mapped > patternbuffer-mapped.v
