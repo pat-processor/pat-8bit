@@ -4,8 +4,8 @@ module patternbuffer(clk, reset, pwm, sin, ssel, saddr, sout, field_byte_out, bu
 // TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
 
-parameter buffer_size = 16 ;
-parameter buffer_width = 8 ;
+parameter buffer_size = 22 ;
+parameter buffer_width = 6 ;
 parameter no_bufs = 8 ;
 parameter delay_width = 3 ; // size of tweak delay value
 parameter pulse_duration = 2 ; // size of tweak duration value
@@ -22,7 +22,7 @@ input [buffer_width-1:0] field_in_in ;
 input field_write_in ;
 input [2:0] bufp_in ;
 input [4:0] fieldp_in ;
-input [4:0] fieldwp_in ;
+input [4:0] fieldwp_in ; 
 
 // test output
 output sout ;
@@ -82,23 +82,29 @@ buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_sel
 
 
 // define field offsets for the pattern data
-`define PDRIVE 0
-`define PTWEAKENABLE  1
-`define PTWEAKSENSE 2
-`define PTWEAKDELAY 3
-`define PTWEAK0 4
-`define PTWEAK1 5
-`define PTWEAK2 6
-`define PTWEAK3 7
+`define PDRIVE_A 0
+`define PDRIVE_B 1
+`define PTWEAKENABLE  2
+`define PTWEAKSENSE 3
+`define PTWEAKDELAY 4
+`define PTWEAK0 5
+`define PTWEAK1 6
+`define PTWEAK2 7
+`define PTWEAK3 8
+`define PTWEAK4 9
+`define PTWEAK5 10
 
-`define NDRIVE 8
-`define NTWEAKENABLE 9
-`define NTWEAKSENSE 10
-`define NTWEAKDELAY 11
-`define NTWEAK0 12
-`define NTWEAK1 13
-`define NTWEAK2 14
-`define NTWEAK3 15
+`define NDRIVE_A 11
+`define NDRIVE_B 12
+`define NTWEAKENABLE 13
+`define NTWEAKSENSE 14
+`define NTWEAKDELAY 15
+`define NTWEAK0 16
+`define NTWEAK1 17
+`define NTWEAK2 18
+`define NTWEAK3 19
+`define NTWEAK4 20
+`define NTWEAK5 21
 
 
 reg [buffer_width-1:0] p_drive ;
@@ -354,49 +360,49 @@ begin
        if (!dead_time) begin
 	       // high-driving phase
 	       if (pwm_prev) begin
-		       p_drive <= current_buffer[`PDRIVE] ;
+		       p_drive <= {current_buffer[`PDRIVE_A][3:0], current_buffer[`PDRIVE_B][3:0]} ;
 		       n_drive <= {buffer_width{1'b0}} ; // off
 		       // gate tweak drive based on the programmed sense w.r.t. the pwm signal
 		       tweak_global_delay <= current_buffer[`PTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`PTWEAKSENSE] ;
 		       tweak_enable <= current_buffer[`PTWEAKENABLE] ;
 		       tweak_delay_0 <= current_buffer[`PTWEAK0][2:0] ;
-		       tweak_delay_1 <= current_buffer[`PTWEAK0][5:3] ;
-		       tweak_delay_2 <= current_buffer[`PTWEAK1][2:0] ;
-		       tweak_delay_3 <= current_buffer[`PTWEAK1][5:3] ;
-		       tweak_delay_4 <= current_buffer[`PTWEAK2][2:0] ;
-		       tweak_delay_5 <= current_buffer[`PTWEAK2][5:3] ;
+		       tweak_delay_1 <= current_buffer[`PTWEAK1][2:0] ;
+		       tweak_delay_2 <= current_buffer[`PTWEAK2][2:0] ;
+		       tweak_delay_3 <= current_buffer[`PTWEAK3][2:0] ;
+		       tweak_delay_4 <= current_buffer[`PTWEAK4][2:0] ;
+		       tweak_delay_5 <= current_buffer[`PTWEAK5][2:0] ;
 		       // gate tweak pulse duration
-			tweak_duration_0 <= current_buffer[`PTWEAK0][7:6] ;
-			tweak_duration_1 <= current_buffer[`PTWEAK1][7:6] ;
-			tweak_duration_2 <= current_buffer[`PTWEAK2][7:6] ;
-			tweak_duration_3 <= current_buffer[`PTWEAK3][1:0] ;
-			tweak_duration_4 <= current_buffer[`PTWEAK3][3:2] ;
-			tweak_duration_5 <= current_buffer[`PTWEAK3][5:4] ;
+			tweak_duration_0 <= current_buffer[`PTWEAK0][4:3] ;
+			tweak_duration_1 <= current_buffer[`PTWEAK1][4:3] ;
+			tweak_duration_2 <= current_buffer[`PTWEAK2][4:3] ;
+			tweak_duration_3 <= current_buffer[`PTWEAK3][4:3] ;
+			tweak_duration_4 <= current_buffer[`PTWEAK4][4:3] ;
+			tweak_duration_5 <= current_buffer[`PTWEAK5][4:3] ;
 
 
 	       end
 	       // low-driving phase
 	       else begin
-		       n_drive <= current_buffer[`NDRIVE] ;
-		       p_drive <= {buffer_width{1'b1}} ; 
+		       p_drive <= {current_buffer[`NDRIVE_A][3:0], current_buffer[`NDRIVE_B][3:0]} ;
+		       n_drive <= {buffer_width{1'b0}} ; // off
 		       // gate tweak drive based on the programmed sense w.r.t. the pwm signal
 		       tweak_global_delay <= current_buffer[`NTWEAKDELAY] ;
 		       tweak_sense <= current_buffer[`NTWEAKSENSE] ;
 		       tweak_enable <= current_buffer[`NTWEAKENABLE] ;
 		       tweak_delay_0 <= current_buffer[`NTWEAK0][2:0] ;
-		       tweak_delay_1 <= current_buffer[`NTWEAK0][5:3] ;
-		       tweak_delay_2 <= current_buffer[`NTWEAK1][2:0] ;
-		       tweak_delay_3 <= current_buffer[`NTWEAK1][5:3] ;
-		       tweak_delay_4 <= current_buffer[`NTWEAK2][2:0] ;
-		       tweak_delay_5 <= current_buffer[`NTWEAK2][5:3] ;
+		       tweak_delay_1 <= current_buffer[`NTWEAK1][2:0] ;
+		       tweak_delay_2 <= current_buffer[`NTWEAK2][2:0] ;
+		       tweak_delay_3 <= current_buffer[`NTWEAK3][2:0] ;
+		       tweak_delay_4 <= current_buffer[`NTWEAK4][2:0] ;
+		       tweak_delay_5 <= current_buffer[`NTWEAK5][2:0] ;
 		       // gate tweak pulse duration
-			tweak_duration_0 <= current_buffer[`NTWEAK0][7:6] ;
-			tweak_duration_1 <= current_buffer[`NTWEAK1][7:6] ;
-			tweak_duration_2 <= current_buffer[`NTWEAK2][7:6] ;
-			tweak_duration_3 <= current_buffer[`NTWEAK3][1:0] ;
-			tweak_duration_4 <= current_buffer[`NTWEAK3][3:2] ;
-			tweak_duration_5 <= current_buffer[`NTWEAK3][5:4] ;
+			tweak_duration_0 <= current_buffer[`NTWEAK0][4:3] ;
+			tweak_duration_1 <= current_buffer[`NTWEAK1][4:3] ;
+			tweak_duration_2 <= current_buffer[`NTWEAK2][4:3] ;
+			tweak_duration_3 <= current_buffer[`NTWEAK3][4:3] ;
+			tweak_duration_4 <= current_buffer[`NTWEAK4][4:3] ;
+			tweak_duration_5 <= current_buffer[`NTWEAK5][4:3] ;
 
 	       end
        end // end if (!dead_time)

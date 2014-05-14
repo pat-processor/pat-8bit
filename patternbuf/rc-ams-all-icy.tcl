@@ -1,3 +1,10 @@
+#puts -nonewline "Insert Scan Chain? (y/N): "
+#flush stdout
+#set insertScanChainCt [gets stdin insertScanChain]
+puts "Insert Scan Chain?"
+puts -nonewline $insertScanChain
+
+
 set_attribute lib_search_path /home/research/software/asic/kits/ams/H18/liberty/h18_1.8V
 set_attribute library {h18_CORELIB_HV_TYP.lib h18_IOLIB_HV_TYP.lib}
 
@@ -59,6 +66,8 @@ set_attribute optimize_merge_flops false /
 
 #synthesize -to_mapped -effort high patternbuffer
 
+
+if {$insertScanChain == "y"} {
 # SCAN CHAIN
 #synthesize -to_generic
 
@@ -102,6 +111,7 @@ report dft_setup > patternbuffer_dftsetup
 #synthesize -incremental -effort high
 
 # END SCAN CHAIN
+}
 
 synthesize -to_mapped -effort high patternbuffer
 
