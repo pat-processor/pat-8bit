@@ -193,10 +193,9 @@ assign field_byte = (bufp[0]) ? field_bytes[0] :
 		    (bufp[2]) ? field_bytes[2] :
 		    (bufp[3]) ? field_bytes[3] :
 		    (bufp[4]) ? field_bytes[4] :
-			field_bytes[5] ;
-//		    (bufp[5]) ? field_bytes[5] 
-//		    (bufp[6]) ? field_bytes[6] :
-//		    field_bytes[7] ;
+		    (bufp[5]) ? field_bytes[5] :
+		    (bufp[6]) ? field_bytes[6] :
+		    field_bytes[7] ;
 
 
 
@@ -341,8 +340,8 @@ assign field_write3 = (bufp[2] && field_write) ;
 assign field_write4 = (bufp[3] && field_write) ;
 assign field_write5 = (bufp[4] && field_write) ;
 assign field_write6 = (bufp[5] && field_write) ;
-//assign field_write7 = (bufp[6] && field_write) ;
-//assign field_write8 = (bufp[7] && field_write) ;
+assign field_write7 = (bufp[6] && field_write) ;
+assign field_write8 = (bufp[7] && field_write) ;
 
 
 defparam buffer1.buffer_width = buffer_width ;
