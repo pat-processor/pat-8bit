@@ -47,17 +47,54 @@ amsGlobalConnect core
 #amsHVringBlk corebox
 amsHVringBlk corebox 10 40
 
+# create pin groups
+createPinGroup tweak0 -cell patternbuffer -pin {tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0]} -spacing 4
 
+createPinGroup tweak1 -cell patternbuffer -pin {tweak_enable_1 tweak_sense_1 tweak_delay_1[2] tweak_delay_1[1] tweak_delay_1[0] tweak_duration_1[1] tweak_duration_1[0]} -spacing 4
+
+createPinGroup tweak2 -cell patternbuffer -pin {tweak_enable_2 tweak_sense_2 tweak_delay_2[2] tweak_delay_2[1] tweak_delay_2[0] tweak_duration_2[1] tweak_duration_2[0]} -spacing 4
+
+createPinGroup tweak3 -cell patternbuffer -pin {tweak_enable_3 tweak_sense_3 tweak_delay_3[2] tweak_delay_3[1] tweak_delay_3[0] tweak_duration_3[1] tweak_duration_3[0]} -spacing 4
+
+createPinGroup tweak4 -cell patternbuffer -pin {tweak_enable_4 tweak_sense_4 tweak_delay_4[2] tweak_delay_4[1] tweak_delay_4[0] tweak_duration_4[1] tweak_duration_4[0]} -spacing 4
+
+createPinGroup tweak5 -cell patternbuffer -pin {tweak_enable_5 tweak_sense_5 tweak_delay_5[2] tweak_delay_5[1] tweak_delay_5[0] tweak_duration_5[1] tweak_duration_5[0]} -spacing 4
+
+createPinGroup tweakdelay -cell patternbuffer -pin {{tweak_global_delay[0]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]}} -spacing 4
+
+createPinGroup ndrive -cell patternbuffer -pin {{n_drive[0]} {n_drive[1]} {n_drive[2]} {n_drive[3]} {n_drive[4]} {n_drive[5]} {n_drive[6]} {n_drive[7]}} -spacing 4
+
+createPinGroup pdrive -cell patternbuffer -pin {{p_drive[0]} {p_drive[1]} {p_drive[2]} {p_drive[3]} {p_drive[4]} {p_drive[5]} {p_drive[6]} {p_drive[7]}} -spacing 4
 
 # set pin locations
 # outputs
-editPin -side Right -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{n_drive[0]} {n_drive[1]} {n_drive[2]} {n_drive[3]} {n_drive[4]} {n_drive[5]} {n_drive[6]} {n_drive[7]} {p_drive[0]} {p_drive[1]} {p_drive[2]} {p_drive[3]} {p_drive[4]} {p_drive[5]} {p_drive[6]} {p_drive[7]} {tweak_delay_0[0]} {tweak_delay_0[1]} {tweak_delay_0[2]} {tweak_delay_1[0]} {tweak_delay_1[1]} {tweak_delay_1[2]} {tweak_delay_2[0]} {tweak_delay_2[1]} {tweak_delay_2[2]} {tweak_delay_3[0]} {tweak_delay_3[1]} {tweak_delay_3[2]} {tweak_delay_4[0]} {tweak_delay_4[1]} {tweak_delay_4[2]} {tweak_delay_5[0]} {tweak_delay_5[1]} {tweak_delay_5[2]} {tweak_duration_0[0]} {tweak_duration_0[1]} {tweak_duration_1[0]} {tweak_duration_1[1]} {tweak_duration_2[0]} {tweak_duration_2[1]} {tweak_duration_3[0]} {tweak_duration_3[1]} {tweak_duration_4[0]} {tweak_duration_4[1]} {tweak_duration_5[0]} {tweak_duration_5[1]} {tweak_enable[0]} {tweak_enable[1]} {tweak_enable[2]} {tweak_enable[3]} {tweak_enable[4]} {tweak_enable[5]} {tweak_enable[6]} {tweak_enable[7]} {tweak_global_delay[0]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]} {tweak_sense[0]} {tweak_sense[1]} {tweak_sense[2]} {tweak_sense[3]} {tweak_sense[4]} {tweak_sense[5]} {tweak_sense[6]} {tweak_sense[7]}}
+#editPin -side Right -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{n_drive[0]} {n_drive[1]} {n_drive[2]} {n_drive[3]} {n_drive[4]} {n_drive[5]} {n_drive[6]} {n_drive[7]} {p_drive[0]} {p_drive[1]} {p_drive[2]} {p_drive[3]} {p_drive[4]} {p_drive[5]} {p_drive[6]} {p_drive[7]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]}}
+#editPin -side Right -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{n_drive[0]} {n_drive[1]} {n_drive[2]} {n_drive[3]} {n_drive[4]} {n_drive[5]} {n_drive[6]} {n_drive[7]} {p_drive[0]} {p_drive[1]} {p_drive[2]} {p_drive[3]} {p_drive[4]} {p_drive[5]} {p_drive[6]} {p_drive[7]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]} tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0] tweak_enable_1 tweak_sense_1 tweak_delay_1[2] tweak_delay_1[1] tweak_delay_1[0] tweak_duration_1[1] tweak_duration_1[0] tweak_enable_2 tweak_sense_2 tweak_delay_2[2] tweak_delay_2[1] tweak_delay_2[0] tweak_duration_2[1] tweak_duration_2[0] tweak_enable_3 tweak_sense_3 tweak_delay_3[2] tweak_delay_3[1] tweak_delay_3[0] tweak_duration_3[1] tweak_duration_3[0] tweak_enable_4 tweak_sense_4 tweak_delay_4[2] tweak_delay_4[1] tweak_delay_4[0] tweak_duration_4[1] tweak_duration_4[0] tweak_enable_5 tweak_sense_5 tweak_delay_5[2] tweak_delay_5[1] tweak_delay_5[0] tweak_duration_5[1] tweak_duration_5[0]}
+
+createPinGuide -pingroup tweak0 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweak1 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweak2 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweak3 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweak4 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweak5 -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup tweakdelay -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup ndrive -cell patternbuffer -edge 2 -layer M3
+createPinGuide -pingroup pdrive -cell patternbuffer -edge 2 -layer M3
+
 
 # PAT connections
-editPin -side Left -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}}
+createPinGroup patpins -cell patternbuffer -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}} -spacing 4
+
+createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
+
+#editPin -side Left -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 0.0 0.0 -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}}
 
 # external connections
-editPin -side Top -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 1.0 -start 0.0 0.0 -pin {clk pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sin sout ssel}
+#editPin -side Top -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 1.0 -start 0.0 0.0 -pin {clk pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sin sout ssel}
+
+createPinGroup serialpins -cell patternbuffer -pin {clk pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sin sout ssel} -spacing 4
+
+createPinGuide -pingroup serialpins -cell patternbuffer -edge 1 -layer M3
 
 
 
