@@ -1,5 +1,5 @@
 `timescale 1ns / 1ns
-module patternbuffer(clk, reset, pwm, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_global_delay, tweak_enable_0, tweak_sense_0, tweak_delay_0, tweak_duration_0, tweak_enable_1, tweak_sense_1, tweak_delay_1, tweak_duration_1, tweak_enable_2, tweak_sense_2, tweak_delay_2, tweak_duration_2, tweak_enable_3, tweak_sense_3, tweak_delay_3, tweak_duration_3, tweak_enable_4, tweak_sense_4, tweak_delay_4, tweak_duration_4, tweak_enable_5, tweak_sense_5, tweak_delay_5, tweak_duration_5) ;
+module patternbuffer(clk, reset, pwm, sclk, sin, ssel, saddr, sout, field_byte_out, bufp_in, fieldp_in, fieldwp_in, field_in_in, field_write_in, p_drive, n_drive, tweak_global_delay, tweak_enable_0, tweak_sense_0, tweak_delay_0, tweak_duration_0, tweak_enable_1, tweak_sense_1, tweak_delay_1, tweak_duration_1, tweak_enable_2, tweak_sense_2, tweak_delay_2, tweak_duration_2, tweak_enable_3, tweak_sense_3, tweak_delay_3, tweak_duration_3, tweak_enable_4, tweak_sense_4, tweak_delay_4, tweak_duration_4, tweak_enable_5, tweak_sense_5, tweak_delay_5, tweak_duration_5) ;
 
 // TODO: set the input delay constraints on fieldp_in, fieldwp_in,
 // field_write_in, field_in_in
@@ -13,7 +13,7 @@ parameter pulse_duration = 2 ; // size of tweak duration value
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
 
-input sin, ssel ;
+input sclk, sin, ssel ;
 input clk ; 
 input pwm ;
 input reset ;
@@ -81,6 +81,8 @@ reg [buffer_width-1:0] field_in ;
 reg field_write ;
 
 // synchronisation flops
+reg sclk_sync_1 ;
+reg sclk_sync_2 ;
 reg ssel_sync_1 ;
 reg ssel_sync_2 ;
 reg sin_sync_1 ;
@@ -90,7 +92,7 @@ reg [2:0] saddr_sync_2 ;
 
 
 // instantiate the pattern buffers
-buffers theBuffers(sin_sync_2, sout, ssel_sync_2, saddr_sync_2, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, fieldwp_2, field_byte, field_in, field_write, clk) ;
+buffers theBuffers(sclk_sync_2, sin_sync_2, sout, saddr_sync_2, bufp, buffer_select, current_buffer, fieldp, fieldp2, fieldp3, fieldp4, fieldwp, fieldwp_2, field_byte, field_in, field_write, clk) ;
 
 
 
@@ -161,6 +163,8 @@ always @(posedge clk)
 begin
 
 	// two-flop synchroniser on input signals
+	sclk_sync_1 <= sclk ;
+	sclk_sync_2 <= sclk_sync_1 ;
 	ssel_sync_1 <= ssel ;
 	ssel_sync_2 <= ssel_sync_1 ;
 	sin_sync_1 <= sin ;
@@ -376,6 +380,18 @@ begin
        else if (dead_time) begin
 	       dead_time <= 1'b0 ;
 	       buffer_select <= 8'b00000001 ;
+       end
+       else if (ssel) begin
+	       case (saddr)
+		       0: buffer_select <= 8'b00000001 ;
+		       1: buffer_select <= 8'b00000010 ;
+		       2: buffer_select <= 8'b00000100 ;
+		       3: buffer_select <= 8'b00001000 ;
+		       4: buffer_select <= 8'b00010000 ;
+		       5: buffer_select <= 8'b00100000 ;
+		       6: buffer_select <= 8'b01000000 ;
+		       7: buffer_select <= 8'b10000000 ;
+	       endcase
        end
        else begin
 	       if (buffer_select[no_bufs-1] == 1'b1) begin

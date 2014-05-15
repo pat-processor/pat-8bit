@@ -15,12 +15,12 @@ end
 endmodule
 
 `timescale 1ns / 1ns
-module patternbuf(pattern, ssel, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
+module patternbuf(pattern, sclk, sin, sout, fieldp, fieldwp, field_byte, field_in, field_write, clk) ;
 
 parameter buffer_size = 22;
 parameter buffer_width = 8;
 
-input ssel ;
+input sclk ;
 input sin ;
 input [buffer_size-1:0] fieldp ;
 input [buffer_size-1:0] fieldwp ;
@@ -44,13 +44,13 @@ integer i ;
 //genvar h ;
 
 
-reg ssel_prev ;
+reg sclk_prev ;
 always @(posedge clk)
 begin
   // if serial is selected, shift all the buffer left by one 
   // and add in 'sin'
-  ssel_prev <= ssel ;
-  if (ssel && !ssel_prev) // check for new +ve transition on ssel
+  sclk_prev <= sclk ;
+  if (sclk && !sclk_prev) // check for new +ve transition on sclk
       begin
     	pattern[0] <= {pattern[0][buffer_width-2:0], sin} ;
     	for(i=1 ; i<=buffer_size-1 ; i=i+1)
@@ -59,7 +59,7 @@ begin
     	end
     end
 
-	// write from PAT. TODO: Ensure mutually exclusive with ssel
+	// write from PAT.
 	else begin
 		
 		for (i=0 ; i < buffer_size ; i++) begin
