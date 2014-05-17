@@ -350,7 +350,7 @@ begin
 	       dead_time <= 1'b0 ;
 	       buffer_select <= 8'b00000001 ;
        end
-       else if (ssel) begin
+       else if (ssel_sync_2) begin
 	       case (saddr)
 		       0: buffer_select <= 8'b00000001 ;
 		       1: buffer_select <= 8'b00000010 ;
