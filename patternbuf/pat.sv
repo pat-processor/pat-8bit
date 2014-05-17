@@ -321,7 +321,7 @@ wire [d_width-1:0] field_alu_y ;
 assign acc_alu_a = acc ;
 assign acc_alu_b = alu_b_regd ;
 
-assign field_alu_a = field_in ;
+assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ;
 assign field_alu_b = alu_b_regd_2 ;
 
 	
