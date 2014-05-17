@@ -1,5 +1,5 @@
 `define INSTR_NOP 20'h06ff5
-module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en, field_out, instruction_in, field_in, acc, inputs, outputs) ;
+module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_out, instruction_in, field_in_low, field_in_high, acc, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -21,7 +21,8 @@ parameter field_latency = 4 ; // cycle count between field read and write
 input clk ;
 input reset ;
 input [i_width-1:0] instruction_in ;
-input [buffer_width-1:0] field_in ;
+input [buffer_width-1:0] field_in_low ;
+input [buffer_width-1:0] field_in_high ;
 input [d_width-1:0] inputs ;
 
 output [i_adr_width-1:0] pc ;
@@ -29,7 +30,8 @@ output jump ;
 output [bufp_width-1:0] bufp ;
 output [fieldp_width-1:0] fieldp ;
 output [fieldp_width-1:0] fieldwp ;
-output field_write_en ;
+output field_write_en_low ;
+output field_write_en_high ;
 output [buffer_width-1:0] field_out ;
 
 output [d_width-1:0] acc ; //FIXME: remove --- debug
@@ -52,9 +54,11 @@ reg [d_width-1:0] data_out ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
-reg field_write_en ;
+reg field_write_en_low ;
+reg field_write_en_high ;
 reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
+reg low_high_buffer ; // '0' means use low-side buffer; '1' means use high-side
 
 reg [d_width-1:0] field_value ; // after latching field in
 reg [d_width-1:0] outputs ;
@@ -183,8 +187,8 @@ assign dest_pc = op_bf | op_bb | op_call | op_return ;
 assign jump = dest_pc ;
 
 // register for next stage of the pipeline
-reg [d_width-1:0] immediate_regd ;
-reg [d_width-1:0] immediate_regd_2 ;
+reg [3:0] immediate_bufp_regd ;
+reg [d_width-1:0] immediate_all_regd ;
 reg [1:0] condition_regd ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
@@ -195,8 +199,8 @@ assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
-		immediate_regd <= immediate_i_all ; // Duplicated to aid fan-out. DC will merge if more optimal
-		immediate_regd_2 <= immediate_i_all ; 
+		immediate_bufp_regd <= immediate_i8[3:0] ; // Duplicated to aid fan-out. DC will merge if more optimal
+		immediate_all_regd <= immediate_i_all ; 
 		condition_regd <= condition ;
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ;
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
@@ -341,7 +345,7 @@ alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_
 
 task getField() ;
 	begin 
-		field_value <= field_in ;
+		field_value <= (low_high_buffer) ? field_in_high : field_in_low ;
 	end
 endtask
 
@@ -429,9 +433,13 @@ always @(posedge clk)
 		if (dest_field_regd) begin
 			// TODO: Below may work from a different signal
 			field_out <= (op_mov_regd) ? acc : field_result ;
-			field_write_en <= 1'b1 ;
+			if (low_high_buffer) field_write_en_high <= 1'b1 ;
+			else field_write_en_low <= 1'b1 ;
 		end
-		else field_write_en <= 1'b0 ;
+		else begin
+			field_write_en_high <= 1'b0 ;
+			field_write_en_low <= 1'b0 ;
+		end
 		
 
 		// TODO: Mem writes only happen as part of a dedicated
@@ -441,7 +449,7 @@ always @(posedge clk)
 		data_out <= (source_field_regd) ? field_value : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_regd_2 ; //TODO: sp removed. Re-add if fast enough
+		data_write_adr <= immediate_all_regd ; //TODO: sp removed. Re-add if fast enough
 		end
 		else data_write <= 1'b0 ;
 
@@ -455,7 +463,8 @@ always @(posedge clk)
 
 		if (op_setb_regd)
 		begin
-			bufp <= immediate_regd[2:0] ;
+			bufp <= immediate_bufp_regd[2:0] ;
+			low_high_buffer <= immediate_bufp_regd[3] ;
 		end
 
 /* REMOVED OPS FOR PERFORMANCE REASONS 
