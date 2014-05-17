@@ -27,7 +27,7 @@ elaborate $currentDesign
 #report clock_gating -preview -gated_ff -clock_pin clk
 
 
-set clock [define_clock -period 1000 -name clk [find / -port clk]]
+set clock [define_clock -period 1000 -name clk [find / -port clk_int]]
 dc::current_design $currentDesign
 dc::set_time_unit -picoseconds
 #dc::set_false_path -from [ find / -inst *dmem*] -to [ find / -inst *dmem*] -exception_name memToMem
@@ -45,8 +45,8 @@ if {$insertScanChain == "y"} {
 
 set_attribute dft_scan_style muxed_scan /
 #set_attribute dft_dont_scan true {instance | subdesign | design}
-define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_in/clk
-define_dft shift_enable -active high /designs/pads/ports_in/pad_sclk
+define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_in/clk_int
+define_dft shift_enable -active high /designs/pads/instances_comb/iopad_scan_enable/pins_out/Y
 # TODO: Redefine the scan enable pin! And scan in and out pins
 #set_attribute dft_identify_top_level_test_clocks false / 
 #set_attribute dft_identify_test_signals f
@@ -63,19 +63,25 @@ set_attr dft_scan_map_mode tdrc_pass $currentDesign
 # set for synthesis drive
 set_attr dft_connect_scan_data_pins_during_mapping loopback $currentDesign
 set_attribute dft_prefix SCAN_ / 
+
+define_dft scan_chain -sdi iopad_scan_in_1/Y -sdo iopad_scan_out_1/A -domain scan_clock -name scan_chain_1
+#define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
 report dft_setup
 
 
 synthesize -to_mapped $currentDesign
 
 replace_scan
+
+
+
 # if already mapped, use "replace_scan" before running the next scan commands
 connect_scan_chains -preview -auto_create_chains -pack
 
 #define_dft scan_chain -name scanchain1 -sdi scan_in_pin -sdo scan_out_pin -shift_enable scan_enable
 
 # TODO: enable below to make scan chains
-#connect_scan_chains -auto_create_chains
+connect_scan_chains -auto_create_chains
 report dft_chains > patternbuffer_scanchains
 report dft_setup > patternbuffer_dftsetup
 
@@ -87,8 +93,8 @@ report dft_setup > patternbuffer_dftsetup
 }
 
 # request an extra 30ps slack on the register paths
-set all_regs [find / -instance instances_seq/*] 
-path_adjust -from $all_regs -to $all_regs -delay -30 -name slack-30_regs
+#set all_regs [find / -instance instances_seq/*] 
+#path_adjust -from $all_regs -to $all_regs -delay -30 -name slack-30_regs
 
 
 
