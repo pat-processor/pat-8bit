@@ -405,9 +405,9 @@ function checkCondition ;
 	input z ;
 	input n ; 
 	begin
-	checkCondition = cond_decoded[COND_AL] |
-	       	(cond_decoded[COND_N] && n) |
-		(cond_decoded[COND_Z] && z) ;
+	checkCondition = cond_decoded[`COND_AL] |
+	       	(cond_decoded[`COND_N] && n) |
+		(cond_decoded[`COND_Z] && z) ;
 	end
 endfunction
 
