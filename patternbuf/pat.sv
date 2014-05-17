@@ -758,17 +758,16 @@ output [d_width-1:0] data_out ;
 
 reg [d_width-1:0] dmem [dmemsize] ;
 wire [d_width-1:0] read_bus [dmemsize] ;
-
 genvar i,j ;
 
 
-assign data_out = dmem[data_read_adr] ;
+//assign data_out = dmem[data_read_adr] ;
 always @(posedge clk) begin
 	if (data_write)
 		dmem[data_write_adr] <= data_in ;
 	end
 
-/*
+
 // read decoder 
 
 for (i = 0 ; i < dmemsize ; i++)
@@ -786,7 +785,7 @@ begin
 	end
 	assign data_out[i] = | read_bus_transformed[i] ;
 end
-*/
+
 
 /*
 // write
