@@ -338,7 +338,12 @@ begin
        /* One hot implementation */
        // One cycle dead-time between pull up and pull down
        // reset also causes deadtime
-       if ((pwm != pwm_prev) || reset) begin
+       //
+       if (reset) begin
+	       dead_time <= 1'b1 ;
+	       buffer_select <= 8'b00000001 ;
+       end
+       else if (pwm != pwm_prev) begin
 	       dead_time <= 1'b1 ;
        end
        else if (dead_time) begin
@@ -449,6 +454,29 @@ begin
 		tweak_enable_3 <= 0 ;
 		tweak_enable_4 <= 0 ;
 		tweak_enable_5 <= 0 ;
+
+		tweak_global_delay <= 0 ;
+		tweak_delay_0 <= 0 ;
+		tweak_delay_1 <= 0 ;
+		tweak_delay_2 <= 0 ;
+		tweak_delay_3 <= 0 ;
+		tweak_delay_4 <= 0 ;
+		tweak_delay_5 <= 0 ;
+
+		tweak_duration_0 <= 0 ;
+		tweak_duration_1 <= 0 ;
+		tweak_duration_2 <= 0 ;
+		tweak_duration_3 <= 0 ;
+		tweak_duration_4 <= 0 ;
+		tweak_duration_5 <= 0 ;
+
+		tweak_sense_0 <= 0 ;
+		tweak_sense_1 <= 0 ;
+		tweak_sense_2 <= 0 ;
+		tweak_sense_3 <= 0 ;
+		tweak_sense_4 <= 0 ;
+		tweak_sense_5 <= 0 ;
+
        end
 
 

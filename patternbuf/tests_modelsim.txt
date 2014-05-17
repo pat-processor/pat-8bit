@@ -97,13 +97,66 @@ force -freeze sim:/digital/reset 1'h0 0
 
 ===== PATTERNBUFFER ==============
 
-force -freeze sim:/patternbuffer/clk 1 0, 0 {50 ns} -r 100
-force -freeze sim:/patternbuffer/sin 1'h0 0
-force -freeze sim:/patternbuffer/ssel 1'h0 0
-force -freeze sim:/patternbuffer/saddr 1'h0 0
-force -freeze sim:/patternbuffer/fieldp 1'h0 0
-force -freeze sim:/patternbuffer/fieldwp 1'h0 0
-force -freeze sim:/patternbuffer/bufp 1'h0 0
+add wave -position insertpoint  \ 
+sim:/patternbuffer/clk
+add wave -position insertpoint  \
+sim:/patternbuffer/sclk \
+sim:/patternbuffer/sin \
+sim:/patternbuffer/ssel \
+sim:/patternbuffer/pwm \
+sim:/patternbuffer/reset \
+sim:/patternbuffer/saddr
+
+add wave -position insertpoint  \
+sim:/patternbuffer/field_in_in \
+sim:/patternbuffer/field_write_in \
+sim:/patternbuffer/bufp_in \
+sim:/patternbuffer/fieldp_in \
+sim:/patternbuffer/fieldwp_in \
+sim:/patternbuffer/sout \
+sim:/patternbuffer/field_byte_out
+
+add wave -position end  sim:/patternbuffer/bufp
+add wave -position end  sim:/patternbuffer/buffer_select
+add wave -position end  sim:/patternbuffer/fieldp
+add wave -position end  sim:/patternbuffer/fieldp2
+add wave -position end  sim:/patternbuffer/fieldp3
+add wave -position end  sim:/patternbuffer/fieldp4
+add wave -position end  sim:/patternbuffer/fieldwp
+add wave -position end  sim:/patternbuffer/fieldwp_2
+
+add wave -position end  sim:/patternbuffer/current_buffer
+add wave -position end  sim:/patternbuffer/dead_time
+
+add wave -position end  sim:/patternbuffer/p_drive
+add wave -position end  sim:/patternbuffer/n_drive
+add wave -position end  sim:/patternbuffer/tweak_global_delay
+add wave -position end  sim:/patternbuffer/tweak_delay_0
+add wave -position end  sim:/patternbuffer/tweak_delay_1
+add wave -position end  sim:/patternbuffer/tweak_delay_2
+add wave -position end  sim:/patternbuffer/tweak_delay_3
+add wave -position end  sim:/patternbuffer/tweak_delay_4
+add wave -position end  sim:/patternbuffer/tweak_delay_5
+add wave -position end  sim:/patternbuffer/tweak_duration_0
+add wave -position end  sim:/patternbuffer/tweak_duration_1
+add wave -position end  sim:/patternbuffer/tweak_duration_2
+add wave -position end  sim:/patternbuffer/tweak_duration_3
+add wave -position end  sim:/patternbuffer/tweak_duration_4
+add wave -position end  sim:/patternbuffer/tweak_duration_5
+add wave -position end  sim:/patternbuffer/tweak_enable_0
+add wave -position end  sim:/patternbuffer/tweak_enable_1
+add wave -position end  sim:/patternbuffer/tweak_enable_2
+add wave -position end  sim:/patternbuffer/tweak_enable_3
+add wave -position end  sim:/patternbuffer/tweak_enable_4
+add wave -position end  sim:/patternbuffer/tweak_enable_5
+add wave -position end  sim:/patternbuffer/tweak_sense_0
+add wave -position end  sim:/patternbuffer/tweak_sense_1
+add wave -position end  sim:/patternbuffer/tweak_sense_2
+add wave -position end  sim:/patternbuffer/tweak_sense_3
+add wave -position end  sim:/patternbuffer/tweak_sense_4
+add wave -position end  sim:/patternbuffer/tweak_sense_5
+add wave -position 9  sim:/patternbuffer/field_in
+add wave -position 10  sim:/patternbuffer/field_write
 
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /patternbuffer/theBuffers/buffer1/pattern
 mem load -filltype inc -filldata 20 -fillradix hexadecimal -skip 0 /patternbuffer/theBuffers/buffer2/pattern
@@ -114,6 +167,19 @@ mem load -filltype inc -filldata 80 -fillradix hexadecimal -skip 0 /patternbuffe
 mem load -filltype inc -filldata a0 -fillradix hexadecimal -skip 0 /patternbuffer/theBuffers/buffer6/pattern
 mem load -filltype inc -filldata c0 -fillradix hexadecimal -skip 0 /patternbuffer/theBuffers/buffer7/pattern
 mem load -filltype inc -filldata e0 -fillradix hexadecimal -skip 0 /patternbuffer/theBuffers/buffer8/pattern
+
+
+
+force -freeze sim:/patternbuffer/clk 1 0, 0 {50 ns} -r 100
+force -freeze sim:/patternbuffer/sin 1'h0 0
+force -freeze sim:/patternbuffer/sclk 1'h0 0
+force -freeze sim:/patternbuffer/ssel 1'h0 0
+force -freeze sim:/patternbuffer/saddr 1'h0 0
+force -freeze sim:/patternbuffer/fieldp_in 1'h0 0
+force -freeze sim:/patternbuffer/fieldwp_in 1'h0 0
+force -freeze sim:/patternbuffer/bufp_in 1'h0 0
+force -freeze sim:/patternbuffer/field_write_in 1'h0 
+force -freeze sim:/patternbuffer/field_in_in 1'h0 
 
 
 force -freeze sim:/patternbuffer/pwm 1'h0 0
