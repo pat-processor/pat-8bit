@@ -190,7 +190,7 @@ assign jump = dest_pc ;
 // register for next stage of the pipeline
 reg [3:0] immediate_bufp_regd ;
 reg [d_width-1:0] immediate_all_regd ;
-reg [1:0] condition_regd ;
+reg [3:0] condition_decoded ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
 
@@ -202,7 +202,13 @@ task reg_instr ;
 	begin
 		immediate_bufp_regd <= immediate_i8[3:0] ; // Duplicated to aid fan-out. DC will merge if more optimal
 		immediate_all_regd <= immediate_i_all ; 
-		condition_regd <= condition ;
+		case (condition)
+			0: condition_decoded <= 4'b0001 ;
+			1: condition_decoded <= 4'b0010 ;
+			2: condition_decoded <= 4'b0100 ;
+			default: condition_decoded <= 4'b0001 ;
+		endcase
+		
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ;
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
 	end
@@ -390,15 +396,18 @@ task updateFlags() ;
 	end
 endtask
 
+`define COND_AL 0 // always
+`define COND_N 1 // negative
+`define COND_Z 2 // zero
+
 function checkCondition ;
-	input [1:0] cond ;
+	input [3:0] cond_decoded ;
 	input z ;
 	input n ; 
 	begin
-	checkCondition = (cond == 2'b11) ? 1'b1 : // always
-			(cond == 2'b01) ? n : // negative
-			(cond == 2'b00) ? z : // zero
-					1'b1 ; // default
+	checkCondition = cond_decoded[COND_AL] |
+	       	(cond_decoded[COND_N] && n) |
+		(cond_decoded[COND_Z] && z) ;
 	end
 endfunction
 
@@ -420,7 +429,7 @@ always @(posedge clk)
 		//match, which gives unexpected execution results.
 
 
-	if (checkCondition(condition_regd, z, n)) //TODO: Restore conditionality
+	if (checkCondition(condition_decoded, z, n)) //TODO: Restore conditionality
 	begin
 
 		if (dest_acc_regd) begin
