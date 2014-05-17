@@ -12,6 +12,7 @@ parameter pulse_duration = 2 ; // size of tweak duration value
 
 defparam theBuffers.buffer_size = buffer_size ;
 defparam theBuffers.buffer_width = buffer_width ;
+defparam theBuffers.no_bufs = no_bufs ;
 
 input sclk, sin, ssel ;
 input clk ; 
