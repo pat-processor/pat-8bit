@@ -153,6 +153,7 @@ assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
 //assign op_lda = (opcode_i0 == 4'b0100) && i_t_i0 ;
+assign op_lda = 1'b0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
 assign op_stsp = (opcode_i0 == 4'b1110) && i_t_i0 ;
@@ -178,7 +179,7 @@ assign source_in = op_in ;
 // Which ops are committed to a register (ACC or Field_Out)
 assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
                   | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo  
-		  | op_ldsp | op_in | op_not | op_mov | op_lda ) ;
+		  | op_ldsp | op_in | op_not | op_mov ) ;
 assign dest_acc = (!field_op && dest_reg) ;
 assign dest_field = (field_op && dest_reg) ; 
 assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
@@ -744,9 +745,9 @@ assign y = op_add ? add_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 8 ; // data address space size
+parameter d_adr_width = 4 ; // data address space size
 parameter d_width = 8 ; // data width
-parameter dmemsize = 16 ;
+parameter dmemsize = 8 ;
 
 input clk ;
 input [d_adr_width-1:0] data_read_adr ;
@@ -757,11 +758,11 @@ input data_write ;
 output [d_width-1:0] data_out ;
 
 reg [d_width-1:0] dmem [dmemsize] ;
-wire [d_width-1:0] read_bus [dmemsize] ;
-genvar i,j ;
+//wire [d_width-1:0] read_bus [dmemsize] ;
+//genvar i,j ;
 
 
-//assign data_out = dmem[data_read_adr] ;
+assign data_out = dmem[data_read_adr] ;
 always @(posedge clk) begin
 	if (data_write)
 		dmem[data_write_adr] <= data_in ;
@@ -769,7 +770,7 @@ always @(posedge clk) begin
 
 
 // read decoder 
-
+/*
 for (i = 0 ; i < dmemsize ; i++)
 begin
 	assign read_bus[i] = (data_read_adr == i) ? dmem[i] : {d_width{1'b0}} ;
@@ -785,7 +786,7 @@ begin
 	end
 	assign data_out[i] = | read_bus_transformed[i] ;
 end
-
+*/
 
 /*
 // write
