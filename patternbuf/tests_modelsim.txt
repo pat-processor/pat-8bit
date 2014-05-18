@@ -19,9 +19,6 @@ add wave -position end  sim:/digital/pc
 add wave -position end  sim:/digital/instruction
 add wave -position end	sim:/digital/thePAT/acc
 add wave -position end  sim:/digital/field_in
-add wave -position end  sim:/digital/field_out
-add wave -position end  sim:/digital/field_write_en
-add wave -position end  sim:/digital/thePAT/field_value
 add wave -position end  sim:/digital/thePAT/i_t_i0
 add wave -position end  sim:/digital/thePAT/i_t_i3
 add wave -position end  sim:/digital/thePAT/i_t_i8
@@ -36,6 +33,10 @@ add wave -position end  sim:/digital/thePAT/opcode_i8
 add wave -position end  sim:/digital/thePAT/opcode_i3
 add wave -position end  sim:/digital/thePAT/opcode_i0
 add wave -position end  sim:/digital/thePAT/field_op
+add wave -position end  sim:/digital/thePAT/field_out_low
+add wave -position end  sim:/digital/thePAT/field_out_high
+add wave -position end  sim:/digital/thePAT/field_write_low
+add wave -position end  sim:/digital/thePAT/field_write_high
 add wave -position end  sim:/digital/thePAT/op_bf
 add wave -position end  sim:/digital/thePAT/op_bb
 add wave -position end  sim:/digital/thePAT/op_call
@@ -86,7 +87,7 @@ mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuff
 
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
 mem load -filltype value -filldata {0000200001 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
-mem load -filltype value -filldata {0000400003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {0000401003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
 mem load -filltype value -filldata {0000600005 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
 mem load -filltype value -filldata {008fc00007 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
 mem load -filltype value -filldata {0000a00009 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
@@ -94,7 +95,9 @@ mem load -filltype value -filldata {0000c0000b } -fillradix hexadecimal /digital
 mem load -filltype value -filldata {0000e0000d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
 mem load -filltype value -filldata {000100000f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
 
-force -freeze sim:/digital/thePAT/field_in 8'h42 0
+
+force -freeze sim:/digital/field_toPAT_low 8'h42 0
+force -freeze sim:/digital/field_toPAT_high 8'h82 0
 force -freeze sim:/digital/thePAT/acc 8'h00 0 -cancel 1
 force -freeze sim:/digital/clk 1 0, 0 {50 ns} -r 100
 force -freeze sim:/digital/reset 1'h1 0

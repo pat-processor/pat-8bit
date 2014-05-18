@@ -16,13 +16,13 @@ input [(i_buffer_size*i_width)-1:0] imem_in ;
 output [d_width-1:0] outputs ;
 output [d_width-1:0] acc_out ;
 
-wire [d_width-1:0] field_in ;
+wire [d_width-1:0] field_fromPAT ;
 wire [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
 wire [(fieldp_width+bufp_width)-1:0] buf_fieldwp ;
 wire field_write_en_low ;
 wire field_write_en_high ;
-wire [d_width-1:0] field_out_low ;
-wire [d_width-1:0] field_out_high ;
+wire [d_width-1:0] field_toPAT_low ;
+wire [d_width-1:0] field_toPAT_high ;
 wire [bufp_width-1:0] bufp ;
 wire [fieldp_width-1:0] fieldp ;
 wire [fieldp_width-1:0] fieldwp ;
@@ -38,10 +38,10 @@ wire [i_width-1:0] instruction ;
 //inst_mem iMem(pc, imem_write_adr, imem_write, imem_in, instruction) ;
 instruction_buffer iBuffer(clk, reset, pc, instruction, imem_write_adr, imem_write, imem_in, jump) ;
 
-patternbuffer dummyPatBufLow(buf_fieldp, buf_fieldwp, field_write_en_low, field_in, field_out_low) ;
-patternbuffer dummyPatBufHigh(buf_fieldp, buf_fieldwp, field_write_en_high, field_in, field_out_high) ;
+patternbuffer dummyPatBufLow(buf_fieldp, buf_fieldwp, field_write_en_low, field_fromPAT, field_toPAT_low) ;
+patternbuffer dummyPatBufHigh(buf_fieldp, buf_fieldwp, field_write_en_high, field_fromPAT, field_toPAT_high) ;
 
-pat thePAT(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_out, instruction, field_out_low, field_out_high, acc_out, inputs, outputs) ;
+pat thePAT(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, instruction, field_toPAT_low, field_toPAT_high, acc_out, inputs, outputs) ;
 
 endmodule
 
