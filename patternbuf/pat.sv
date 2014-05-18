@@ -915,6 +915,8 @@ always @(posedge clk)
 begin
 	if (reset)
 	begin
+		i_buffer[0] <= `INSTR_NOP ;
+		i_buffer[1] <= `INSTR_NOP ;
 		instruction_out <= `INSTR_NOP ;
 		jump_bubble <= 1 ;
 	end

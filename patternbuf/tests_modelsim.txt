@@ -85,6 +85,9 @@ add wave -position end  sim:/digital/thePAT/dest_from_alu
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
 
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
+mem load -filltype value -filldata {0000200001 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
+mem load -filltype value -filldata {0000400003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {0000600005 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
 
 force -freeze sim:/digital/thePAT/field_in 8'h42 0
 force -freeze sim:/digital/thePAT/acc 8'h00 0 -cancel 1
