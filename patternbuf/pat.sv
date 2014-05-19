@@ -185,11 +185,13 @@ assign dest_field = (field_op && dest_reg) ;
 assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
-assign jump = dest_pc ;
 
-// register for next stage of the pipeline
+// register f
+// immediate_pc <= immediate_i8_regd ; // delay a further cycle for PCor next stage of the pipeline
 reg [3:0] immediate_bufp_regd ;
 reg [d_width-1:0] immediate_all_regd ;
+reg [7:0] immediate_i8_regd ;
+reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
@@ -201,7 +203,10 @@ wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
 		immediate_bufp_regd <= immediate_i8[3:0] ; // Duplicated to aid fan-out. DC will merge if more optimal
+		immediate_i8_regd <= immediate_i8 ;
+		immediate_pc <= immediate_i8_regd ; // delay a further cycle for PC
 		immediate_all_regd <= immediate_i_all ; 
+		// condition flags: {N, Z, AL}
 		case (condition)
 			0: condition_decoded <= 4'b0001 ;
 			1: condition_decoded <= 4'b0010 ;
@@ -270,6 +275,7 @@ reg dest_acc_regd  ;
 reg dest_field_regd ;
 reg dest_dmem_regd ;
 reg dest_sp_regd ;
+reg dest_pc_regd ;
 
 task reg_srcdest ;
 	begin
@@ -279,6 +285,7 @@ task reg_srcdest ;
 		source_imm_regd <= source_imm ;
 		source_in_regd <= source_in ;
 		dest_acc_regd <= dest_acc ;
+		dest_pc_regd <= dest_pc ;
 		dest_field_regd <= dest_field ;
 		dest_dmem_regd <= dest_dmem ;
 		dest_sp_regd <= dest_sp ;
@@ -306,10 +313,15 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 wire [d_width-1:0] pc_immediate ;
 wire [i_adr_width-1:0] return_address ;
 
-assign pc_immediate = instruction_2[7:0] ; // immediate_i8 ;
-assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
+//assign pc_immediate = instruction_2[7:0] ; // immediate_i8 ;
+//assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
 
-program_counter thePC(clk, reset, pc, pc_immediate, op_bf, op_bb, op_return | op_call , return_address) ; 
+reg [2:0] bubbles ;
+reg jumping ;
+reg jump_forward ;
+`define NOPIPELINEBUBBLES 4
+
+program_counter thePC(clk, reset, pc, immediate_pc, jump_forward) ; 
 
 // * End program counter *
 
@@ -411,6 +423,8 @@ function checkCondition ;
 	end
 endfunction
 
+
+
 always @(posedge clk)
 	begin
 		instruction_1 <= instruction_in ;
@@ -428,9 +442,22 @@ always @(posedge clk)
 		//updateFlags() ; // Having this regd means two cycles of
 		//match, which gives unexpected execution results.
 
+		if (bubbles > 0) begin
+			bubbles <= bubbles - 1 ;
+			jump_forward <= 1'b0 ;
+		end
 
-	if (checkCondition(condition_decoded, z, n)) //TODO: Restore conditionality
+		if (bubbles == 0) begin
+			jumping <= 1'b0 ;
+		end
+
+	if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
 	begin
+		if (dest_pc_regd) begin
+			jump_forward <= 1'b1 ;
+			jumping <= 1'b1 ;
+			bubbles <= `NOPIPELINEBUBBLES ;
+		end
 
 		if (dest_acc_regd) begin
 			// TODO: How to speed up below MUX
@@ -519,12 +546,11 @@ always @(posedge clk)
 endmodule
 
 
-module program_counter(clk, reset, pc_out, immediate_i8, op_bf, op_bb, op_return, return_adr) ;
+module program_counter(clk, reset, pc_out, jump_offset, jump_forward) ;
 parameter i_adr_width = 10 ;
 input clk, reset ;
-input [i_adr_width-1:0] return_adr ;
-input [7:0] immediate_i8 ;
-input op_bf, op_bb, op_return ;
+input [7:0] jump_offset ;
+input jump_forward ;
 
 output [i_adr_width-1:0] pc_out ;
 reg [i_adr_width-1:0] pc ; // program counter
@@ -537,7 +563,7 @@ wire [i_adr_width-1:0] pcSub ;
 pc_inc pcIncr(pc, pcInc) ;
 //pc_add pcAddr(pc, immediate_i8, pcAdd) ;
 //pc_sub pcSubr(pc, immediate_i8, pcSub) ;
-pc_add_signed pcAddrSigned(pc, immediate_i8, pcAdd) ;
+pc_add_signed pcAddrSigned(pc, jump_offset, pcAdd) ;
 
 always @(posedge clk)
 	begin
@@ -555,7 +581,7 @@ always @(posedge clk)
 				pc_out <= pcSub ;
 			end
 			*/
-		       if (op_bf) begin
+		       if (jump_forward) begin
 			       pc <= pcAdd ;
 			       pc_out <= pcAdd ;
 		       end
@@ -905,6 +931,9 @@ reg [1:0] jump_bubble ;
 inst_mem iMem(imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 
 assign imem_read_adr = instruction_address[i_adr_width-1:i_mem_adr_start_bit] ;
+
+//wire jump_int ;
+//assign jump_int = (instruction_out[11:8] == 4'b1000) ;
 
 /* Mechanism
 /  If the PC shows an even number, go and fetch that instruction line from memory.

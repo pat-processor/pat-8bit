@@ -99,6 +99,9 @@ mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital
 force -freeze sim:/digital/field_toPAT_low 8'h42 0
 force -freeze sim:/digital/field_toPAT_high 8'h82 0
 force -freeze sim:/digital/thePAT/acc 8'h11 0 -cancel 1
+force -freeze sim:/digital/thePAT/bubbles 2'b00 0 -cancel 1
+force -freeze sim:/digital/thePAT/jump_forward 1'b0 0 -cancel 1
+force -freeze sim:/digital/thePAT/jumping 1'b0 0 -cancel 1
 force -freeze sim:/digital/clk 1 0, 0 {50 ns} -r 100
 force -freeze sim:/digital/reset 1'h1 0
 run
@@ -119,10 +122,13 @@ Instruction following jump will be executed, so probably should be a NOP.
 TODO:
 [tick] Check conditional execution
 Look to fix jump follow instr. execute
+- due to FO pipelining of instruction_1 from instruction_in
 [tick] Check field output mechanism works.
 [tick] bufp and high-low mechanism
 [confirmed] ldi doesn't init acc when not defined (i.e. Xs propagate)
-
+** conditional jump not implemented yet (jump instruction always flushes pipeline)
+- implementing update at end of pipeline offers opportunity to pipeline the add operation (remove from critical path).
+- ** Move PC updates to Decode stage from Ex stage.
 
 -- Good things to init at reset -
 * low_high_buffer
@@ -130,6 +136,7 @@ Look to fix jump follow instr. execute
 * fieldp
 * acc
 * fieldp
+* bubbles
 
 
 ===== PATTERNBUFFER ==============
