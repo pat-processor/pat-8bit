@@ -397,8 +397,8 @@ task updateFlags() ;
 endtask
 
 `define COND_AL 0 // always
-`define COND_N 1 // negative
-`define COND_Z 2 // zero
+`define COND_Z 1 // zero
+`define COND_N 2 // negative
 
 function checkCondition ;
 	input [3:0] cond_decoded ;

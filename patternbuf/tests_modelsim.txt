@@ -86,8 +86,8 @@ add wave -position end  sim:/digital/thePAT/dest_from_alu
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
 
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
-mem load -filltype value -filldata {00f9400600 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
-mem load -filltype value -filldata {0040401403 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {00f9400680 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
+mem load -filltype value -filldata {0440400ff2 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
 mem load -filltype value -filldata {0040600405 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
 mem load -filltype value -filldata {008fc00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
 mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
@@ -98,7 +98,7 @@ mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital
 
 force -freeze sim:/digital/field_toPAT_low 8'h42 0
 force -freeze sim:/digital/field_toPAT_high 8'h82 0
-force -freeze sim:/digital/thePAT/acc 8'h00 0 -cancel 1
+force -freeze sim:/digital/thePAT/acc 8'h11 0 -cancel 1
 force -freeze sim:/digital/clk 1 0, 0 {50 ns} -r 100
 force -freeze sim:/digital/reset 1'h1 0
 run
@@ -117,11 +117,11 @@ Signed jump available
 Instruction following jump will be executed, so probably should be a NOP.
 
 TODO:
-Check conditional execution
+[tick] Check conditional execution
 Look to fix jump follow instr. execute
-Check field output mechanism works.
+[tick] Check field output mechanism works.
 [tick] bufp and high-low mechanism
-** ldi doesn't init acc when not defined
+[confirmed] ldi doesn't init acc when not defined (i.e. Xs propagate)
 
 
 -- Good things to init at reset -
