@@ -86,14 +86,14 @@ add wave -position end  sim:/digital/thePAT/dest_from_alu
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
 
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
-mem load -filltype value -filldata {0000200001 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
-mem load -filltype value -filldata {0000401003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
-mem load -filltype value -filldata {0000600005 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
-mem load -filltype value -filldata {008fc00007 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
-mem load -filltype value -filldata {0000a00009 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
-mem load -filltype value -filldata {0000c0000b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
-mem load -filltype value -filldata {0000e0000d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
-mem load -filltype value -filldata {000100000f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
+mem load -filltype value -filldata {00f9400600 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
+mem load -filltype value -filldata {0040401403 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {0040600405 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
+mem load -filltype value -filldata {008fc00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
+mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
+mem load -filltype value -filldata {0040c0040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
+mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
+mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
 
 
 force -freeze sim:/digital/field_toPAT_low 8'h42 0
@@ -107,11 +107,29 @@ run
 force -freeze sim:/digital/reset 1'h0 0
 run 800
 
+
+**** CHECK DEST_REG ****
+
 ==
 op_bf not implemented in PC.
 Signed jump available
 8fc causes jump to same location
 Instruction following jump will be executed, so probably should be a NOP.
+
+TODO:
+Check conditional execution
+Look to fix jump follow instr. execute
+Check field output mechanism works.
+[tick] bufp and high-low mechanism
+** ldi doesn't init acc when not defined
+
+
+-- Good things to init at reset -
+* low_high_buffer
+* bufp
+* fieldp
+* acc
+* fieldp
 
 
 ===== PATTERNBUFFER ==============

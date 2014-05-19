@@ -179,7 +179,7 @@ assign source_in = op_in ;
 // Which ops are committed to a register (ACC or Field_Out)
 assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
                   | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo  
-		  | op_ldsp | op_in | op_not | op_mov ) ;
+		  | op_ldsp | op_in | op_not | op_mov | op_ldi) ;
 assign dest_acc = (!field_op && dest_reg) ;
 assign dest_field = (field_op && dest_reg) ; 
 assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
