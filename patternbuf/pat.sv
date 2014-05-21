@@ -195,6 +195,7 @@ reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
 reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
+reg [d_width-1:0] field_value_muxd ; // pre-MUXd alu inputs
 
 wire [d_width-1:0] immediate_i_all ;
 assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
@@ -216,6 +217,7 @@ task reg_instr ;
 		
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ;
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
+		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
 	end
 endtask
 
@@ -340,7 +342,8 @@ wire [d_width-1:0] field_alu_y ;
 assign acc_alu_a = acc ;
 assign acc_alu_b = alu_b_regd ;
 
-assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ;
+//assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ; // TODO: Critical path
+assign field_alu_a = field_value_muxd; // TODO: Critical path
 assign field_alu_b = alu_b_regd_2 ;
 
 	
@@ -362,11 +365,13 @@ alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_
 
 // control tasks
 
+/*
 task getField() ;
 	begin 
 		field_value <= (low_high_buffer) ? field_in_high : field_in_low ;
 	end
 endtask
+*/
 
 task updateFieldp() ;
 	begin
@@ -435,7 +440,7 @@ always @(posedge clk)
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
-          	getField() ;
+          	//getField() ;
 		updateFieldp() ;
 		updateFieldwp() ;
 		getData() ;
@@ -461,7 +466,7 @@ always @(posedge clk)
 
 		if (dest_acc_regd) begin
 			// TODO: How to speed up below MUX
-			 acc <= (source_field_regd) ? field_value : acc_result ;
+			 acc <= (source_field_regd) ? field_value_muxd : acc_result ;
 		//	 z <= (acc_result == 0) ; // z and n take extra tim0
 		//	 in ALU pipeline
 			// n <= (acc_result < 0) ;your_library.db
@@ -483,7 +488,7 @@ always @(posedge clk)
 		// memory write instruction. Is mutually exclusive to
 		// acc or field updates, so acc will not change.
 		if (dest_dmem_regd) begin 
-		data_out <= (source_field_regd) ? field_value : acc ;
+		data_out <= (source_field_regd) ? field_value_muxd : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
 		data_write_adr <= immediate_all_regd ; //TODO: sp removed. Re-add if fast enough
@@ -857,8 +862,8 @@ endmodule
 module inst_mem (imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
 
 parameter i_buffer_size = 2 ;
-parameter i_mem_size = 1024 ;
-parameter i_mem_lines =  512 ; //imem_size / i_buffer_size ;
+parameter i_mem_size = 512 ;
+parameter i_mem_lines =  256 ; //imem_size / i_buffer_size ;
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
 
