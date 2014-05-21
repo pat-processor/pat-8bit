@@ -46,7 +46,7 @@ if {$insertScanChain == "y"} {
 set_attribute dft_scan_style muxed_scan /
 #set_attribute dft_dont_scan true {instance | subdesign | design}
 define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_in/clk_int
-define_dft shift_enable -active high /designs/pads/instances_comb/iopad_scan_enable/pins_out/Y
+define_dft shift_enable -active high scan_enable
 # TODO: Redefine the scan enable pin! And scan in and out pins
 #set_attribute dft_identify_top_level_test_clocks false / 
 #set_attribute dft_identify_test_signals f
@@ -64,7 +64,7 @@ set_attr dft_scan_map_mode tdrc_pass $currentDesign
 set_attr dft_connect_scan_data_pins_during_mapping loopback $currentDesign
 set_attribute dft_prefix SCAN_ / 
 
-define_dft scan_chain -sdi iopad_scan_in_1/Y -sdo iopad_scan_out_1/A -domain scan_clock -name scan_chain_1
+define_dft scan_chain -sdi scan_in_1 -sdo scan_out_1 -domain scan_clock -name scan_chain_1
 #define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
 report dft_setup
 
