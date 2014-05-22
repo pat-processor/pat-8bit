@@ -31,12 +31,15 @@ set clock [define_clock -period 1000 -name clk [find / -port clk_int]]
 dc::current_design $currentDesign
 dc::set_time_unit -picoseconds
 #dc::set_false_path -from [ find / -inst *dmem*] -to [ find / -inst *dmem*] -exception_name memToMem
-set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
+#set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
+# set pad input slew in ps, rise/fall and 4 cycle path to logic
+set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
+dc::set_multicycle_path -setup 4 -from [find /des* -port ports_in/*]
+
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]
 set_attribute optimize_merge_flops false /
 dc::set_multicycle_path -setup 2 -from [find / -inst pc_out_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
-
-
+dc::set_false_path -from [find / -port pad_reset] -exception_name reset
 
 
 
