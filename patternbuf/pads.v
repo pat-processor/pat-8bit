@@ -4,12 +4,12 @@ module pads (
 	// inputs
 	clk_int, sout,
 	// pads
-	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1, pad_mem_clock,
+	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select,
 	// outputs
-	sclk, ssel, saddr, buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high, clock_select, vref_select, f5v_select) ;
+	sclk, ssel, saddr, buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
 
 input pad_vdd_core ;
 input pad_gnd_core ;
@@ -43,7 +43,6 @@ input pad_clock_out ;
 inout pad_reset ;
 inout pad_modesel_0 ;
 inout pad_modesel_1 ;
-inout pad_mem_clock ;
 
 inout pad_io_a0 ;
 inout pad_io_a1 ;
@@ -114,6 +113,7 @@ wire io_b6_out ;
 wire io_b7_out ;
 
 // analogue outputs
+output clock_external ;
 output clock_select ;
 output vref_select ;
 output f5v_select ;
@@ -137,7 +137,8 @@ wire vdd_logic1 ;
 wire vdd_logic0 ;
 
 // Input-only pins
-IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clk_ext)) ;
+APRIO1V8_1k4_HV iopad_clock_in(.PAD (pad_clock_in), .Y (clk_external)) ;
+//IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clk_external)) ;
 IOPAD1V8_3_HV iopad_reset(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_reset), .Y(reset)) ;
 IOPAD1V8_3_HV iopad_modesel_0(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_0), .Y(modesel_0)) ;
 IOPAD1V8_3_HV iopad_modesel_1(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_1), .Y(modesel_1)) ;
