@@ -1,13 +1,14 @@
 module pads (
 	// scan chain
-	scan_enable, scan_in_1, scan_out_1,
-	// inputs
+	//scan_enable, scan_in_1, scan_out_1,
+//	scan_out_1,
+	//// inputs
 	clk_int, sout,
 	// pads
 	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
-	pad_clock_select, pad_vref_select, pad_f5v_select,
+	pad_clock_select, pad_vref_select, pad_f5v_select, pad_scan_enable,
         // outputs
 	sclk, ssel, saddr, buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
 
@@ -22,9 +23,14 @@ parameter d_width = 8 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
 
-input scan_enable ;
-input scan_in_1 ;
-output scan_out_1 ;
+//input scan_enable ;
+//input scan_in_1 ;
+//output scan_out_1 ;
+//wire scan_enable ;
+inout pad_scan_enable ;
+wire scan_enable ;
+wire scan_in_1 ;
+wire scan_out_1 ;
 
 output sclk ;
 output ssel ;
@@ -137,11 +143,11 @@ wire vdd_logic1 ;
 wire vdd_logic0 ;
 
 // Input-only pins
-APRIO1V8_1k4_HV iopad_clock_in(.PAD (pad_clock_in)) ;
 //IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clk_external)) ;
 IOPAD1V8_3_HV iopad_reset(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_reset), .Y(reset)) ;
 IOPAD1V8_3_HV iopad_modesel_0(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_0), .Y(modesel_0)) ;
 IOPAD1V8_3_HV iopad_modesel_1(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_1), .Y(modesel_1)) ;
+IOPAD1V8_3_HV iopad_scan_enable(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_scan_enable), .Y(scan_enable)) ;
 
 // Output-only pins
 IOPAD1V8_3_HV iopad_clock_out(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(clock_out), .IE(vdd_logic0), .OE0(vdd_logic1), .OE1(vdd_logic1), .PAD (pad_clock_out), .Y( )) ;
@@ -166,6 +172,9 @@ IOPAD1V8_3_HV iopad_b6(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1)
 IOPAD1V8_3_HV iopad_b7(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(io_b7_out), .IE(io_b_input_enable), .OE0(io_b_output_enable), .OE1(io_b_output_enable), .PAD (pad_io_b7), .Y(io_b7_in)) ;
 
 // Pins for analogue section
+APRIO1V8_1k4_HV iopad_clock_in(.PAD (pad_clock_in)) ;
+APRIO1V8_1k4_HV iopad_vref_ext(.PAD (pad_vref_ext)) ;
+APRIO1V8_1k4_HV iopad_vco_ctrl(.PAD (pad_vco_ctrl)) ;
 IOPAD1V8_3_HV iopad_clock_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_select), .Y(clock_select)) ;
 IOPAD1V8_3_HV iopad_vref_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_vref_select), .Y(vref_select)) ;
 IOPAD1V8_3_HV iopad_f5v_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_f5v_select), .Y(f5v_select)) ;
@@ -178,27 +187,29 @@ IOPAD1V8_3_HV iopad_f5v_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd
 wire [1:0] mode ;
 assign mode[0] = modesel_0 ;
 assign mode[1] = modesel_1 ;
-
+`define MODE_DEBUG 0
+`define MODE_MEMLOAD 1
+`define MODE_RUN 3
 
 // Mode 0: Debug
-assign sclk = (mode == 0) ? io_a0_in : 1'b0 ;
-assign ssel = (mode == 0) ? io_a1_in : 1'b0 ;
-assign sin = (mode == 0) ? io_a2_in : 1'b0 ;
-assign saddr[0] = (mode == 0) ? io_a3_in : 1'b0 ;
-assign saddr[1] = (mode == 0) ? io_a4_in : 1'b0 ;
-assign saddr[2] = (mode == 0) ? io_a5_in : 1'b0 ;
-assign scan_enable = (mode == 0) ? io_a6_in : 1'b0 ;
-assign scan_in_1 = (mode == 0) ? io_a7_in : 1'b0 ;
+assign sclk = (`MODE_DEBUG) ? io_a0_in : 1'b0 ;
+assign ssel = (`MODE_DEBUG) ? io_a1_in : 1'b0 ;
+assign sin = (`MODE_DEBUG) ? io_a2_in : 1'b0 ;
+assign saddr[0] = (`MODE_DEBUG) ? io_a3_in : 1'b0 ;
+assign saddr[1] = (`MODE_DEBUG) ? io_a4_in : 1'b0 ;
+assign saddr[2] = (`MODE_DEBUG) ? io_a5_in : 1'b0 ;
+assign scan_enable = (`MODE_DEBUG) ? io_a6_in : 1'b0 ;
+assign scan_in_1 = (`MODE_DEBUG) ? io_a7_in : 1'b0 ;
 
 wire[7:0] outputs ;
-assign io_b0_out = (mode == 0) ? sout : outputs[0] ;
-assign io_b1_out = (mode == 0) ? scan_out_1 : outputs[1] ;
-assign io_b2_out = (mode == 0) ? 1'b0 : outputs[2] ;
-assign io_b3_out = (mode == 0) ? 1'b0 : outputs[3] ;
-assign io_b4_out = (mode == 0) ? 1'b0 : outputs[4] ;
-assign io_b5_out = (mode == 0) ? 1'b0 : outputs[5] ;
-assign io_b6_out = (mode == 0) ? 1'b0 : outputs[6] ;
-assign io_b7_out = (mode == 0) ? 1'b0 : outputs[7] ;
+assign io_b0_out = (`MODE_DEBUG) ? 1'b0 : outputs[0] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
+assign io_b1_out = (`MODE_DEBUG) ? sout : outputs[1] ;
+assign io_b2_out = (`MODE_DEBUG) ? 1'b0 : outputs[2] ;
+assign io_b3_out = (`MODE_DEBUG) ? 1'b0 : outputs[3] ;
+assign io_b4_out = (`MODE_DEBUG) ? 1'b0 : outputs[4] ;
+assign io_b5_out = (`MODE_DEBUG) ? 1'b0 : outputs[5] ;
+assign io_b6_out = (`MODE_DEBUG) ? 1'b0 : outputs[6] ;
+assign io_b7_out = (`MODE_DEBUG) ? 1'b0 : outputs[7] ;
 
 /*
 wire [7:0] acc_out ;
@@ -237,8 +248,8 @@ assign inputs_a[7] = io_a7_in ;
 
 wire imem_clock ;
 wire imem_write ;
-assign imem_clock = io_b0_in ;
-assign imem_write = io_b1_in ;
+assign imem_clock = (mode == `MODE_MEMLOAD) ? io_b0_in : 1'b0 ;
+assign imem_write = (mode == `MODE_MEMLOAD) ? io_b1_in : 1'b0 ;
 
 // synchronise asynchronous inputs with a two-flop synchroniser
 reg [7:0] inputs_a_sync_1 ;
@@ -313,7 +324,7 @@ VDDPAD1V8ALL_HV vddAll( .PAD(pad_vdd_1v8_all)) ;
 GNDPAD1V8_CORE_HV gndCore_0( .PAD(pad_gnd_core)) ;
 VDDPAD1V8_CORE_HV vddCore_0( .PAD(pad_vdd_core)) ;
 GNDPAD1V8_CORE_HV gndCore_1( .PAD(pad_gnd_core)) ;
-VDDPAD1V8_CORE_HV vddCore_1( .PAD(pad_vdd_core)) ;
+//VDDPAD1V8_CORE_HV vddCore_1( .PAD(pad_vdd_core)) ;
 
 //APRIO1V800VHC gndCore_0( .PAD(pad_gnd_core), .Z(gnd)) ;
 //APRIO1V800VHC vddCore_0( .PAD(pad_vdd_core), .Z(vdd)) ;

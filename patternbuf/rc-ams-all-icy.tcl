@@ -115,7 +115,7 @@ report dft_setup > patternbuffer_dftsetup
 
 # request an extra 30ps slack on the register paths
 set all_regs [find / -instance instances_seq/*] 
-path_adjust -from $all_regs -to $all_regs -delay -30 -name slack-30_regs
+path_adjust -from $all_regs -to $all_regs -delay -20 -name slack-20_regs
 
 synthesize -to_mapped -effort high patternbuffer
 
