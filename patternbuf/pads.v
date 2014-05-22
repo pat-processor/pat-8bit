@@ -4,7 +4,7 @@ module pads (
 	// inputs
 	clk_int, sout,
 	// pads
-	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1, 
+	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1, pad_mem_clock,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select,
@@ -43,6 +43,7 @@ input pad_clock_out ;
 inout pad_reset ;
 inout pad_modesel_0 ;
 inout pad_modesel_1 ;
+inout pad_mem_clock ;
 
 inout pad_io_a0 ;
 inout pad_io_a1 ;
@@ -74,6 +75,7 @@ wire reset ;
 wire modesel_0 ;
 wire modesel_1 ;
 wire clock_out ;
+wire mem_clock ;
 
 wire io_a0_in ;
 wire io_a1_in ;
@@ -138,7 +140,6 @@ wire vdd_logic0 ;
 IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clk_ext)) ;
 IOPAD1V8_3_HV iopad_reset(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_reset), .Y(reset)) ;
 IOPAD1V8_3_HV iopad_modesel_0(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_0), .Y(modesel_0)) ;
-
 IOPAD1V8_3_HV iopad_modesel_1(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_modesel_1), .Y(modesel_1)) ;
 
 // Output-only pins
@@ -169,6 +170,10 @@ IOPAD1V8_3_HV iopad_vref_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vd
 IOPAD1V8_3_HV iopad_f5v_select(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_f5v_select), .Y(f5v_select)) ;
 
 
+// MODES:
+// 0 := Debug: io_a input; io_b output
+// 1 := Memory load: io_a & io_b input
+// 2 := Run: io_a input; io_b output
 wire [1:0] mode ;
 assign mode[0] = modesel_0 ;
 assign mode[1] = modesel_1 ;
@@ -229,34 +234,56 @@ assign inputs_a[5] = io_a5_in ;
 assign inputs_a[6] = io_a6_in ;
 assign inputs_a[7] = io_a7_in ;
 
+wire imem_clock ;
+wire imem_write ;
+assign imem_clock = io_b0_in ;
+assign imem_write = io_b1_in ;
+
+// synchronise asynchronous inputs with a two-flop synchroniser
+reg [7:0] inputs_a_sync_1 ;
+reg [7:0] inputs_a_synched ;
+reg imem_clock_sync_1 ;
+reg imem_clock_synched ;
+reg imem_write_sync_1 ;
+reg imem_write_synched ;
+always @(posedge clk_int) begin
+	inputs_a_sync_1 <= inputs_a ;
+	inputs_a_synched <= inputs_a_sync_1 ;
+	imem_clock_sync_1 <= imem_clock ;
+	imem_clock_synched <= imem_clock_sync_1 ;
+	imem_write_sync_1 <= imem_write ;
+	imem_write_synched <= imem_write_sync_1 ;
+end
 
 // **** Functionality ****
 
-// TODO: iMem initialisation
+// Map these enables properly
+assign io_a_input_enable = vdd_logic1 ;
+assign io_a_output_enable = vdd_logic0 ;
 
-wire imem_write ;
-assign imem_write = modesel_0 ;
+assign io_b_input_enable = (mode == 1) ? vdd_logic1 : vdd_logic0 ;
+assign io_b_output_enable = (mode == 1) ? vdd_logic0 : vdd_logic1 ;
+
+
+// iMem initialisation
+
 
 reg [49:0] input_shifter ;
 wire [9:0] imem_write_adr ;
 wire [39:0] imem_in ;
 
 // shift data address and value to write in on port a
-always @(posedge modesel_1) begin
-	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a ;
+always @(posedge imem_clock_synched) begin
+	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a_synched ;
 end
 
 assign imem_write_adr = input_shifter[49:40] ;
 assign imem_in = input_shifter[39:0] ;
 
-// Map these enables properly
-assign io_a_input_enable = vdd_logic1 ;
-assign io_b_input_enable = vdd_logic0 ;
-assign io_a_output_enable = vdd_logic0 ;
-assign io_b_output_enable = vdd_logic1 ;
 
+// Instantiate the cores
 //                I     I      I         I               I         I        O        O
-digital theCore(clk_int, reset, inputs_a, imem_write_adr, imem_write, imem_in, outputs, acc_out,
+digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs, acc_out,
 buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 
 
