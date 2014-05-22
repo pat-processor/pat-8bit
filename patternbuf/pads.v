@@ -8,7 +8,7 @@ module pads (
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select,
-	// outputs
+        // outputs
 	sclk, ssel, saddr, buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
 
 input pad_vdd_core ;
@@ -273,9 +273,13 @@ reg [49:0] input_shifter ;
 wire [9:0] imem_write_adr ;
 wire [39:0] imem_in ;
 
-// shift data address and value to write in on port a
-always @(posedge imem_clock_synched) begin
+reg imem_clock_prev ;
+// shift data address and value to write in on port a if the imem_clock has made a +ve transition
+always @(posedge clk_int) begin
+	imem_clock_prev <= imem_clock_synched ;
+	if (imem_clock_synched && !imem_clock_prev) begin
 	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a_synched ;
+	end
 end
 
 assign imem_write_adr = input_shifter[49:40] ;
@@ -284,7 +288,7 @@ assign imem_in = input_shifter[39:0] ;
 
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
-digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs, acc_out,
+digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 
 

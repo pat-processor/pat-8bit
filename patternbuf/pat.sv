@@ -1,5 +1,5 @@
 `define INSTR_NOP 20'h06ff5
-module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_out, instruction_in, field_in_low, field_in_high, acc, inputs, outputs) ;
+module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_out, instruction_in, field_in_low, field_in_high, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 20 ; // instruction width
@@ -34,10 +34,8 @@ output field_write_en_low ;
 output field_write_en_high ;
 output [buffer_width-1:0] field_out ;
 
-output [d_width-1:0] acc ; //FIXME: remove --- debug
 output [d_width-1:0] outputs ;
 reg [i_width-1:0] instruction_1 ;
-reg [i_width-1:0] instruction_2 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
@@ -60,7 +58,6 @@ reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 reg low_high_buffer ; // '0' means use low-side buffer; '1' means use high-side
 
-reg [d_width-1:0] field_value ; // after latching field in
 reg [d_width-1:0] outputs ;
 
 
@@ -404,8 +401,8 @@ task updateFlags() ;
 	begin
 		if (field_op_regd)
 		begin
-			z <= (field_value == 0) ;
-			n <= (field_value[d_width-1] == 1) ;
+			z <= (field_value_muxd == 0) ;
+			n <= (field_value_muxd[d_width-1] == 1) ;
 		end
 		else
 		begin
@@ -432,10 +429,10 @@ endfunction
 
 
 
+assign jump = jump_forward ;
 always @(posedge clk)
 	begin
 		instruction_1 <= instruction_in ;
-		instruction_2 <= instruction_in ;
 		instruction_3 <= instruction_in ;
 		instruction_4 <= instruction_in ;
 		//dmem_in <= immediate_i8 ; // TODO: Restore latching
