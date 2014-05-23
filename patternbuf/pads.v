@@ -192,24 +192,24 @@ assign mode[1] = modesel_1 ;
 `define MODE_RUN 3
 
 // Mode 0: Debug
-assign sclk = (`MODE_DEBUG) ? io_a0_in : 1'b0 ;
-assign ssel = (`MODE_DEBUG) ? io_a1_in : 1'b0 ;
-assign sin = (`MODE_DEBUG) ? io_a2_in : 1'b0 ;
-assign saddr[0] = (`MODE_DEBUG) ? io_a3_in : 1'b0 ;
-assign saddr[1] = (`MODE_DEBUG) ? io_a4_in : 1'b0 ;
-assign saddr[2] = (`MODE_DEBUG) ? io_a5_in : 1'b0 ;
-assign scan_enable = (`MODE_DEBUG) ? io_a6_in : 1'b0 ;
-assign scan_in_1 = (`MODE_DEBUG) ? io_a7_in : 1'b0 ;
+assign sclk = (mode == `MODE_DEBUG) ? io_a0_in : 1'b0 ;
+assign ssel = (mode == `MODE_DEBUG) ? io_a1_in : 1'b0 ;
+assign sin = (mode == `MODE_DEBUG) ? io_a2_in : 1'b0 ;
+assign saddr[0] = (mode == `MODE_DEBUG) ? io_a3_in : 1'b0 ;
+assign saddr[1] = (mode == `MODE_DEBUG) ? io_a4_in : 1'b0 ;
+assign saddr[2] = (mode == `MODE_DEBUG) ? io_a5_in : 1'b0 ;
+assign scan_enable = (mode == `MODE_DEBUG) ? io_a6_in : 1'b0 ;
+assign scan_in_1 = (mode == `MODE_DEBUG) ? io_a7_in : 1'b0 ;
 
 wire[7:0] outputs ;
-assign io_b0_out = (`MODE_DEBUG) ? 1'b0 : outputs[0] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
-assign io_b1_out = (`MODE_DEBUG) ? sout : outputs[1] ;
-assign io_b2_out = (`MODE_DEBUG) ? 1'b0 : outputs[2] ;
-assign io_b3_out = (`MODE_DEBUG) ? 1'b0 : outputs[3] ;
-assign io_b4_out = (`MODE_DEBUG) ? 1'b0 : outputs[4] ;
-assign io_b5_out = (`MODE_DEBUG) ? 1'b0 : outputs[5] ;
-assign io_b6_out = (`MODE_DEBUG) ? 1'b0 : outputs[6] ;
-assign io_b7_out = (`MODE_DEBUG) ? 1'b0 : outputs[7] ;
+assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[0] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
+assign io_b1_out = (mode == `MODE_DEBUG) ? sout : outputs[1] ;
+assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[2] ;
+assign io_b3_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[3] ;
+assign io_b4_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[4] ;
+assign io_b5_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[5] ;
+assign io_b6_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[6] ;
+assign io_b7_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[7] ;
 
 /*
 wire [7:0] acc_out ;

@@ -65,11 +65,10 @@ createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
 editPin -side Right -unit TRACK -fixedPin 1 -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]}}
 
-editPin -side Right -unit TRACK -fixedPin -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[7]} {field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
+editPin -side Right -unit TRACK -fixedPin -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
 
 
-editPin -side Right -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[7]} {field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
-
+editPin -side Right -unit TRACK -fixedPin 1 -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]}}
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {clock_select f5v_select vref_select}
 
