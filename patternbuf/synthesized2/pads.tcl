@@ -32,6 +32,9 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 # locate the components
 floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
 setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
+# blockage width 750 height 750 X 635 Y 340 Layers All
+createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {635 340 1385 1090}
+
 setOaxMode -compressLevel 0
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
@@ -160,4 +163,4 @@ routeDesign -globalDetail
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
 
-
+amsFillperi
