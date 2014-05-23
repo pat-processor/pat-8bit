@@ -30,18 +30,12 @@ init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 # locate the components
-floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 200 200
-setObjFPlanBox Module theCore 438.244 1224.107 1285.524 2569.78
+floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
+setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
 setOaxMode -compressLevel 0
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
-# ams scripts
-amsUserGrid
-# connect power (both if with I/O), "core" if not
-#amsGlobalConnect both
-amsGlobalConnect both
-#amsHVringBlk corebox
-amsHVringBlk corebox 10 70
+
 
 
 createPinGroup scanpins -cell pads -pin {scan_enable scan_in_1 scan_out_1} -spacing 4
@@ -69,7 +63,31 @@ createPinGuide -pingroup serial -cell pads -edge 2 -layer M3
 createPinGuide -pingroup analogueSelects -cell pads -edge 2 -layer M3
 createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
+editPin -side Right -unit TRACK -fixedPin 1 -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]}}
 
+editPin -side Right -unit TRACK -fixedPin -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[7]} {field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
+
+
+editPin -side Right -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[7]} {field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
+
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {clock_select f5v_select vref_select}
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -pin clk_int
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{buf_fieldp[0]} {buf_fieldp[1]} {buf_fieldp[2]} {buf_fieldp[3]} {buf_fieldp[4]} {buf_fieldp[5]} {buf_fieldp[6]} {buf_fieldp[7]} {buf_fieldwp[0]} {buf_fieldwp[1]} {buf_fieldwp[2]} {buf_fieldwp[3]} {buf_fieldwp[4]} {buf_fieldwp[5]} {buf_fieldwp[6]} {buf_fieldwp[7]} field_write_en_high field_write_en_low}
+
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {ssel {saddr[0]} {saddr[1]} {saddr[2]} sclk sout}
+
+
+# ams scripts
+amsUserGrid
+# connect power (both if with I/O), "core" if not
+#amsGlobalConnect both
+amsGlobalConnect both
+#amsHVringBlk corebox
+amsHVringBlk corebox 10 70
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -112,41 +130,33 @@ undo
 # Fix some DRCs
 editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
 editTrim
-
+#editPowerVia -via_columns 3 -bottom_layer M1 -modify_vias 1 -via_rows 1 -top_layer AM
 
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
 #optDesign -preCTS
 
-# Fix placement DRCS
-refinePlace -checkRoute 1 -preserveRouting 0 -rmAffectedRouting 0 -swapEEQ 0 -checkPinLayerForAccess 1
-
 clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
-refinePlace -checkRoute 1 -preserveRouting 0 -rmAffectedRouting 0 -swapEEQ 0 -checkPinLayerForAccess 1
 
 #report_timing
 
-setOptMode -fixCap true -fixTran true -fixFanoutLoad true
+tMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
 # add core filler to prevent DRC violation
 amsFillcore 
 
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4.0 -pin {{buf_fieldp[0]} {buf_fieldp[1]} {buf_fieldp[2]} {buf_fieldp[3]} {buf_fieldp[4]} {buf_fieldp[5]} {buf_fieldp[6]} {buf_fieldp[7]} {buf_fieldwp[0]} {buf_fieldwp[1]} {buf_fieldwp[2]} {buf_fieldwp[3]} {buf_fieldwp[4]} {buf_fieldwp[5]} {buf_fieldwp[6]} {buf_fieldwp[7]} clk_int clock_select f5v_select {field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]} {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_high field_write_en_low {saddr[0]} {saddr[1]} {saddr[2]} scan_enable scan_in_1 scan_out_1 sclk sout ssel vref_select}
-
 # main routing
-#setNanoRouteMode -quiet -routeWithTimingDriven 1
-#setNanoRouteMode -quiet -routeBottomRoutingLayer default
-#setNanoRouteMode -quiet -drouteEndIteration default
-#setNanoRouteMode -quiet -routeWithTimingDriven true
-#setNanoRouteMode -quiet -routeWithSiDriven false
-#routeDesign -globalDetail
+setNanoRouteMode -quiet -routeWithTimingDriven 1
+setNanoRouteMode -quiet -routeBottomRoutingLayer default
+setNanoRouteMode -quiet -drouteEndIteration default
+setNanoRouteMode -quiet -routeWithTimingDriven true
+setNanoRouteMode -quiet -routeWithSiDriven false
+routeDesign -globalDetail
 
 # report and optimise timing
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
-#setOptMode -fixCap true -fixTran true -fixFanoutLoad true
-
-#optDesign -postRoute
-#amsFillperi
+setOptMode -fixCap true -fixTran true -fixFanoutLoad true
+optDesign -postRoute
