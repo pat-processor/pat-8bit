@@ -89,7 +89,7 @@ mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital
 mem load -filltype value -filldata {00f9400680 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
 mem load -filltype value -filldata {0440400ff2 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
 mem load -filltype value -filldata {0040600405 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
-mem load -filltype value -filldata {008fc00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
+mem load -filltype value -filldata {008fa00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
 mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
 mem load -filltype value -filldata {0040c0040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
 mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
