@@ -141,7 +141,7 @@ clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 #report_timing
 
-tMode -fixCap true -fixTran true -fixFanoutLoad true
+optMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
@@ -160,3 +160,5 @@ routeDesign -globalDetail
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
+
+
