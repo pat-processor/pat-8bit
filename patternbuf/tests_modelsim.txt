@@ -85,13 +85,14 @@ add wave -position end  sim:/digital/thePAT/dest_from_alu
 
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
 
+
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
-mem load -filltype value -filldata {00f9400680 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
-mem load -filltype value -filldata {0440400ff2 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {0040200401 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
+mem load -filltype value -filldata {00ff000403 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
 mem load -filltype value -filldata {0040600405 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
-mem load -filltype value -filldata {008fa00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
+mem load -filltype value -filldata {00afc00407 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
 mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
-mem load -filltype value -filldata {0040c0040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
+mem load -filltype value -filldata {00ff30040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
 mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
 mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
 
@@ -109,6 +110,20 @@ run
 run
 force -freeze sim:/digital/reset 1'h0 0
 run 800
+
+
+*** 
+Mem load and branch ***
+mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
+mem load -filltype value -filldata {00f9400680 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
+mem load -filltype value -filldata {0440400b01 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
+mem load -filltype value -filldata {0040600405 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(3)
+mem load -filltype value -filldata {008f800701 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(4)
+mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(5)
+mem load -filltype value -filldata {0040c0040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
+mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
+mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
+
 
 
 **** CHECK DEST_REG ****
