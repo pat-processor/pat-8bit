@@ -561,7 +561,7 @@ endmodule
 
 module program_counter(clk, reset, pc_out, jump_offset, jump_forward, jump_return, call) ;
 parameter i_adr_width = 10 ;
-`define PC_CALL_ADJUST 2 // how many instructions ahead of next instruction to be executed the PC is
+`define PC_CALL_ADJUST 4 // how many instructions ahead of next instruction to be executed the PC is
 input clk, reset ;
 input [7:0] jump_offset ;
 input jump_forward ;
