@@ -195,6 +195,7 @@ assign mode[0] = modesel_0 ;
 assign mode[1] = modesel_1 ;
 `define MODE_DEBUG 0
 `define MODE_MEMLOAD 1
+`define MODE_MANUAL 2
 `define MODE_RUN 3
 
 wire sclk ;
@@ -202,13 +203,13 @@ wire ssel ;
 wire sin ;
 wire [2:0] saddr ;
 // Mode 0: Debug
-assign sclk = (mode == `MODE_DEBUG) ? io_a0_in : 1'b0 ;
-assign ssel = (mode == `MODE_DEBUG) ? io_a1_in : 1'b0 ;
-assign sin = (mode == `MODE_DEBUG) ? io_a2_in : 1'b0 ;
-assign saddr[0] = (mode == `MODE_DEBUG) ? io_a3_in : 1'b0 ;
-assign saddr[1] = (mode == `MODE_DEBUG) ? io_a4_in : 1'b0 ;
-assign saddr[2] = (mode == `MODE_DEBUG) ? io_a5_in : 1'b0 ;
-assign s_low_high = (mode == `MODE_DEBUG) ? io_a6_in : 1'b0 ;
+assign sclk = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL)) ? io_a0_in : 1'b0 ;
+assign ssel = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL))? io_a1_in : 1'b0 ;
+assign sin = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL)) ? io_a2_in : 1'b0 ;
+assign saddr[0] = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL))? io_a3_in : 1'b0 ;
+assign saddr[1] = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL)) ? io_a4_in : 1'b0 ;
+assign saddr[2] = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL))? io_a5_in : 1'b0 ;
+assign s_low_high = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL))? io_a6_in : 1'b0 ;
 assign scan_in_1 = (mode == `MODE_DEBUG) ? io_a7_in : 1'b0 ;
 
 // select between the two patternbuffers
@@ -231,7 +232,7 @@ wire[7:0] outputs ;
 assign sout = (s_low_high) ? sout_high : sout_low ;
 
 assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[0] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
-assign io_b1_out = (mode == `MODE_DEBUG) ? sout : outputs[1] ;
+assign io_b1_out = ((mode == `MODE_DEBUG) | (mode == `MODE_MANUAL)) ? sout : outputs[1] ;
 assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[2] ;
 assign io_b3_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[3] ;
 assign io_b4_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[4] ;
@@ -331,9 +332,12 @@ wire [d_width-1:0] field_fromPAT ;
 wire [bufp_width-1:0] bufp ;
 wire [fieldp_width-1:0] fieldp ;
 wire [fieldp_width-1:0] fieldwp ;
+
+wire reset_core ;
+assign reset_core = reset | (mode == `MODE_MANUAL) ;
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
-digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
+digital theCore(clk_int, reset_core, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 // these signals are shared across both patter buffers
 assign bufp_low = bufp ;
