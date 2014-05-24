@@ -320,9 +320,10 @@ wire [i_adr_width-1:0] return_address ;
 reg [2:0] bubbles ;
 reg jumping ;
 reg jump_forward ;
+reg jump_return ;
 `define NOPIPELINEBUBBLES 4
 
-program_counter thePC(clk, reset, pc, immediate_pc, jump_forward) ; 
+program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ; 
 
 // * End program counter *
 
@@ -429,7 +430,7 @@ endfunction
 
 
 
-assign jump = jump_forward ;
+assign jump = jump_forward | jump_return ;
 always @(posedge clk)
 	begin
 		instruction_1 <= instruction_in ;
@@ -449,6 +450,7 @@ always @(posedge clk)
 		if (bubbles > 0) begin
 			bubbles <= bubbles - 1 ;
 			jump_forward <= 1'b0 ;
+			jump_return <= 1'b0 ;
 		end
 
 		if (bubbles == 0) begin
@@ -458,9 +460,16 @@ always @(posedge clk)
 	if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
 	begin
 		if (dest_pc_regd) begin
-			jump_forward <= 1'b1 ;
-			jumping <= 1'b1 ;
-			bubbles <= `NOPIPELINEBUBBLES ;
+			if (op_return_regd) begin
+				jump_return <= 1'b1 ;
+				jumping <= 1'b1 ;
+				bubbles <= `NOPIPELINEBUBBLES ;
+			end
+			else begin
+				jump_forward <= 1'b1 ;
+				jumping <= 1'b1 ;
+				bubbles <= `NOPIPELINEBUBBLES ;
+			end
 		end
 
 		if (dest_acc_regd) begin
@@ -550,15 +559,19 @@ always @(posedge clk)
 endmodule
 
 
-module program_counter(clk, reset, pc_out, jump_offset, jump_forward) ;
+module program_counter(clk, reset, pc_out, jump_offset, jump_forward, jump_return, call) ;
 parameter i_adr_width = 10 ;
+`define PC_CALL_ADJUST 2 // how many instructions ahead of next instruction to be executed the PC is
 input clk, reset ;
 input [7:0] jump_offset ;
 input jump_forward ;
+input jump_return ;
+input call ;
 
 output [i_adr_width-1:0] pc_out ;
 reg [i_adr_width-1:0] pc ; // program counter
 reg [i_adr_width-1:0] pc_out ; // program counter copy to drive memory
+reg [i_adr_width-1:0] lr ;
 
 wire [i_adr_width-1:0] pcInc ;
 wire [i_adr_width-1:0] pcAdd ;
@@ -574,6 +587,7 @@ always @(posedge clk)
 		if (reset) pc <= 0 ;
 		else 
 		begin
+			if (call) lr <= pc - `PC_CALL_ADJUST ; // TODO: Check value of call adjust
 		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
 		//	if (op_return) pc <= return_adr ; // FIXME add return back
 /*			if (op_bf) begin
@@ -589,6 +603,10 @@ always @(posedge clk)
 			       pc <= pcAdd ;
 			       pc_out <= pcAdd ;
 		       end
+			else if (jump_return) begin
+				pc <= lr ;
+				pc_out <= lr ;
+			end
 			else begin
 				pc <= pcInc ;
 				pc_out <= pcInc ;
