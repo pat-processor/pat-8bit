@@ -1,45 +1,47 @@
 module pads (
-	// scan chain
-	//scan_enable, scan_in_1, scan_out_1,
-//	scan_out_1,
 	//// inputs
-	clk_int, sout,
+	clk_int, sout_low, sout_high,
 	// pads
 	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select, pad_scan_enable,
         // outputs
-	sclk, ssel, saddr, buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
+	sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, buf_fieldp_low, buf_fieldp_high, buf_fieldwp_low, buf_fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
 
 input pad_vdd_core ;
 input pad_gnd_core ;
 input pad_vdd_1v8_all ;
 input pad_gnd_all ;
 input clk_int ;
-input sout ;
+input sout_low ;
+input sout_high ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
 
-//input scan_enable ;
-//input scan_in_1 ;
-//output scan_out_1 ;
-//wire scan_enable ;
 inout pad_scan_enable ;
-wire scan_enable ;
-wire scan_in_1 ;
-wire scan_out_1 ;
+wire scan_enable ; // dedicated pin
+wire scan_in_1 ; // explicitly MUXd input pin
+wire scan_out_1 ; // implicitly MUXd to output b0 from rc script.
 
-output sclk ;
-output ssel ;
-output [2:0] saddr ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldwp ;
+output sclk_low ;
+output sclk_high ;
+output sin_low ;
+output sin_high ;
+output ssel_low ;
+output ssel_high ;
+output [2:0] saddr_low ;
+output [2:0] saddr_high ;
+output [(fieldp_width+bufp_width)-1:0] buf_fieldp_low ;
+output [(fieldp_width+bufp_width)-1:0] buf_fieldwp_low ;
+output [(fieldp_width+bufp_width)-1:0] buf_fieldp_high ;
+output [(fieldp_width+bufp_width)-1:0] buf_fieldwp_high ;
 output field_write_en_low ;
 output field_write_en_high ;
-output [d_width-1:0] field_fromPAT ;
+output [d_width-1:0] field_fromPAT_low ;
+output [d_width-1:0] field_fromPAT_high ;
 output [d_width-1:0] field_toPAT_low ;
 output [d_width-1:0] field_toPAT_high ;
 
@@ -191,6 +193,10 @@ assign mode[1] = modesel_1 ;
 `define MODE_MEMLOAD 1
 `define MODE_RUN 3
 
+wire sclk ;
+wire ssel ;
+wire sin ;
+wire [2:0] saddr ;
 // Mode 0: Debug
 assign sclk = (mode == `MODE_DEBUG) ? io_a0_in : 1'b0 ;
 assign ssel = (mode == `MODE_DEBUG) ? io_a1_in : 1'b0 ;
@@ -198,10 +204,28 @@ assign sin = (mode == `MODE_DEBUG) ? io_a2_in : 1'b0 ;
 assign saddr[0] = (mode == `MODE_DEBUG) ? io_a3_in : 1'b0 ;
 assign saddr[1] = (mode == `MODE_DEBUG) ? io_a4_in : 1'b0 ;
 assign saddr[2] = (mode == `MODE_DEBUG) ? io_a5_in : 1'b0 ;
-assign scan_enable = (mode == `MODE_DEBUG) ? io_a6_in : 1'b0 ;
+assign s_low_high = (mode == `MODE_DEBUG) ? io_a6_in : 1'b0 ;
 assign scan_in_1 = (mode == `MODE_DEBUG) ? io_a7_in : 1'b0 ;
 
+// select between the two patternbuffers
+// s_low_high := 0 -> low buffers selected ; 1 -> high buffer selected
+// low enables
+assign sclk_low = (!s_low_high) ? sclk : 1'b0 ;
+assign ssel_low = (!s_low_high) ? ssel : 1'b0 ;
+assign sin_low = (!s_low_high) ? sin : 1'b0 ;
+assign saddr_low = (!s_low_high) ? saddr : 3'b0 ;
+// high enables
+assign sclk_high = (s_low_high) ? sclk : 1'b0 ;
+assign ssel_high = (s_low_high) ? ssel : 1'b0 ;
+assign sin_high = (s_low_high) ? sin : 1'b0 ;
+assign saddr_high = (s_low_high) ? saddr : 3'b0 ;
+
+
+wire sout ;
 wire[7:0] outputs ;
+// MUX the souts
+assign sout = (s_low_high) ? sout_high : sout_low ;
+
 assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[0] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
 assign io_b1_out = (mode == `MODE_DEBUG) ? sout : outputs[1] ;
 assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[2] ;
@@ -297,10 +321,23 @@ assign imem_write_adr = input_shifter[49:40] ;
 assign imem_in = input_shifter[39:0] ;
 
 
+
+
+wire [d_width-1:0] field_fromPAT ;
+wire [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
+wire [(fieldp_width+bufp_width)-1:0] buf_fieldwp ;
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
 digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
+// these signals are shared across both patter buffers
+assign buf_fieldp_low = buf_fieldp ;
+assign buf_fieldp_high = buf_fieldp ;
+assign buf_fieldwp_low = buf_fieldwp ;
+assign buf_fieldwp_high = buf_fieldwp ;
+assign field_fromPAT_low = field_fromPAT ;
+assign field_fromPAT_high = field_fromPAT ;
+
 
 
 // clock divider
