@@ -40,47 +40,22 @@ setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
 
+createPinGroup patternbuffer_high -cell pads -pin {sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 
-createPinGroup scanpins -cell pads -pin {scan_enable scan_in_1 scan_out_1} -spacing 4
+createPinGroup patternbuffer_low -cell pads -pin {field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
 
-createPinGroup field_pointers -cell pads -pin {buf_fieldp[7] buf_fieldp[6] buf_fieldp[5] buf_fieldp[4] buf_fieldp[3] buf_fieldp[2] buf_fieldp[1] buf_fieldp[0] buf_fieldwp[7] buf_fieldwp[6] buf_fieldwp[5] buf_fieldwp[4] buf_fieldwp[3] buf_fieldwp[2] buf_fieldwp[1] buf_fieldwp[0] field_write_en_low field_write_en_high} -spacing 4
 
-createPinGroup field_in -cell pads -pin {field_toPAT_low[7] field_fromPAT[7] field_fromPAT[6] field_fromPAT[5] field_fromPAT[4] field_fromPAT[3] field_fromPAT[2] field_fromPAT[1] field_fromPAT[0]} -spacing 4
+createPinGroup selects -cell pads -pin {clock_external clock_select vref_select f5v_select} -spacing 4
 
-createPinGroup field_low -cell pads -pin {field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0]} -spacing 4
-
-createPinGroup field_high -cell pads -pin {field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0]} -spacing 4
-
-createPinGroup serial -cell pads -pin {sout sclk ssel saddr[2] saddr[1] saddr[0]} -spacing 4
-
-createPinGroup analogueSelects -cell pads -pin {clock_select f5v_select vref_select} -spacing 4
 
 createPinGroup clocks -cell pads -pin {clk_int} -spacing 4
 
-createPinGuide -pingroup scanpins -cell pads -edge 2 -layer M3
-createPinGuide -pingroup field_pointers -cell pads -edge 2 -layer M3
-createPinGuide -pingroup field_in -cell pads -edge 2 -layer M3
-createPinGuide -pingroup field_low -cell pads -edge 2 -layer M3
-createPinGuide -pingroup field_high -cell pads -edge 2 -layer M3
-createPinGuide -pingroup serial -cell pads -edge 2 -layer M3
-createPinGuide -pingroup analogueSelects -cell pads -edge 2 -layer M3
+createPinGuide -pingroup patternbuffer_high -cell pads -edge 2 -layer M3
+createPinGuide -pingroup patternbuffer_low -cell pads -edge 2 -layer M3
+createPinGuide -pingroup selects -cell pads -edge 2 -layer M3
 createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
-editPin -side Right -unit TRACK -fixedPin 1 -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]}}
 
-editPin -side Right -unit TRACK -fixedPin -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_fromPAT[0]} {field_fromPAT[1]} {field_fromPAT[2]} {field_fromPAT[3]} {field_fromPAT[4]} {field_fromPAT[5]} {field_fromPAT[6]} {field_fromPAT[7]}}
-
-
-editPin -side Right -unit TRACK -fixedPin 1 -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]}}
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {clock_select f5v_select vref_select}
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -pin clk_int
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {{buf_fieldp[0]} {buf_fieldp[1]} {buf_fieldp[2]} {buf_fieldp[3]} {buf_fieldp[4]} {buf_fieldp[5]} {buf_fieldp[6]} {buf_fieldp[7]} {buf_fieldwp[0]} {buf_fieldwp[1]} {buf_fieldwp[2]} {buf_fieldwp[3]} {buf_fieldwp[4]} {buf_fieldwp[5]} {buf_fieldwp[6]} {buf_fieldwp[7]} field_write_en_high field_write_en_low}
-
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {ssel {saddr[0]} {saddr[1]} {saddr[2]} sclk sout}
 
 
 # ams scripts
@@ -121,6 +96,16 @@ addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_
 setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
 
 placeDesign -prePlaceOpt
+
+
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4 -start 1399.865 2469.234 -pin {{bufp_high[0]} {bufp_high[1]} {bufp_high[2]} {field_fromPAT_high[0]} {field_fromPAT_high[1]} {field_fromPAT_high[2]} {field_fromPAT_high[3]} {field_fromPAT_high[4]} {field_fromPAT_high[5]} {field_fromPAT_high[6]} {field_fromPAT_high[7]} {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]} field_write_en_high {fieldp_high[0]} {fieldp_high[1]} {fieldp_high[2]} {fieldp_high[3]} {fieldp_high[4]} {fieldwp_high[0]} {fieldwp_high[1]} {fieldwp_high[2]} {fieldwp_high[3]} {fieldwp_high[4]} {saddr_high[0]} {saddr_high[1]} {saddr_high[2]} sclk_high sin_high sout_high ssel_high}
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1390.163 1610.59 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low}
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1499.353 1210.848 -pin {clock_external clock_select f5v_select vref_select}
+
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 1495.065 1345.472 -pin clk_int
 
 
 # power routing

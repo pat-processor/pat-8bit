@@ -7,12 +7,12 @@ module pads (
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select, pad_scan_enable,
         // outputs
-	sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high,  clock_external, clock_select, vref_select, f5v_select) ;
+	sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, vco_control, vref_ext, clock_select, vref_select, f5v_select) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
-
+`
 input pad_vdd_core ;
 input pad_gnd_core ;
 input pad_vdd_1v8_all ;
@@ -126,7 +126,6 @@ wire io_b6_out ;
 wire io_b7_out ;
 
 // analogue outputs
-output clock_external ;
 output clock_select ;
 output vref_select ;
 output f5v_select ;
