@@ -1,13 +1,17 @@
 module pads (
 	//// inputs
-	clk_int, sout_low, sout_high,
+	clk_int, sout_low, sout_high, field_toPAT_low, field_toPAT_high,
 	// pads
 	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_reset, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select, pad_scan_enable,
         // outputs
-	sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, buf_fieldp_low, buf_fieldp_high, buf_fieldwp_low, buf_fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, field_toPAT_low, field_toPAT_high, clock_external, clock_select, vref_select, f5v_select) ;
+	sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high,  clock_external, clock_select, vref_select, f5v_select) ;
+
+parameter d_width = 8 ;
+parameter bufp_width = 3 ;
+parameter fieldp_width = 5 ;
 
 input pad_vdd_core ;
 input pad_gnd_core ;
@@ -16,10 +20,10 @@ input pad_gnd_all ;
 input clk_int ;
 input sout_low ;
 input sout_high ;
+input [d_width-1:0] field_toPAT_low ;
+input [d_width-1:0] field_toPAT_high ;
 
-parameter d_width = 8 ;
-parameter bufp_width = 3 ;
-parameter fieldp_width = 5 ;
+
 
 inout pad_scan_enable ;
 wire scan_enable ; // dedicated pin
@@ -34,16 +38,17 @@ output ssel_low ;
 output ssel_high ;
 output [2:0] saddr_low ;
 output [2:0] saddr_high ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldp_low ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldwp_low ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldp_high ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldwp_high ;
+output [bufp_width-1:0] bufp_low ;
+output [bufp_width-1:0] bufp_high ;
+output [fieldp_width-1:0] fieldp_low ;
+output [fieldp_width-1:0] fieldp_high ;
+output [fieldp_width-1:0] fieldwp_low ;
+output [fieldp_width-1:0] fieldwp_high ;
 output field_write_en_low ;
 output field_write_en_high ;
+
 output [d_width-1:0] field_fromPAT_low ;
 output [d_width-1:0] field_fromPAT_high ;
-output [d_width-1:0] field_toPAT_low ;
-output [d_width-1:0] field_toPAT_high ;
 
 
 inout pad_clock_in ;
@@ -324,17 +329,20 @@ assign imem_in = input_shifter[39:0] ;
 
 
 wire [d_width-1:0] field_fromPAT ;
-wire [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
-wire [(fieldp_width+bufp_width)-1:0] buf_fieldwp ;
+wire [bufp_width-1:0] bufp ;
+wire [fieldp_width-1:0] fieldp ;
+wire [fieldp_width-1:0] fieldwp ;
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
 digital theCore(clk_int, reset, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 // these signals are shared across both patter buffers
-assign buf_fieldp_low = buf_fieldp ;
-assign buf_fieldp_high = buf_fieldp ;
-assign buf_fieldwp_low = buf_fieldwp ;
-assign buf_fieldwp_high = buf_fieldwp ;
+assign bufp_low = bufp ;
+assign bufp_high = bufp ;
+assign fieldp_low = fieldp ;
+assign fieldp_high = fieldp ;
+assign fieldwp_low = fieldwp ;
+assign fieldwp_high = fieldwp ;
 assign field_fromPAT_low = field_fromPAT ;
 assign field_fromPAT_high = field_fromPAT ;
 

@@ -1,5 +1,5 @@
 module digital(clk, reset, inputs, imem_write_adr, imem_write, imem_in, outputs,
-buf_fieldp, buf_fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
+bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 
 parameter d_width = 8 ;
 parameter i_adr_width = 10 ;
@@ -19,17 +19,13 @@ input [d_width-1:0] field_toPAT_high ;
 
 output [d_width-1:0] outputs ;
 
-output [(fieldp_width+bufp_width)-1:0] buf_fieldp ;
-output [(fieldp_width+bufp_width)-1:0] buf_fieldwp ;
+output [bufp_width-1:0] bufp ;
+output [fieldp_width-1:0] fieldp ;
+output [fieldp_width-1:0] fieldwp ;
 output field_write_en_low ;
 output field_write_en_high ;
 output [d_width-1:0] field_fromPAT ;
-wire [bufp_width-1:0] bufp ;
-wire [fieldp_width-1:0] fieldp ;
-wire [fieldp_width-1:0] fieldwp ;
 
-assign buf_fieldp = {bufp, fieldp} ;
-assign buf_fieldwp = {bufp, fieldwp} ;
 
 wire [i_adr_width-1:0] pc ;
 wire jump ;
