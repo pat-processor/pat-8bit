@@ -39,7 +39,13 @@ dc::set_multicycle_path -setup 4 -from [find /des* -port ports_in/*]
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]
 set_attribute optimize_merge_flops false /
 dc::set_multicycle_path -setup 2 -from [find / -inst pc_out_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
-dc::set_false_path -from [find / -port pad_reset] -exception_name reset
+
+#dc::set_false_path -from [find / -port pad_modesel_0] -exception_name mode0
+#dc::set_false_path -from [find / -port pad_modesel_1] -exception_name mode1
+
+#dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exception_name reset_pat
+#dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
+#dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
 
 
 
@@ -48,8 +54,8 @@ if {$insertScanChain == "y"} {
 set_attribute dft_scan_style muxed_scan /
 define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_in/clk_int
 
-define_dft shift_enable -active high pad_scan_enable -hookup_pin iopad_scan_enable/Y
-define_dft scan_chain -shared_out -sdo iopad_b0/A -hookup_pin_sdo iopad_b0/A -sdi iopad_a7/Y -domain scan_clock -name scan_chain_1
+define_dft shift_enable -active high pad_modesel_0 -hookup_pin iopad_modesel_0/Y
+define_dft scan_chain -shared_out -sdo iopad_b5/A -hookup_pin_sdo iopad_b5/A -sdi iopad_a7/Y -domain scan_clock -name scan_chain_1
 #  Choose between this and shared system 
 #define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
 
