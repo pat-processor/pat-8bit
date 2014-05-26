@@ -30,10 +30,17 @@ init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 # locate the components
-floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
+#floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
+floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
 setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
 # blockage width 750 height 750 X 635 Y 340 Layers All
 createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {635 340 1285 1090}
+
+# move corner pads closer to corners.
+setObjFPlanBox Instance iopad_a5 0.262 2680.395 226.872 2768.895
+setObjFPlanBox Instance iopad_a4 230.162 2774.571 318.662 3001.181
+setObjFPlanBox Instance iopad_b6 1.634 232.024 228.244 320.524
+setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
 
 setOaxMode -compressLevel 0
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
@@ -132,8 +139,6 @@ setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
-# add core filler to prevent DRC violation
-amsFillcore 
 
 # main routing
 setNanoRouteMode -quiet -routeWithTimingDriven 1
@@ -148,4 +153,6 @@ routeDesign -globalDetail
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
 
+# add core filler to prevent DRC violation
+amsFillcore 
 amsFillperi

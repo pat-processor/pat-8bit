@@ -104,6 +104,10 @@ addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+# Fix some DRCs
+editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+editTrim
+
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
@@ -113,6 +117,8 @@ placeDesign -prePlaceOpt
 
 
 # Fix digital pins in aligned location for pat component
+editPin -side Left -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 0 490 -pin clk
+
 editPin -side Left -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType center -spacing 4 -pin {bufp_in[0] bufp_in[1] bufp_in[2] field_in_in[0] field_in_in[1] field_in_in[2] field_in_in[3] field_in_in[4] field_in_in[5] field_in_in[6] field_in_in[7] field_byte_out[0] field_byte_out[1] field_byte_out[2] field_byte_out[3] field_byte_out[4] field_byte_out[5] field_byte_out[6] field_byte_out[7] field_write_in fieldp_in[0] fieldp_in[1] fieldp_in[2] fieldp_in[3] fieldp_in[4] fieldwp_in[0] fieldwp_in[1] fieldwp_in[2] fieldwp_in[3] fieldwp_in[4] saddr[0] saddr[1] saddr[2] sclk sin sout ssel pwm reset}
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 781 650  -spacing 4 -pin {p_drive[0] p_drive[1] p_drive[2] p_drive[3] p_drive[4] p_drive[5] p_drive[6] p_drive[7] n_drive[0] n_drive[1] n_drive[2] n_drive[3] n_drive[4] n_drive[5] n_drive[6] n_drive[7]}
@@ -152,9 +158,6 @@ setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
-# add core filler to prevent DRC violation
-amsFillcore 
-
 # main routing
 setNanoRouteMode -quiet -routeWithTimingDriven 1
 setNanoRouteMode -quiet -routeBottomRoutingLayer default
@@ -169,6 +172,9 @@ setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 
 # from AMS FAQ
 optDesign -postRoute
+
+# add core filler to prevent DRC violation
+amsFillcore 
 
 
 # wroute -wdbName final.wdb
