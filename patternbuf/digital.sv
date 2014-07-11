@@ -1,4 +1,4 @@
-module digital(clk, reset, inputs, imem_write_adr, imem_write, imem_in, outputs,
+module digital(scan_enable, scan_in, scan_out, clk, reset, inputs, imem_write_adr, imem_write, imem_in, outputs,
 bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 
 parameter d_width = 8 ;
@@ -8,6 +8,8 @@ parameter i_buffer_size = 2 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
 
+input scan_enable ;
+input scan_in ;
 input clk ;
 input reset ;
 input [d_width-1:0] inputs ;
@@ -17,6 +19,7 @@ input [(i_buffer_size*i_width)-1:0] imem_in ;
 input [d_width-1:0] field_toPAT_low ;
 input [d_width-1:0] field_toPAT_high ;
 
+output scan_out ;
 output [d_width-1:0] outputs ;
 
 output [bufp_width-1:0] bufp ;

@@ -31,16 +31,26 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 # locate the components
 #floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
-floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
+#floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
+floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 100 200.0
 setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
 # blockage width 750 height 750 X 635 Y 340 Layers All
-createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {635 340 1285 1090}
+createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {400 400 1150 1150}
+#createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
 
 # move corner pads closer to corners.
 setObjFPlanBox Instance iopad_a5 0.262 2680.395 226.872 2768.895
 setObjFPlanBox Instance iopad_a4 230.162 2774.571 318.662 3001.181
 setObjFPlanBox Instance iopad_b6 1.634 232.024 228.244 320.524
 setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
+
+# Allow cut-outs!!!
+setPreference EnableRectilinearDesign 1
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2682.1700 1498.7100 2682.1700 1498.7100 297.0400 2700.0000 297.0400 2700.0000 0.0000 0.0000 0.0000
+
+setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 1269.3000 386.4400 1269.3000 386.4400 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
+
 
 setOaxMode -compressLevel 0
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
@@ -108,11 +118,12 @@ placeDesign -prePlaceOpt
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4 -start 1399.865 2469.234 -pin {{bufp_high[0]} {bufp_high[1]} {bufp_high[2]} {field_fromPAT_high[0]} {field_fromPAT_high[1]} {field_fromPAT_high[2]} {field_fromPAT_high[3]} {field_fromPAT_high[4]} {field_fromPAT_high[5]} {field_fromPAT_high[6]} {field_fromPAT_high[7]} {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]} field_write_en_high {fieldp_high[0]} {fieldp_high[1]} {fieldp_high[2]} {fieldp_high[3]} {fieldp_high[4]} {fieldwp_high[0]} {fieldwp_high[1]} {fieldwp_high[2]} {fieldwp_high[3]} {fieldwp_high[4]} {saddr_high[0]} {saddr_high[1]} {saddr_high[2]} sclk_high sin_high sout_high ssel_high pwm_high reset_patternbuf_high}
 
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1390.163 1610.59 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
+#editPin -side Bottom -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1237.819 1322.38 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1390.163 1400 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1499.353 1210.848 -pin {clock_select f5v_select vref_select}
 
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 1495.065 1345.472 -pin clk_int
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 1495.065 1500 -pin clk_int
 
 
 # power routing

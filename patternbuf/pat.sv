@@ -210,7 +210,7 @@ task reg_instr ;
 			0: condition_decoded <= 4'b0001 ;
 			1: condition_decoded <= 4'b0010 ;
 			2: condition_decoded <= 4'b0100 ;
-			default: condition_decoded <= 4'b0001 ;
+			3: condition_decoded <= 4'b1000 ;
 		endcase
 		
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO
@@ -413,9 +413,10 @@ task updateFlags() ;
 	end
 endtask
 
-`define COND_AL 0 // always
-`define COND_Z 1 // zero
+`define COND_Z 0 // zero
+`define COND_NZ 1 // not-zero
 `define COND_N 2 // negative
+`define COND_AL 3 // always
 
 function checkCondition ;
 	input [3:0] cond_decoded ;
@@ -424,6 +425,7 @@ function checkCondition ;
 	begin
 	checkCondition = cond_decoded[`COND_AL] |
 	       	(cond_decoded[`COND_N] && n) |
+	       	(cond_decoded[`COND_NZ] && ~n) |
 		(cond_decoded[`COND_Z] && z) ;
 	end
 endfunction
