@@ -213,9 +213,9 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 		
-		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO
+		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO- New rationalise
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
-		alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
+	//	alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
 		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
 	end
 endtask
@@ -226,10 +226,14 @@ reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 reg field_op_regd ;
+reg field_op_regd_2 ;
+reg field_op_regd_3 ;
 
 task reg_ops ;
 	begin
 		field_op_regd <= field_op ;
+		field_op_regd_2 <= field_op ;
+		field_op_regd_3 <= field_op ;
 		op_bf_regd <= op_bf ;
 		op_bb_regd <= op_bb ;
 		op_call_regd <= op_call ;
@@ -331,7 +335,7 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 // ================== PIPELINE STAGE 2: ALU and commit  ================
 // =====================================================================
 
-// instantiate two ALUs to speed up by preventing input MUX
+// instantiate the shared ALU
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
 wire [d_width-1:0] acc_alu_y ;
@@ -339,23 +343,39 @@ wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
 wire [d_width-1:0] field_alu_y ;
 
-assign acc_alu_a = acc ;
-assign acc_alu_b = alu_b_regd ;
-
-//assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ; // TODO: Critical path
-assign field_alu_a = field_value_muxd; // TODO: Critical path
-assign field_alu_b = alu_b_regd_2 ;
-
+// select duplicated for fan-out reasons
+//assign alu_a[7:4] = (field_op_regd) ? field_value_muxd[7:4] : acc[7:4] ;
+//assign alu_a[3:0] = (field_op_regd_3) ? field_value_muxd[3:0] : acc[3:0] ;
+//assign alu_b = alu_b_regd ;
 	
-wire [d_width-1:0] acc_result ; 
-wire [d_width-1:0] field_result ; 
+wire [d_width-1:0] result ; 
 
-assign acc_result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : acc_alu_y ; // TODO: Move the op_ldm off the critical path
-assign field_result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : (source_in_regd) ? inputs : field_alu_y ;
+// TODO: NewD Remove this pipeline stage if possible
+//reg [7:0] alu_a_in ;
+//reg [7:0] alu_b_in ;
+//always @(posedge clk)
+//begin
+//	alu_a_in <= alu_a ;
+//	alu_b_in <= alu_b ;
+//end
 
+//Below saves only 100-150ps
+//reg [7:0] alu_y_regd ;
+//always @(posedge clk)
+//begin
+//	alu_y_regd <= alu_y ;
+//end
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd_2, op_sub_subm_regd_2, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+wire [d_width-1:0] alus_result ;
+assign alus_result = (field_op_regd) ? field_alu_y : acc_alu_y ;
+
+// TODO: NewD Re-add inputs.
+assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : alus_result ;
+//assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : alus_result ;// TODO: NewD Remove bypass by re-engineering ALU with passthrough
+// TODO: NewD Three inputs, with selection registered before this point
+
+alu accALU(acc_alu_a, alu_b_regd, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu fieldALU(field_value_muxd, alu_b_regd_2, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -400,7 +420,7 @@ endtask
 
 task updateFlags() ;
 	begin
-		if (field_op_regd)
+		if (field_op_regd_2)
 		begin
 			z <= (field_value_muxd == 0) ;
 			n <= (field_value_muxd[d_width-1] == 1) ;
@@ -475,16 +495,11 @@ always @(posedge clk)
 		end
 
 		if (dest_acc_regd) begin
-			// TODO: How to speed up below MUX
-			 acc <= (source_field_regd) ? field_value_muxd : acc_result ;
-		//	 z <= (acc_result == 0) ; // z and n take extra tim0
-		//	 in ALU pipeline
-			// n <= (acc_result < 0) ;your_library.db
+			 acc <= result ;
 		end
 
 		if (dest_field_regd) begin
-			// TODO: Below may work from a different signal
-			field_out <= (op_mov_regd) ? acc : field_result ;
+			field_out <= acc ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
@@ -498,7 +513,7 @@ always @(posedge clk)
 		// memory write instruction. Is mutually exclusive to
 		// acc or field updates, so acc will not change.
 		if (dest_dmem_regd) begin 
-		data_out <= (source_field_regd) ? field_value_muxd : acc ;
+		data_out <= acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
 		data_write_adr <= immediate_all_regd ; //TODO: sp removed. Re-add if fast enough
@@ -696,10 +711,10 @@ assign shlo =
 	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
-assign y = op_shl ? shl : 
-	   op_shr ? shr :
-	   op_shlo ? shlo :
-		asr ;
+assign y = op_shl ? shl : shr ; // FIXME: Revert to full functionality
+//	   op_shr ? shr :
+//	   op_shlo ? shlo :
+//		asr ;
 
 endmodule
 
