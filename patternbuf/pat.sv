@@ -350,15 +350,6 @@ wire [d_width-1:0] field_alu_y ;
 	
 wire [d_width-1:0] result ; 
 
-// TODO: NewD Remove this pipeline stage if possible
-//reg [7:0] alu_a_in ;
-//reg [7:0] alu_b_in ;
-//always @(posedge clk)
-//begin
-//	alu_a_in <= alu_a ;
-//	alu_b_in <= alu_b ;
-//end
-
 //Below saves only 100-150ps
 //reg [7:0] alu_y_regd ;
 //always @(posedge clk)
@@ -499,7 +490,7 @@ always @(posedge clk)
 		end
 
 		if (dest_field_regd) begin
-			field_out <= acc ;
+			field_out <= result ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
