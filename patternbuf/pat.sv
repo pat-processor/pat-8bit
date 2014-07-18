@@ -287,7 +287,7 @@ task reg_srcdest ;
 		source_field_regd <= source_field ;
 		source_dmem_regd <= source_dmem ;
 		source_sp_regd <= source_sp ;
-		source_imm_regd <= source_imm ;
+		source_imm_regd <= source_imm | op_ldm ;
 		source_in_regd <= source_in ;
 		dest_acc_regd <= dest_acc ;
 		dest_pc_regd <= dest_pc ;
@@ -361,7 +361,8 @@ wire [d_width-1:0] alus_result ;
 assign alus_result = (field_op_regd) ? field_alu_y : acc_alu_y ;
 
 // TODO: NewD Re-add inputs.
-assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : alus_result ;
+assign result = source_imm_regd ? alu_b_regd_3 : alus_result ;
+//assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : alus_result ;
 //assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : alus_result ;// TODO: NewD Remove bypass by re-engineering ALU with passthrough
 // TODO: NewD Three inputs, with selection registered before this point
 
