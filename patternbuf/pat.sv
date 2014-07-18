@@ -215,7 +215,7 @@ task reg_instr ;
 		
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO- New rationalise
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
-	//	alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
+		alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
 		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
 	end
 endtask
@@ -361,7 +361,7 @@ wire [d_width-1:0] alus_result ;
 assign alus_result = (field_op_regd) ? field_alu_y : acc_alu_y ;
 
 // TODO: NewD Re-add inputs.
-assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : alus_result ;
+assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : alus_result ;
 //assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : alus_result ;// TODO: NewD Remove bypass by re-engineering ALU with passthrough
 // TODO: NewD Three inputs, with selection registered before this point
 
@@ -490,7 +490,7 @@ always @(posedge clk)
 		end
 
 		if (dest_field_regd) begin
-			field_out <= result ;
+			field_out <= acc ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
@@ -611,11 +611,11 @@ always @(posedge clk)
 			       pc <= pcAdd ;
 			       pc_out <= pcAdd ;
 		       end
-			else if (jump_return) begin
+			if (jump_return) begin
 				pc <= lr ;
 				pc_out <= lr ;
 			end
-			else begin
+			if(!jump_forward && !jump_return) begin
 				pc <= pcInc ;
 				pc_out <= pcInc ;
 			end
