@@ -56,14 +56,6 @@ setOaxMode -compressLevel 0
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
-# assign pins to digital paritition
-selectObject Module theCore
-
-definePartition -hinst theCore -coreSpacing 0.0 0.0 0.0 0.0 -railWidth 0.0 -minPitchLeft 2 -minPitchRight 2 -minPitchTop 2 -minPitchBottom 2 -reservedLayer { 1 2 3 4 5 6} -pinLayerTop {} -pinLayerLeft { 3} -pinLayerBottom { 2} -pinLayerRight { 3} -placementHalo 0.0 0.0 0.0 0.0 -routingHalo 0.0 -routingHaloTopLayer 6 -routingHaloBottomLayer 1
-
-assignPtnPin -moveFixedPin -ptn digital -pin { field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] field_fromPAT[7] field_fromPAT[6] field_fromPAT[5] field_fromPAT[4] field_fromPAT[3] field_fromPAT[2] field_fromPAT[1] field_fromPAT[0] field_write_en_high field_write_en_low fieldwp[4] fieldwp[3] fieldwp[2] fieldwp[1] fieldwp[0] fieldp[4] fieldp[3] fieldp[2] fieldp[1] fieldp[0] bufp[2] bufp[1] bufp[0] outputs[7] outputs[6] outputs[5] outputs[4] outputs[3] outputs[2] outputs[1] outputs[0] inputs[7] inputs[6] inputs[5] inputs[4] inputs[3] inputs[2] inputs[1] inputs[0] reset clk}
-
-partition
 
 # old pin code
 
@@ -131,6 +123,21 @@ addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_
 setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
 
 placeDesign -prePlaceOpt
+
+
+
+
+# assign pins to digital paritition
+# must come after placement
+selectObject Module theCore
+
+definePartition -hinst theCore -coreSpacing 0.0 0.0 0.0 0.0 -railWidth 0.0 -minPitchLeft 2 -minPitchRight 2 -minPitchTop 2 -minPitchBottom 2 -reservedLayer { 1 2 3 4 5 6} -pinLayerTop { 3} -pinLayerLeft { 3} -pinLayerBottom { 3} -pinLayerRight { 3} -placementHalo 0.0 0.0 0.0 0.0 -routingHalo 0.0 -routingHaloTopLayer 6 -routingHaloBottomLayer 1
+
+#assignPtnPin -movedFixedPin -markFixed
+assignPtnPin -moveFixedPin -ptn digital -pin { field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] field_fromPAT[7] field_fromPAT[6] field_fromPAT[5] field_fromPAT[4] field_fromPAT[3] field_fromPAT[2] field_fromPAT[1] field_fromPAT[0] field_write_en_high field_write_en_low fieldwp[4] fieldwp[3] fieldwp[2] fieldwp[1] fieldwp[0] fieldp[4] fieldp[3] fieldp[2] fieldp[1] fieldp[0] bufp[2] bufp[1] bufp[0] outputs[7] outputs[6] outputs[5] outputs[4] outputs[3] outputs[2] outputs[1] outputs[0] inputs[7] inputs[6] inputs[5] inputs[4] inputs[3] inputs[2] inputs[1] inputs[0] reset clk}
+
+partition
+
 
 
 
