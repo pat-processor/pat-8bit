@@ -270,7 +270,7 @@ endtask
 reg source_field_regd ;
 reg source_dmem_regd  ;
 reg source_sp_regd  ;
-reg source_imm_regd ;
+reg source_imm_or_mem_regd ;
 reg source_in_regd ;
 reg dest_acc_regd  ;
 reg dest_field_regd ;
@@ -283,7 +283,7 @@ task reg_srcdest ;
 		source_field_regd <= source_field ;
 		source_dmem_regd <= source_dmem ;
 		source_sp_regd <= source_sp ;
-		source_imm_regd <= source_imm ;
+		source_imm_or_mem_regd <= source_imm | source_dmem ;
 		source_in_regd <= source_in ;
 		dest_acc_regd <= dest_acc ;
 		dest_pc_regd <= dest_pc ;
@@ -350,8 +350,8 @@ assign field_alu_b = alu_b_regd_2 ;
 wire [d_width-1:0] acc_result ; 
 wire [d_width-1:0] field_result ; 
 
-assign acc_result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : acc_alu_y ; // TODO: Move the op_ldm off the critical path
-assign field_result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : (source_in_regd) ? inputs : field_alu_y ;
+assign acc_result = source_imm_or_mem_regd ? alu_b_regd : (source_in_regd) ? inputs : acc_alu_y ; // TODO: Move the op_ldm off the critical path
+assign field_result = source_imm_or_mem_regd ? alu_b_regd_3 : (source_in_regd) ? inputs : field_alu_y ;
 
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
