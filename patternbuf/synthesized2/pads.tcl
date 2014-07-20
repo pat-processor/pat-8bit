@@ -29,6 +29,11 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
+setOaxMode -compressLevel 0
+setDistributeHost -local
+#setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
+setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 0 -remoteHost 0 -keepLicense true
+
 # locate the components
 #floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
 #floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
@@ -52,15 +57,12 @@ setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.130
 #setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 1269.3000 386.4400 1269.3000 386.4400 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
 
 
-setOaxMode -compressLevel 0
-setMultiCpuUsage -localCpu 1 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
 selectObject Module theCore
 
 definePartition -hinst theCore -coreSpacing 0.0 0.0 0.0 0.0 -railWidth 0.0 -minPitchLeft 2 -minPitchRight 2 -minPitchTop 2 -minPitchBottom 2 -reservedLayer { 1 2 3 4 5 6} -pinLayerTop { 3} -pinLayerLeft { 3} -pinLayerBottom { 3} -pinLayerRight { 3} -placementHalo 0.0 0.0 0.0 0.0 -routingHalo 0.0 -routingHaloTopLayer 6 -routingHaloBottomLayer 1
 
-partition
 
 # old pin code
 
