@@ -29,11 +29,6 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
-setOaxMode -compressLevel 0
-setDistributeHost -local
-#setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
-setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 0 -remoteHost 0 -keepLicense true
-
 # locate the components
 #floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
 #floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
@@ -57,38 +52,26 @@ setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.130
 #setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 1269.3000 386.4400 1269.3000 386.4400 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
 
 
+setOaxMode -compressLevel 0
+setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
-selectObject Module theCore
-
-definePartition -hinst theCore -coreSpacing 0.0 0.0 0.0 0.0 -railWidth 0.0 -minPitchLeft 2 -minPitchRight 2 -minPitchTop 2 -minPitchBottom 2 -reservedLayer { 1 2 3 4 5 6} -pinLayerTop { 3} -pinLayerLeft { 3} -pinLayerBottom { 3} -pinLayerRight { 3} -placementHalo 0.0 0.0 0.0 0.0 -routingHalo 0.0 -routingHaloTopLayer 6 -routingHaloBottomLayer 1
-
-
-# old pin code
 
 createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
-#createPinGroup patternbuffer_high -cell digital -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 
 createPinGroup patternbuffer_low -cell pads -pin {pwm_low reset_patternbuf_low field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
-#createPinGroup patternbuffer_low -cell digital -pin {pwm_low reset_patternbuf_low field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
 
 
 createPinGroup selects -cell pads -pin {clock_external clock_select vref_select f5v_select} -spacing 4
-#createPinGroup selects -cell digital -pin {clock_external clock_select vref_select f5v_select} -spacing 4
 
 
 createPinGroup clocks -cell pads -pin {clk_int} -spacing 4
-#createPinGroup clocks -cell digital -pin {clk_int} -spacing 4
 
 createPinGuide -pingroup patternbuffer_high -cell pads -edge 2 -layer M3
 createPinGuide -pingroup patternbuffer_low -cell pads -edge 2 -layer M3
 createPinGuide -pingroup selects -cell pads -edge 2 -layer M3
 createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
-#createPinGuide -pingroup patternbuffer_high -cell digital -edge 2 -layer M3
-#createPinGuide -pingroup patternbuffer_low -cell digital -edge 2 -layer M3
-#createPinGuide -pingroup selects -cell digital -edge 2 -layer M3
-#createPinGuide -pingroup clocks -cell digital -edge 2 -layer M3
 
 
 
@@ -133,29 +116,14 @@ placeDesign -prePlaceOpt
 
 
 
-
-# assign pins to digital paritition
-# must come after placement
-
-#assignPtnPin -movedFixedPin -markFixed
-assignPtnPin -moveFixedPin -ptn digital -pin { field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] field_fromPAT[7] field_fromPAT[6] field_fromPAT[5] field_fromPAT[4] field_fromPAT[3] field_fromPAT[2] field_fromPAT[1] field_fromPAT[0] field_write_en_high field_write_en_low fieldwp[4] fieldwp[3] fieldwp[2] fieldwp[1] fieldwp[0] fieldp[4] fieldp[3] fieldp[2] fieldp[1] fieldp[0] bufp[2] bufp[1] bufp[0] outputs[7] outputs[6] outputs[5] outputs[4] outputs[3] outputs[2] outputs[1] outputs[0] inputs[7] inputs[6] inputs[5] inputs[4] inputs[3] inputs[2] inputs[1] inputs[0] reset clk}
-
-partition
-
-
-
-
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4 -start 1399.865 2469.234 -pin {{bufp_high[0]} {bufp_high[1]} {bufp_high[2]} {field_fromPAT_high[0]} {field_fromPAT_high[1]} {field_fromPAT_high[2]} {field_fromPAT_high[3]} {field_fromPAT_high[4]} {field_fromPAT_high[5]} {field_fromPAT_high[6]} {field_fromPAT_high[7]} {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]} field_write_en_high {fieldp_high[0]} {fieldp_high[1]} {fieldp_high[2]} {fieldp_high[3]} {fieldp_high[4]} {fieldwp_high[0]} {fieldwp_high[1]} {fieldwp_high[2]} {fieldwp_high[3]} {fieldwp_high[4]} {saddr_high[0]} {saddr_high[1]} {saddr_high[2]} sclk_high sin_high sout_high ssel_high pwm_high reset_patternbuf_high}
-#editPin -side Right -cell digital -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4 -start 1380 2469.234 -pin {{bufp_high[0]} {bufp_high[1]} {bufp_high[2]} {field_fromPAT_high[0]} {field_fromPAT_high[1]} {field_fromPAT_high[2]} {field_fromPAT_high[3]} {field_fromPAT_high[4]} {field_fromPAT_high[5]} {field_fromPAT_high[6]} {field_fromPAT_high[7]} {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]} field_write_en_high {fieldp_high[0]} {fieldp_high[1]} {fieldp_high[2]} {fieldp_high[3]} {fieldp_high[4]} {fieldwp_high[0]} {fieldwp_high[1]} {fieldwp_high[2]} {fieldwp_high[3]} {fieldwp_high[4]} {saddr_high[0]} {saddr_high[1]} {saddr_high[2]} sclk_high sin_high sout_high ssel_high pwm_high reset_patternbuf_high}
 
+#editPin -side Bottom -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1237.819 1322.38 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1390.163 1400 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
-#editPin -side Right -cell digital -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1380 1400 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low sout_low ssel_low pwm_low reset_patternbuf_low}
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1499.353 1210.848 -pin {clock_select f5v_select vref_select}
-#editPin -side Right -cell digital -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 4.0 -start 1380 1210.848 -pin {clock_select f5v_select vref_select}
 
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 1495.065 1500 -pin clk_int
-#editPin -side Right -cell digital -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -start 1380 1500 -pin clk_int
 
 
 # power routing
