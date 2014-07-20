@@ -7,7 +7,7 @@ module pads (
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
 	pad_clock_select, pad_vref_select, pad_f5v_select,
         // outputs
-	reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, clock_select, vref_select, f5v_select) ;
+	clock_external, clock_pat, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, clock_select, vref_select, f5v_select) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
@@ -55,6 +55,10 @@ output field_write_en_high ;
 
 output [d_width-1:0] field_fromPAT_low ;
 output [d_width-1:0] field_fromPAT_high ;
+
+output clock_external ;
+output clock_pat ;
+output pat_clock_division ;
 
 
 inout pad_clock_in ;
@@ -164,7 +168,6 @@ IOPAD1V8_3_HV iopad_modesel_1(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_
 IOPAD1V8_3_HV iopad_pwm_low(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_pwm_low), .Y(pwm_low)) ;
 IOPAD1V8_3_HV iopad_pwm_high(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_pwm_high), .Y(pwm_high)) ;
 // clock input
-wire clock_external ;
 IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clock_external)) ;
 
 // Output-only pins
@@ -214,7 +217,7 @@ wire sclk ;
 wire ssel ;
 wire sin ;
 wire [2:0] saddr ;
-// Mode 0: Debug
+// Mode Debug
 assign sclk = (mode == `MODE_DEBUG) ? io_a0_in : 1'b0 ;
 assign ssel = (mode == `MODE_DEBUG)? io_a1_in : 1'b0 ;
 assign sin = (mode == `MODE_DEBUG) ? io_a2_in : 1'b0 ;
@@ -243,15 +246,15 @@ wire[7:0] outputs ;
 // MUX the souts
 assign sout = (s_low_high) ? sout_high : sout_low ;
 
-// set one for pull up behaviour of resets
+// set one for pull up behaviour of resets (b0--b3 are inputs in DEBUG mode)
 assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[0] ; 
 assign io_b1_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[1] ;
 assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[2] ;
 assign io_b3_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[3] ;
 assign io_b4_out = (mode == `MODE_DEBUG) ? sout : outputs[4] ; 
-assign io_b5_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[5] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
-assign io_b6_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[6] ;
-assign io_b7_out = (mode == `MODE_DEBUG) ? 1'b0 : outputs[7] ;
+assign io_b5_out = outputs[5] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
+assign io_b6_out = outputs[6] ;
+assign io_b7_out = outputs[7] ;
 
 // TODO: Port b enables TODO
 
@@ -316,6 +319,26 @@ always @(posedge clk_int) begin
 	imem_write_synched <= imem_write_sync_1 ;
 end
 
+// PAT clock divider
+// Set to 1 if mode is reset. Update from I/O pin on DEBUG mode
+reg pat_clock_division ;
+wire mode_is_reset ;
+assign mode_is_reset = (mode == `MODE_RESET) ;
+always @(posedge clock_external or posedge mode_is_reset)
+begin
+	if (mode_is_reset) pat_clock_division <= 1'b1 ;
+	else if	(mode == `MODE_DEBUG) pat_clock_division <= io_b3_in ;
+end
+
+reg pat_clock_slow ;
+always @(posedge clk_int)
+begin
+	pat_clock_slow <= ~pat_clock_slow ;
+end
+
+wire clock_pat ;
+assign clock_pat = (pat_clock_division) ? pat_clock_slow : clk_int ;
+
 // **** Functionality ****
 
 // Map these enables properly
@@ -359,7 +382,7 @@ wire [fieldp_width-1:0] fieldwp ;
 
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
-digital theCore(clk_int, reset_pat, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
+digital theCore(clk_int, reset_pat, pwm_low, pwm_high, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 // these signals are shared across both patter buffers
 assign bufp_low = bufp ;

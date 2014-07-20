@@ -53,11 +53,16 @@ if {$insertScanChain == "y"} {
 # SCAN CHAIN
 set_attribute dft_scan_style muxed_scan /
 define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_in/clk_int
+#define_dft test_clock -name scan_clock -period 1000 /designs/pads/ports_out/clock_pat
 
 define_dft shift_enable -active high pad_modesel_0 -hookup_pin iopad_modesel_0/Y
 define_dft scan_chain -shared_out -sdo iopad_b5/A -hookup_pin_sdo iopad_b5/A -sdi iopad_a7/Y -domain scan_clock -name scan_chain_1
 #  Choose between this and shared system 
 #define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
+set_attribute dft_dont_scan true /designs/pads/instances_hier/theCore/instances_hier/thePAT/instances_seq/acc_reg*
+set_attribute dft_dont_scan true /designs/pads/instances_hier/theCore/instances_hier/thePAT/instances_seq/alu_b_regd*
+
+
 
 
 # choose what to scan and what not to

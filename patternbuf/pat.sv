@@ -23,7 +23,7 @@ input reset ;
 input [i_width-1:0] instruction_in ;
 input [buffer_width-1:0] field_in_low ;
 input [buffer_width-1:0] field_in_high ;
-input [d_width-1:0] inputs ;
+input [d_width-1:0] inputs [3] ;
 
 output [i_adr_width-1:0] pc ;
 output jump ;
@@ -34,7 +34,7 @@ output field_write_en_low ;
 output field_write_en_high ;
 output [buffer_width-1:0] field_out ;
 
-output [d_width-1:0] outputs ;
+output [d_width-1:0] outputs [3] ;
 reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
@@ -58,7 +58,7 @@ reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 reg low_high_buffer ; // '0' means use low-side buffer; '1' means use high-side
 
-reg [d_width-1:0] outputs ;
+reg [d_width-1:0] outputs [3] ;
 
 
 // =========================================================
@@ -200,6 +200,20 @@ reg [d_width-1:0] field_value_muxd ; // pre-MUXd alu inputs
 wire [d_width-1:0] immediate_i_all ;
 assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 
+function selectInput ;
+	input [d_width-1:0] inputs [3] ;
+	input [2:0] immediate_i3 ;
+	begin
+	case (immediate_i3)
+		3'b001: selectInput = inputs[0] ;
+		3'b010: selectInput = inputs[1] ;
+		3'b100: selectInput = inputs[2] ;
+	default: selectInput = inputs[0] ;
+	endcase
+end
+endfunction
+
+
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
@@ -218,8 +232,8 @@ task reg_instr ;
 		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO
 		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
 		alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
-		alu_bypass <= (source_dmem) ? data_in : (source_in) ? inputs : immediate_i_all ;
-		alu_bypass_2 <= (source_dmem) ? data_in : (source_in) ? inputs : immediate_i_all ;
+		alu_bypass <= (source_dmem) ? data_in : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		alu_bypass_2 <= (source_dmem) ? data_in : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
 	end
 endtask
@@ -435,6 +449,19 @@ function checkCondition ;
 endfunction
 
 
+task registerOutput ;
+	begin
+		// TODO: Replace the case statement
+		// when multiple outputs are connected up.
+			outputs[0] <= acc ;
+		//case (immediate_all_regd[2:0])
+			//3'b001: outputs[0] <= acc ;
+			//3'b010: outputs[1] <= acc ;
+			//3'b100: outputs[2] <= acc ;
+		//endcase
+	end
+endtask
+
 
 assign jump = jump_forward | jump_return ;
 always @(posedge clk)
@@ -514,7 +541,8 @@ always @(posedge clk)
 		if (op_out_regd)
 		begin
 			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
-			outputs <= acc ; 
+			registerOutput() ;
+			//outputs <= acc ; 
 		end
 
 		if (op_setb_regd)
