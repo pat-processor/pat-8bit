@@ -23,7 +23,7 @@ input reset ;
 input [i_width-1:0] instruction_in ;
 input [buffer_width-1:0] field_in_low ;
 input [buffer_width-1:0] field_in_high ;
-input [d_width-1:0] inputs ;
+input [d_width-1:0] inputs [3] ;
 
 output [i_adr_width-1:0] pc ;
 output jump ;
@@ -34,7 +34,7 @@ output field_write_en_low ;
 output field_write_en_high ;
 output [buffer_width-1:0] field_out ;
 
-output [d_width-1:0] outputs ;
+output [d_width-1:0] outputs [3] ;
 reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
@@ -58,7 +58,7 @@ reg [buffer_width-1:0] field_out ;
 reg [fieldp_width-1:0] fieldp_history [field_latency] ;
 reg low_high_buffer ; // '0' means use low-side buffer; '1' means use high-side
 
-reg [d_width-1:0] outputs ;
+reg [d_width-1:0] outputs [3] ;
 
 
 // =========================================================
@@ -190,13 +190,26 @@ reg [d_width-1:0] immediate_all_regd ;
 reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
-reg [d_width-1:0] alu_b_regd ; // pre-MUXd alu inputs
-reg [d_width-1:0] alu_b_regd_2 ; // pre-MUXd alu inputs
-reg [d_width-1:0] alu_b_regd_3 ; // pre-MUXd alu inputs
+reg [d_width-1:0] immediate_value ;
+reg [d_width-1:0] immediate_value_2 ; 
 reg [d_width-1:0] field_value_muxd ; // pre-MUXd alu inputs
 
 wire [d_width-1:0] immediate_i_all ;
 assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
+
+function selectInput ;
+	input [d_width-1:0] inputs [3] ;
+	input [2:0] immediate_i3 ;
+	begin
+	case (immediate_i3)
+		3'b001: selectInput = inputs[0] ;
+		3'b010: selectInput = inputs[1] ;
+		3'b100: selectInput = inputs[2] ;
+	default: selectInput = inputs[0] ;
+	endcase
+end
+endfunction
+
 
 wire [d_width-1:0] data_in ;
 task reg_instr ;
@@ -213,9 +226,8 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 		
-		alu_b_regd <= (source_dmem) ? data_in : immediate_i_all ; // TODO- New rationalise
-		alu_b_regd_2 <= (source_dmem) ? data_in : immediate_i_all ;
-		alu_b_regd_3 <= (source_dmem) ? data_in : immediate_i_all ;
+		immediate_value <= (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		immediate_value_2 <= (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
 	end
 endtask
@@ -226,14 +238,10 @@ reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 reg field_op_regd ;
-reg field_op_regd_2 ;
-reg field_op_regd_3 ;
 
 task reg_ops ;
 	begin
 		field_op_regd <= field_op ;
-		field_op_regd_2 <= field_op ;
-		field_op_regd_3 <= field_op ;
 		op_bf_regd <= op_bf ;
 		op_bb_regd <= op_bb ;
 		op_call_regd <= op_call ;
@@ -274,7 +282,7 @@ endtask
 reg source_field_regd ;
 reg source_dmem_regd  ;
 reg source_sp_regd  ;
-reg source_imm_regd ;
+reg source_immediate ;
 reg source_in_regd ;
 reg dest_acc_regd  ;
 reg dest_field_regd ;
@@ -287,7 +295,7 @@ task reg_srcdest ;
 		source_field_regd <= source_field ;
 		source_dmem_regd <= source_dmem ;
 		source_sp_regd <= source_sp ;
-		source_imm_regd <= source_imm | op_ldm ;
+		source_immediate <= source_imm | source_dmem | source_in ;
 		source_in_regd <= source_in ;
 		dest_acc_regd <= dest_acc ;
 		dest_pc_regd <= dest_pc ;
@@ -335,39 +343,33 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 // ================== PIPELINE STAGE 2: ALU and commit  ================
 // =====================================================================
 
-// instantiate the shared ALU
+// instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
 wire [d_width-1:0] acc_alu_y ;
 wire [d_width-1:0] field_alu_a ;
 wire [d_width-1:0] field_alu_b ;
+wire [d_width-1:0] result ;
+
 wire [d_width-1:0] field_alu_y ;
 
-// select duplicated for fan-out reasons
-//assign alu_a[7:4] = (field_op_regd) ? field_value_muxd[7:4] : acc[7:4] ;
-//assign alu_a[3:0] = (field_op_regd_3) ? field_value_muxd[3:0] : acc[3:0] ;
-//assign alu_b = alu_b_regd ;
+assign acc_alu_a = source_immediate ? immediate_value : result ;
+assign acc_alu_b = data_in ;
+assign result = acc_alu_y ;
+
+//assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ; // TODO: Critical path
+assign field_alu_a = field_value_muxd; // TODO: Critical path
+assign field_alu_b = immediate_value_2 ;
+
 	
-wire [d_width-1:0] result ; 
+wire [d_width-1:0] acc_result ; 
+wire [d_width-1:0] field_result ; 
 
-//Below saves only 100-150ps
-//reg [7:0] alu_y_regd ;
-//always @(posedge clk)
-//begin
-//	alu_y_regd <= alu_y ;
-//end
+assign field_result = field_alu_y ;
 
-wire [d_width-1:0] alus_result ;
-assign alus_result = (field_op_regd) ? field_alu_y : acc_alu_y ;
 
-// TODO: NewD Re-add inputs.
-assign result = source_imm_regd ? alu_b_regd_3 : alus_result ;
-//assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd_3 : alus_result ;
-//assign result = (source_imm_regd | op_ldm_regd) ? alu_b_regd : (source_in_regd) ? inputs : alus_result ;// TODO: NewD Remove bypass by re-engineering ALU with passthrough
-// TODO: NewD Three inputs, with selection registered before this point
-
-alu accALU(acc_alu_a, alu_b_regd, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_value_muxd, alu_b_regd_2, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd_2, op_sub_subm_regd_2, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -412,7 +414,7 @@ endtask
 
 task updateFlags() ;
 	begin
-		if (field_op_regd_2)
+		if (field_op_regd)
 		begin
 			z <= (field_value_muxd == 0) ;
 			n <= (field_value_muxd[d_width-1] == 1) ;
@@ -442,6 +444,19 @@ function checkCondition ;
 	end
 endfunction
 
+
+task registerOutput ;
+	begin
+		// TODO: Replace the case statement
+		// when multiple outputs are connected up.
+			outputs[0] <= acc ;
+		//case (immediate_all_regd[2:0])
+			//3'b001: outputs[0] <= acc ;
+			//3'b010: outputs[1] <= acc ;
+			//3'b100: outputs[2] <= acc ;
+		//endcase
+	end
+endtask
 
 
 assign jump = jump_forward | jump_return ;
@@ -486,12 +501,9 @@ always @(posedge clk)
 			end
 		end
 
-		if (dest_acc_regd) begin
-			 acc <= result ;
-		end
-
 		if (dest_field_regd) begin
-			field_out <= acc ;
+			// TODO: Below may work from a different signal
+			field_out <= (op_mov_regd) ? acc : field_result ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
@@ -501,14 +513,12 @@ always @(posedge clk)
 		end
 		
 
-		// TODO: Mem writes only happen as part of a dedicated
-		// memory write instruction. Is mutually exclusive to
-		// acc or field updates, so acc will not change.
-		if (dest_dmem_regd) begin 
-		data_out <= acc ;
+		// use old acc destination as proxy for a register commit
+		if (dest_acc_regd) begin 
+		data_out <= (source_field_regd) ? field_value_muxd : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_all_regd ; //TODO: sp removed. Re-add if fast enough
+		data_write_adr <= immediate_all_regd ; 
 		end
 		else data_write <= 1'b0 ;
 
@@ -517,7 +527,8 @@ always @(posedge clk)
 		if (op_out_regd)
 		begin
 			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
-			outputs <= acc ; 
+			registerOutput() ;
+			//outputs <= acc ; 
 		end
 
 		if (op_setb_regd)
@@ -612,11 +623,11 @@ always @(posedge clk)
 			       pc <= pcAdd ;
 			       pc_out <= pcAdd ;
 		       end
-			if (jump_return) begin
+			else if (jump_return) begin
 				pc <= lr ;
 				pc_out <= lr ;
 			end
-			if(!jump_forward && !jump_return) begin
+			else begin
 				pc <= pcInc ;
 				pc_out <= pcInc ;
 			end
@@ -703,10 +714,10 @@ assign shlo =
 	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
-assign y = op_shl ? shl : shr ; // FIXME: Revert to full functionality
-//	   op_shr ? shr :
-//	   op_shlo ? shlo :
-//		asr ;
+assign y = op_shl ? shl : 
+	   op_shr ? shr :
+	   op_shlo ? shlo :
+		asr ;
 
 endmodule
 
