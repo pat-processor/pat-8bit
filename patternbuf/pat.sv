@@ -354,7 +354,7 @@ wire [d_width-1:0] result ;
 wire [d_width-1:0] field_alu_y ;
 
 assign acc_alu_a = source_immediate ? immediate_value : result ;
-assign acc_alu_b = data_in ;
+assign acc_alu_b = data_regd ;
 assign result = acc_alu_y ;
 
 //assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ; // TODO: Critical path
