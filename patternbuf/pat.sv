@@ -364,15 +364,6 @@ alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd
 
 
 
-// control tasks
-
-/*
-task getField() ;
-	begin 
-		field_value <= (low_high_buffer) ? field_in_high : field_in_low ;
-	end
-endtask
-*/
 
 task updateFieldp() ;
 	begin
@@ -492,7 +483,7 @@ always @(posedge clk)
 
 		if (dest_field_regd) begin
 			// TODO: Below may work from a different signal
-			field_out <= result ;
+			field_out <= data_out ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
