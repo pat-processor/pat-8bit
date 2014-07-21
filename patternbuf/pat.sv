@@ -192,7 +192,7 @@ reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
 reg [d_width-1:0] immediate_value_2 ; 
-reg [d_width-1:0] field_value_muxd ; // pre-MUXd alu inputs
+wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
 assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
@@ -211,6 +211,8 @@ end
 endfunction
 
 
+
+assign field_value_muxd = (low_high_buffer) ?  field_in_high : field_in_low ;
 wire [d_width-1:0] data_in ;
 task reg_instr ;
 	begin
@@ -226,9 +228,7 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 		
-		immediate_value <= (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
-		immediate_value_2 <= (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
-		field_value_muxd <= (low_high_buffer) ?  field_in_high : field_in_low ;
+		immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 	end
 endtask
 
@@ -347,29 +347,16 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
 wire [d_width-1:0] acc_alu_y ;
-wire [d_width-1:0] field_alu_a ;
-wire [d_width-1:0] field_alu_b ;
 wire [d_width-1:0] result ;
 
-wire [d_width-1:0] field_alu_y ;
 
-assign acc_alu_a = source_immediate ? immediate_value : result ;
+assign acc_alu_a = source_immediate ? immediate_value : data_out ;
 assign acc_alu_b = data_regd ;
+
 assign result = acc_alu_y ;
 
-//assign field_alu_a = (low_high_buffer) ? field_in_high : field_in_low ; // TODO: Critical path
-assign field_alu_a = field_value_muxd; // TODO: Critical path
-assign field_alu_b = immediate_value_2 ;
-
-	
-wire [d_width-1:0] acc_result ; 
-wire [d_width-1:0] field_result ; 
-
-assign field_result = field_alu_y ;
-
-
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-alu fieldALU(field_alu_a, field_alu_b, field_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd_2, op_sub_subm_regd_2, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+
 
 
 // END ALUS
@@ -476,6 +463,8 @@ always @(posedge clk)
 		//updateFlags() ; // Having this regd means two cycles of
 		//match, which gives unexpected execution results.
 
+		data_out <= result ;		
+
 		if (bubbles > 0) begin
 			bubbles <= bubbles - 1 ;
 			jump_forward <= 1'b0 ;
@@ -503,7 +492,7 @@ always @(posedge clk)
 
 		if (dest_field_regd) begin
 			// TODO: Below may work from a different signal
-			field_out <= (op_mov_regd) ? acc : field_result ;
+			field_out <= result ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
@@ -515,7 +504,6 @@ always @(posedge clk)
 
 		// use old acc destination as proxy for a register commit
 		if (dest_acc_regd) begin 
-		data_out <= (source_field_regd) ? field_value_muxd : acc ;
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
 		data_write_adr <= immediate_all_regd ; 
