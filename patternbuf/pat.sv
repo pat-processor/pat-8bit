@@ -91,7 +91,7 @@ assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction
 
 assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
 assign opcode_i0 = instruction_3[3:0] ;
-assign immediate_i3 = instruction_1[2:0] ; 
+assign immediate_i3 = instruction_1[2:0] ;
 
 
 // determine the type of operation
@@ -175,10 +175,10 @@ assign source_in = op_in ;
 
 // Which ops are committed to a register (ACC or Field_Out)
 assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
-                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo  
+                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo
 		  | op_ldsp | op_in | op_not | op_mov | op_ldi) ;
 assign dest_acc = (!field_op && dest_reg) ;
-assign dest_field = (field_op && dest_reg) ; 
+assign dest_field = (field_op && dest_reg) ;
 assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
 assign dest_sp = op_setsp | op_incsp | op_decsp ;
 assign dest_pc = op_bf | op_bb | op_call | op_return ;
@@ -191,7 +191,7 @@ reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
-reg [d_width-1:0] immediate_value_2 ; 
+reg [d_width-1:0] immediate_value_2 ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -219,7 +219,7 @@ task reg_instr ;
 		immediate_bufp_regd <= immediate_i8[3:0] ; // Duplicated to aid fan-out. DC will merge if more optimal
 		immediate_i8_regd <= immediate_i8 ;
 		immediate_pc <= immediate_i8_regd ; // delay a further cycle for PC
-		immediate_all_regd <= immediate_i_all ; 
+		immediate_all_regd <= immediate_i_all ;
 		// condition flags: {N, Z, AL}
 		case (condition)
 			0: condition_decoded <= 4'b0001 ;
@@ -227,7 +227,7 @@ task reg_instr ;
 			2: condition_decoded <= 4'b0100 ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
-		
+
 		immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 	end
 endtask
@@ -308,17 +308,17 @@ endtask
 
 // **** Data memory ****
 wire [d_adr_width-1:0] data_read_adr ;
-reg [d_adr_width-1:0] data_write_adr ; 
+reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
-reg [d_width-1:0] data_regd ; 
+reg [d_width-1:0] data_regd ;
 
-assign data_read_adr = instruction_4[7:0] ; // immediate_i8 ;  
+assign data_read_adr = instruction_4[7:0] ; // immediate_i8 ;
 // TODO: Consider role of op_lda
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
 data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
 
-// * End data memory * 
+// * End data memory *
 
 
 // **** Program counter ****
@@ -335,7 +335,7 @@ reg jump_forward ;
 reg jump_return ;
 `define NOPIPELINEBUBBLES 4
 
-program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ; 
+program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ;
 
 // * End program counter *
 
@@ -347,16 +347,24 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
 wire [d_width-1:0] acc_alu_y ;
+
+wire [d_width-1:0] imm_alu_a ;
+wire [d_width-1:0] imm_alu_b ;
+wire [d_width-1:0] imm_alu_y ;
+
 wire [d_width-1:0] result ;
 
 
-assign acc_alu_a = source_immediate ? immediate_value : data_out ;
+assign acc_alu_a = data_out ;
 assign acc_alu_b = data_regd ;
 
-assign result = acc_alu_y ;
+assign imm_alu_a = immediate_value ;
+assign imm_alu_b = data_regd ;
+
+assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
-
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -379,7 +387,7 @@ task updateFieldwp() ;
 
 		for (i = 1 ; i < (field_latency) ; i++)
 		begin
-			fieldp_history[i] <= fieldp_history[i-1] ; 
+			fieldp_history[i] <= fieldp_history[i-1] ;
 		end
 	end
 endtask
@@ -413,7 +421,7 @@ endtask
 function checkCondition ;
 	input [3:0] cond_decoded ;
 	input z ;
-	input n ; 
+	input n ;
 	begin
 	checkCondition = cond_decoded[`COND_AL] |
 	       	(cond_decoded[`COND_N] && n) |
@@ -454,7 +462,7 @@ always @(posedge clk)
 		//updateFlags() ; // Having this regd means two cycles of
 		//match, which gives unexpected execution results.
 
-		data_out <= result ;		
+		data_out <= result ;
 
 		if (bubbles > 0) begin
 			bubbles <= bubbles - 1 ;
@@ -491,13 +499,13 @@ always @(posedge clk)
 			field_write_en_high <= 1'b0 ;
 			field_write_en_low <= 1'b0 ;
 		end
-		
+
 
 		// use old acc destination as proxy for a register commit
-		if (dest_acc_regd) begin 
+		if (dest_acc_regd) begin
 		data_write <= 1'b1 ;
 		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_all_regd ; 
+		data_write_adr <= immediate_all_regd ;
 		end
 		else data_write <= 1'b0 ;
 
@@ -507,7 +515,7 @@ always @(posedge clk)
 		begin
 			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
 			registerOutput() ;
-			//outputs <= acc ; 
+			//outputs <= acc ;
 		end
 
 		if (op_setb_regd)
@@ -516,14 +524,14 @@ always @(posedge clk)
 			low_high_buffer <= immediate_bufp_regd[3] ;
 		end
 
-/* REMOVED OPS FOR PERFORMANCE REASONS 
+/* REMOVED OPS FOR PERFORMANCE REASONS
  * if (op_call_regd)
 		begin
 			// FIXME: I think this arrangement gives -1 size to call
 			// TODO: ensure that this stores the
 			// next-to-currently-active instruction
 			call_stack[call_stack_pointer+1] <= pc ;
-			call_stack_pointer <= call_stack_pointer + 1 ; 
+			call_stack_pointer <= call_stack_pointer + 1 ;
 		end
 
 		if (op_return_regd)
@@ -535,10 +543,10 @@ always @(posedge clk)
 		begin
 			sp <= immediate_regd ;
 		end
-		
+
 		if (op_incsp_regd)
 		begin
-			sp <= sp + immediate_regd[2:0] ;	
+			sp <= sp + immediate_regd[2:0] ;
 		end
 
 		if (op_decsp_regd)
@@ -584,7 +592,7 @@ pc_add_signed pcAddrSigned(pc, jump_offset, pcAdd) ;
 always @(posedge clk)
 	begin
 		if (reset) pc <= 0 ;
-		else 
+		else
 		begin
 			if (call) lr <= pc - `PC_CALL_ADJUST ; // TODO: Check value of call adjust
 		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
@@ -593,7 +601,7 @@ always @(posedge clk)
 			  pc <= pcAdd ;
 			  pc_out <= pcAdd ;
 			end
-			else if (op_bb) begin 
+			else if (op_bb) begin
 				pc <= pcSub ;
 				pc_out <= pcSub ;
 			end
@@ -693,7 +701,7 @@ assign shlo =
 	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
-assign y = op_shl ? shl : 
+assign y = op_shl ? shl :
 	   op_shr ? shr :
 	   op_shlo ? shlo :
 		asr ;
@@ -789,7 +797,7 @@ assign y = op_or ? or_out :
 	   op_and ? and_out :
 	   op_not ? neg_out :
 	   op_add ? add_out :
-	   op_sub ? sub_out : 
+	   op_sub ? sub_out :
 //	   op_addsub ? addsubout :
 	   shift_out ; // any of the three shifts
 
@@ -825,7 +833,7 @@ always @(posedge clk) begin
 	end
 
 
-// read decoder 
+// read decoder
 /*
 for (i = 0 ; i < dmemsize ; i++)
 begin
@@ -900,7 +908,7 @@ begin
 end
 /*
 genvar i,j ;
-read decoder 
+read decoder
 tri [i_adr_width-1:0] imem_out ;
 for (i = 0 ; i < i_mem_size ; i++)
 begin
@@ -971,7 +979,7 @@ begin
 		jump_bubble <= 1 ;
 	end
 
-	else if (jump) 
+	else if (jump)
 	begin
 		instruction_out <= `INSTR_NOP ;
 		jump_bubble <= 2 ;
@@ -985,7 +993,7 @@ begin
 
 	else
 	begin
-		instruction_out <= instruction_address[0] ?  
+		instruction_out <= instruction_address[0] ?
 			i_buffer[0] : i_buffer[1] ;
 	end
 
@@ -994,6 +1002,6 @@ begin
 		i_buffer[0] <=  imem_out[19:0] ;
 		i_buffer[1] <= 	imem_out[39:20] ;
 	end
-end	
-	
+end
+
 endmodule
