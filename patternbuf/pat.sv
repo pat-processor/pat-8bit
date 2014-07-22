@@ -2,9 +2,10 @@
 module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_out, instruction_in, field_in_low, field_in_high, inputs, outputs) ;
 
 parameter i_adr_width = 10 ; // instruction address space size
-parameter i_width = 20 ; // instruction width
+parameter i_width = 23 ; // instruction width
 parameter d_adr_width = 8 ; // data address space size
 parameter d_width = 8 ; // data width
+parameter rd_width = 3 ; // destination register width
 parameter call_stack_size = 8 ; // max call depth supported
 parameter call_stack_pointer_size = 3 ; // bits for call stack pointer
 parameter bufp_width = 3 ;
@@ -77,6 +78,7 @@ wire i_t_i8 ;
 
 
 // instruction immediate values
+wire [rd_width-1:0] Rn ; // Source and destination register
 wire [7:0] immediate_i8 ;
 wire [2:0] immediate_i3 ;
 wire [fieldp_width-1:0] fieldp_next ;
@@ -84,104 +86,78 @@ wire [1:0] condition ;
 wire [opcode_i8_width-1:0] opcode_i8 ;
 wire [opcode_i3_width-1:0] opcode_i3 ;
 wire [opcode_i0_width-1:0] opcode_i0 ;
-
 wire field_op ; // 0 := ACC op ; 1 := field op
 
-assign {fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
+assign {Rs, fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
 
 assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
 assign opcode_i0 = instruction_3[3:0] ;
 assign immediate_i3 = instruction_1[2:0] ;
 
-
-// determine the type of operation
-//assign i_t_i8 = (opcode_i8[3:0] != `i3_opcode_prefix) ? 1'b1 : 1'b0 ;
-//assign i_t_i3 = (!i_t_i8) && (opcode_i3[3:0] != `i0_opcode_prefix) ? 1'b1 : 1'b0 ;
-//assign i_t_i0 = (!i_t_i8) && (!i_t_i3) ;
-
+// determine the type of the operation
 assign i_t_i8 = (opcode_i8 != 4'b1111) ;
 assign i_t_i3 = ((opcode_i8 == 4'b1111) && (opcode_i3 != 4'b1111)) ;
 assign i_t_i0 = (!i_t_i8 && !i_t_i3) ;
 
 // i8 operations
-wire op_bf, op_bb, op_call, op_ldi, op_ldm, op_stm, op_setsp, op_or ;
-wire op_and, op_addm, op_subm, op_add, op_sub, op_orm, op_andm ;
-assign op_or =	(opcode_i8 == 4'b0000) && i_t_i8 ;
-assign op_and =(opcode_i8 == 4'b0001) && i_t_i8 ;
-assign op_addm =(opcode_i8 == 4'b0010) && i_t_i8 ;
-assign op_subm = (opcode_i8 == 4'b0011) && i_t_i8 ;
-assign op_add = (opcode_i8 == 4'b0100) && i_t_i8 ;
-assign op_sub = (opcode_i8 == 4'b0101) && i_t_i8 ;
-assign op_ldi =(opcode_i8 == 4'b0110) && i_t_i8 ;
-assign op_ldm =	(opcode_i8 == 4'b0111) && i_t_i8 ;
-assign op_bf = (opcode_i8 == 4'b1000) && i_t_i8 ;
-assign op_bb =(opcode_i8 == 4'b1001) && i_t_i8 ;
-assign op_call =(opcode_i8 == 4'b1010) && i_t_i8 ;
-assign op_stm = (opcode_i8 == 4'b1011) && i_t_i8 ;
+wire op_ori, op_orr, op_andi, op_andr, op_addi, op_addr ;
+wire op_subi, op_subr, op_ldi, op_setsp, op_bf, op_call ;
+assign op_ori =	(opcode_i8 == 4'b0000) && i_t_i8 ;
+assign op_orr =  (opcode_i8 == 4'b0001) && i_t_i8 ;
+assign op_andi =  (opcode_i8 == 4'b0010) && i_t_i8 ;
+assign op_andr =  (opcode_i8 == 4'b0011) && i_t_i8 ;
+assign op_addi =  (opcode_i8 == 4'b0100) && i_t_i8 ;
+assign op_addr =  (opcode_i8 == 4'b0101) && i_t_i8 ;
+assign op_subi =  (opcode_i8 == 4'b0110) && i_t_i8 ;
+assign op_subr =  (opcode_i8 == 4'b0111) && i_t_i8 ;
+assign op_ldi = (opcode_i8 == 4'b1000) && i_t_i8 ;
 assign op_setsp = (opcode_i8 == 4'b1100) && i_t_i8 ;
-assign op_orm = (opcode_i8 == 4'b1101) && i_t_i8 ;
-assign op_andm = (opcode_i8 == 4'b1110) && i_t_i8 ;
+assign op_bf = (opcode_i8 == 4'b1101) && i_t_i8 ;
+assign op_call =(opcode_i8 == 4'b1110) && i_t_i8 ;
 // 4'b1111 is i3 prefix
 
 
 // i3 operations
-wire op_in, op_shl, op_shr, op_shlo, op_asr, op_out, op_setb ;
-wire op_incsp, op_decsp ;
+wire op_shlzi, op_shlzr, op_shloi, op_shlor, op_shrzi, op_shrzr ;
+wire op_asri, op_asrr, op_in, op_out, op_setb ;
 
-assign op_shl = (opcode_i3 == 4'b0000) && i_t_i3 ;
-assign op_shlo =(opcode_i3 == 4'b0001) && i_t_i3 ;
-assign op_shr =(opcode_i3 == 4'b0010) && i_t_i3 ;
-assign op_asr = (opcode_i3 == 4'b0011) && i_t_i3 ;
-assign op_in = (opcode_i3 == 4'b0101) && i_t_i3 ;
-//
-//
-assign op_out = (opcode_i3 == 4'b1000) && i_t_i3 ;
-assign op_setb =(opcode_i3 == 4'b1001) && i_t_i3 ;
-//
-//
-assign op_incsp = (opcode_i3 == 4'b1101) && i_t_i3 ;
-assign op_decsp = (opcode_i3 == 4'b1110) && i_t_i3 ;
+assign op_shlzi = (opcode_i3 == 4'b0000) && i_t_i3 ;
+assign op_shlzr =(opcode_i3 == 4'b0001) && i_t_i3 ;
+assign op_shloi =(opcode_i3 == 4'b0010) && i_t_i3 ;
+assign op_shlor = (opcode_i3 == 4'b0011) && i_t_i3 ;
+assign op_shrzi = (opcode_i3 == 4'b0100) && i_t_i3 ;
+assign op_shrzr = (opcode_i3 == 4'b0101) && i_t_i3 ;
+assign op_asri = (opcode_i3 == 4'b0110) && i_t_i3 ;
+assign op_asrr = (opcode_i3 == 4'b0111) && i_t_i3 ;
+assign op_in = (opcode_i3 == 4'b0100) && i_t_i3 ;
+assign op_out = (opcode_i3 == 4'b1011) && i_t_i3 ;
+assign op_setb =(opcode_i3 == 4'b1100) && i_t_i3 ;
 // 4'b1111 is i0 prefix
 
 // i0 operations
-wire op_return, op_not, op_nop, op_test, op_mov, op_stab, op_lda, op_ldsp, op_stsp ;
+wire op_not, op_mov, op_test, op_return, op_nop ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
-//assign op_lda = (opcode_i0 == 4'b0100) && i_t_i0 ;
-assign op_lda = 1'b0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
-assign op_stsp = (opcode_i0 == 4'b1110) && i_t_i0 ;
-assign op_stab = (opcode_i0 == 4'b1000) && i_t_i0 ;
-assign op_ldsp = (opcode_i0 == 4'b1010) && i_t_i0 ;
-
-// Move operations buffer<->acc
-wire op_ldba = op_mov && !field_op ;
-wire op_ldab = op_mov && field_op ;
-
 
 // operation type selection
-wire source_dmem, source_field, source_imm, source_sp, source_in ;
-wire dest_acc, dest_dmem, dest_field, dest_sp, dest_pc, dest_reg ;
+wire source_field, source_imm, source_in ;
+wire dest_reg, dest_field, dest_pc, dest_out, dest_null ;
 
 assign source_field = field_op ;
-assign source_dmem = op_ldsp | op_ldm | op_addm | op_subm | op_orm | op_andm ; // TODO: | op_lda if re-added
-assign source_sp = op_incsp | op_decsp ;
-assign source_imm = op_ldi | op_setsp | op_setb ;
+assign source_imm = (i_t_i8 && (opcode_i8[0] == 0)) | (i_t_i3 && (opcode_i3[0] == 0))
 assign source_in = op_in ;
 
 
-// Which ops are committed to a register (ACC or Field_Out)
-assign dest_reg = ( op_or | op_and | op_addm | op_subm | op_add | op_sub
-                  | op_lda | op_ldm | op_shl | op_shr | op_asr | op_shlo
-		  | op_ldsp | op_in | op_not | op_mov | op_ldi) ;
-assign dest_acc = (!field_op && dest_reg) ;
-assign dest_field = (field_op && dest_reg) ;
-assign dest_dmem = op_stm | op_stsp ; // op_stm is stam and stfm
-assign dest_sp = op_setsp | op_incsp | op_decsp ;
-assign dest_pc = op_bf | op_bb | op_call | op_return ;
+// Which ops are committed to a register (Reg or Field_Out)
+assign dest_out = op_out ;
+assign dest_null = op_setb | op_test | op_nop ;
+assign dest_pc = op_bf | op_call | op_return ;
+assign dest_field = field_op && !(dest_out | dest_null | dest_pc) ;
+assign dest_reg = !field_op && !(dest_out | dest_null | dest_pc) ;
 
 // register f
 // immediate_pc <= immediate_i8_regd ; // delay a further cycle for PCor next stage of the pipeline
@@ -238,9 +214,12 @@ reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd
 reg op_incsp_regd, op_decsp_regd ;
 reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 reg field_op_regd ;
+reg Rd_1, Rd_2 ;
 
 task reg_ops ;
 	begin
+        Rd_1 <= Rn ;
+        Rd_2 <= Rd_1 ;
 		field_op_regd <= field_op ;
 		op_bf_regd <= op_bf ;
 		op_bb_regd <= op_bb ;
@@ -312,7 +291,8 @@ reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
 reg [d_width-1:0] data_regd ;
 
-assign data_read_adr = instruction_4[7:0] ; // immediate_i8 ;
+assign data_read_adr = Rn ;
+assign data_write_adr = Rd_2 ;
 // TODO: Consider role of op_lda
 //assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
@@ -356,10 +336,10 @@ wire [d_width-1:0] result ;
 
 
 assign acc_alu_a = data_out ;
-assign acc_alu_b = data_regd ;
+assign acc_alu_b = data_regd ; // allows shift by Rd
 
-assign imm_alu_a = immediate_value ;
-assign imm_alu_b = data_regd ;
+assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
+assign imm_alu_a = data_regd ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
@@ -504,8 +484,6 @@ always @(posedge clk)
 		// use old acc destination as proxy for a register commit
 		if (dest_acc_regd) begin
 		data_write <= 1'b1 ;
-		//data_write_adr <= (op_stsp) ? sp : immediate_i8 ;
-		data_write_adr <= immediate_all_regd ;
 		end
 		else data_write <= 1'b0 ;
 
