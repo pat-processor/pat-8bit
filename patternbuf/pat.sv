@@ -3,7 +3,7 @@ module pat(clk, reset, pc, jump, bufp, fieldp, fieldwp, field_write_en_low, fiel
 
 parameter i_adr_width = 10 ; // instruction address space size
 parameter i_width = 23 ; // instruction width
-parameter d_adr_width = 8 ; // data address space size
+parameter d_adr_width = 3 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter rd_width = 3 ; // destination register width
 parameter call_stack_size = 8 ; // max call depth supported
@@ -88,7 +88,7 @@ wire [opcode_i3_width-1:0] opcode_i3 ;
 wire [opcode_i0_width-1:0] opcode_i0 ;
 wire field_op ; // 0 := ACC op ; 1 := field op
 
-assign {Rs, fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
+assign {Rn, fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
 
 assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
 assign opcode_i0 = instruction_3[3:0] ;
@@ -102,6 +102,7 @@ assign i_t_i0 = (!i_t_i8 && !i_t_i3) ;
 // i8 operations
 wire op_ori, op_orr, op_andi, op_andr, op_addi, op_addr ;
 wire op_subi, op_subr, op_ldi, op_setsp, op_bf, op_call ;
+
 assign op_ori =	(opcode_i8 == 4'b0000) && i_t_i8 ;
 assign op_orr =  (opcode_i8 == 4'b0001) && i_t_i8 ;
 assign op_andi =  (opcode_i8 == 4'b0010) && i_t_i8 ;
@@ -138,7 +139,7 @@ assign op_setb =(opcode_i3 == 4'b1100) && i_t_i3 ;
 wire op_not, op_mov, op_test, op_return, op_nop ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
-assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
+//assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
@@ -148,7 +149,7 @@ wire source_field, source_imm, source_in ;
 wire dest_reg, dest_field, dest_pc, dest_out, dest_null ;
 
 assign source_field = field_op ;
-assign source_imm = (i_t_i8 && (opcode_i8[0] == 0)) | (i_t_i3 && (opcode_i3[0] == 0))
+assign source_imm = (i_t_i8 && (opcode_i8[0] == 0)) | (i_t_i3 && (opcode_i3[0] == 0)) ;
 assign source_in = op_in ;
 
 
@@ -173,7 +174,7 @@ wire [d_width-1:0] field_value_muxd ;
 wire [d_width-1:0] immediate_i_all ;
 assign immediate_i_all = (i_t_i8) ? immediate_i8 : {{5{1'b0}}, immediate_i3} ;
 
-function selectInput ;
+function [7:0] selectInput ;
 	input [d_width-1:0] inputs [3] ;
 	input [2:0] immediate_i3 ;
 	begin
@@ -208,79 +209,68 @@ task reg_instr ;
 	end
 endtask
 
-reg op_bf_regd, op_bb_regd, op_call_regd, op_ldi_regd, op_ldm_regd, op_stm_regd, op_setsp_regd, op_or_regd ;
-reg op_and_regd, op_sub_subm_regd, op_add_addm_regd, op_sub_subm_regd_2, op_add_addm_regd_2, op_orm_regd, op_andm_regd ;
-reg op_in_regd, op_shl_regd, op_shr_regd, op_shlo_regd, op_asr_regd, op_out_regd, op_setb_regd ;
-reg op_incsp_regd, op_decsp_regd ;
-reg op_return_regd, op_not_regd, op_test_regd, op_nop_regd, op_mov_regd, op_stab_regd, op_lda_regd, op_ldsp_regd, op_stsp_regd ;
 reg field_op_regd ;
-reg Rd_1, Rd_2 ;
+reg [2:0] Rd_1 ;
+reg [2:0] Rd_2 ;
+
+reg op_ori_regd, op_orr_regd, op_andi_regd, op_andr_regd, op_addi_regd, op_addr_regd ;
+reg op_subi_regd, op_subr_regd, op_ldi_regd, op_setsp_regd, op_bf_regd, op_call_regd ;
+reg op_shlzi_regd, op_shlzr_regd, op_shloi_regd, op_shlor_regd, op_shrzi_regd, op_shrzr_regd ;
+reg op_asri_regd, op_asrr_regd, op_in_regd, op_out_regd, op_setb_regd ;
+reg op_not_regd, op_test_regd, op_return_regd, op_nop_regd ;
+
+
+
 
 task reg_ops ;
-	begin
-        Rd_1 <= Rn ;
-        Rd_2 <= Rd_1 ;
+	begin 
+	        Rd_1 <= Rn ;
+                Rd_2 <= Rd_1 ;
 		field_op_regd <= field_op ;
-		op_bf_regd <= op_bf ;
-		op_bb_regd <= op_bb ;
-		op_call_regd <= op_call ;
+		op_ori_regd <= op_ori ;
+		op_orr_regd <= op_orr ;
+		op_andi_regd <= op_andi ;
+		op_andr_regd <= op_andr ;
+		op_addi_regd <= op_addi ;
+		op_addr_regd <= op_addr ;
+		op_subi_regd <= op_subi ;
+		op_subr_regd <= op_subr ;
 		op_ldi_regd <= op_ldi ;
-		op_ldm_regd <= op_ldm ;
-		op_stm_regd <= op_stm ;
 		op_setsp_regd <= op_setsp ;
-		op_or_regd <= op_or ;
-		op_and_regd <= op_and ;
-		op_add_addm_regd <= op_add | op_addm ;
-		op_add_addm_regd_2 <= op_add | op_addm ;
-		op_sub_subm_regd <= op_sub | op_subm ;
-		op_sub_subm_regd_2 <= op_sub | op_subm ;
-		op_orm_regd <= op_orm ;
-		op_andm_regd <= op_andm ;
+		op_bf_regd <= op_bf ;
+		op_call_regd <= op_call ;
+		op_shlzi_regd <= op_shlzi ;
+		op_shlzr_regd <= op_shlzr ;
+		op_shloi_regd <= op_shloi ;
+		op_shlor_regd <= op_shlor ;
+		op_shrzi_regd <= op_shrzi ;
+		op_shrzr_regd <= op_shrzr ;
+		op_asri_regd <= op_asri ;
+		op_asrr_regd <= op_asrr ;
 		op_in_regd <= op_in ;
-		op_shl_regd <= op_shl ;
-		op_shr_regd <= op_shr ;
-		op_shlo_regd <= op_shlo ;
-		op_asr_regd <= op_asr ;
 		op_out_regd <= op_out ;
 		op_setb_regd <= op_setb ;
-		op_incsp_regd <= op_incsp ;
-		op_decsp_regd <= op_decsp ;
-		op_return_regd <= op_return ;
 		op_not_regd <= op_not ;
-		op_nop_regd <= op_nop ;
 		op_test_regd <= op_test ;
-		op_mov_regd <= op_mov ;
-		op_stab_regd <= op_stab ;
-		op_lda_regd <= op_lda ;
-		op_ldsp_regd <= op_ldsp ;
-		op_stsp_regd <= op_stsp ;
+		op_return_regd <= op_return ;
+		op_nop_regd <= op_nop ;
 	end
 endtask
 
 
-reg source_field_regd ;
-reg source_dmem_regd  ;
-reg source_sp_regd  ;
 reg source_immediate ;
-reg source_in_regd ;
-reg dest_acc_regd  ;
+reg dest_reg_regd  ;
 reg dest_field_regd ;
-reg dest_dmem_regd ;
-reg dest_sp_regd ;
 reg dest_pc_regd ;
+reg dest_out_regd ;
 
 task reg_srcdest ;
 	begin
-		source_field_regd <= source_field ;
-		source_dmem_regd <= source_dmem ;
-		source_sp_regd <= source_sp ;
-		source_immediate <= source_imm | source_dmem | source_in ;
-		source_in_regd <= source_in ;
-		dest_acc_regd <= dest_acc ;
+		source_immediate <= source_imm | source_in | source_field ;
+		dest_reg_regd <= dest_reg ;
 		dest_pc_regd <= dest_pc ;
 		dest_field_regd <= dest_field ;
-		dest_dmem_regd <= dest_dmem ;
-		dest_sp_regd <= dest_sp ;
+		dest_out_regd <= dest_out ;
 	end
 endtask
 
@@ -344,6 +334,7 @@ assign imm_alu_a = data_regd ;
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
 alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+
 alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
@@ -470,8 +461,7 @@ always @(posedge clk)
 		end
 
 		if (dest_field_regd) begin
-			// TODO: Below may work from a different signal
-			field_out <= data_out ;
+			field_out <= result ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
@@ -480,20 +470,16 @@ always @(posedge clk)
 			field_write_en_low <= 1'b0 ;
 		end
 
-
-		// use old acc destination as proxy for a register commit
-		if (dest_acc_regd) begin
+		if (dest_reg_regd) begin
 		data_write <= 1'b1 ;
 		end
 		else data_write <= 1'b0 ;
 
 		if (op_test) updateFlags() ;
 
-		if (op_out_regd)
+		if (dest_out_regd)
 		begin
-			//outputs[immediate_regd] <= acc ; TODO: can I have more outputs like this?
 			registerOutput() ;
-			//outputs <= acc ;
 		end
 
 		if (op_setb_regd)
@@ -501,39 +487,6 @@ always @(posedge clk)
 			bufp <= immediate_bufp_regd[2:0] ;
 			low_high_buffer <= immediate_bufp_regd[3] ;
 		end
-
-/* REMOVED OPS FOR PERFORMANCE REASONS
- * if (op_call_regd)
-		begin
-			// FIXME: I think this arrangement gives -1 size to call
-			// TODO: ensure that this stores the
-			// next-to-currently-active instruction
-			call_stack[call_stack_pointer+1] <= pc ;
-			call_stack_pointer <= call_stack_pointer + 1 ;
-		end
-
-		if (op_return_regd)
-		begin
-			call_stack_pointer <= call_stack_pointer - 1 ;
-		end
-
-		if (op_setsp_regd)
-		begin
-			sp <= immediate_regd ;
-		end
-
-		if (op_incsp_regd)
-		begin
-			sp <= sp + immediate_regd[2:0] ;
-		end
-
-		if (op_decsp_regd)
-		begin
-			sp <= sp - immediate_regd[2:0] ;
-		end
-		*/
-
-
 
 	end
 
