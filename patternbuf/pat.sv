@@ -726,14 +726,20 @@ wire [d_width-1:0] addsubout ;
 assign addsubi = op_sub ? ~b : b ;
 assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 
-assign y = op_or ? or_out :
-	   op_and ? and_out :
-	   op_not ? neg_out :
-//	   op_add ? add_out :
-//	   op_sub ? sub_out :
-	   op_addsub ? addsubout :
-	   shift_out ; // any of the three shifts
+//assign y = op_or ? or_out :
+//or_out   op_and ? and_out :
+//and_out   op_not ? neg_out :
+//neg_out   op_add ? add_out :
+//add_out   op_sub ? sub_out :
+////sub_out   op_addsub ? addsubout :
+//addsubout   shift_out ; // any of the three shifts
 
+assign y = op_sub ? a - b :
+            op_add ? a + b :
+            op_or ? a | b :
+            op_and ? a & b :
+            op_not ? ~a :
+            shift_out ;
 
 /*
 assign y = op_add ? add_out :
