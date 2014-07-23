@@ -46,7 +46,6 @@ reg [d_adr_width-1:0] sp ; // stack pointer
 reg z ; // zero flag
 reg n ; // neg flag
 
-
 reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
