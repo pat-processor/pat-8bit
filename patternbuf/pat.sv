@@ -213,40 +213,33 @@ reg field_op_regd ;
 reg [2:0] Rd_1 ;
 reg [2:0] Rd_2 ;
 
-reg op_ori_regd, op_orr_regd, op_andi_regd, op_andr_regd, op_addi_regd, op_addr_regd ;
-reg op_subi_regd, op_subr_regd, op_ldi_regd, op_setsp_regd, op_bf_regd, op_call_regd ;
-reg op_shlzi_regd, op_shlzr_regd, op_shloi_regd, op_shlor_regd, op_shrzi_regd, op_shrzr_regd ;
-reg op_asri_regd, op_asrr_regd, op_in_regd, op_out_regd, op_setb_regd ;
+reg op_or_regd, op_and_regd, op_add_regd, op_addsub_regd ;
+reg op_sub_regd,  op_ldi_regd, op_setsp_regd, op_bf_regd, op_call_regd ;
+reg op_shlz_regd, op_shlo_regd, op_shrz_regd ;
+reg op_asr_regd, op_in_regd, op_out_regd, op_setb_regd ;
 reg op_not_regd, op_test_regd, op_return_regd, op_nop_regd ;
 
 
 
 
 task reg_ops ;
-	begin 
+	begin
 	        Rd_1 <= Rn ;
                 Rd_2 <= Rd_1 ;
 		field_op_regd <= field_op ;
-		op_ori_regd <= op_ori ;
-		op_orr_regd <= op_orr ;
-		op_andi_regd <= op_andi ;
-		op_andr_regd <= op_andr ;
-		op_addi_regd <= op_addi ;
-		op_addr_regd <= op_addr ;
-		op_subi_regd <= op_subi ;
-		op_subr_regd <= op_subr ;
+		op_or_regd <= op_ori | op_orr ;
+		op_and_regd <= op_andi | op_andr ;
+		op_add_regd <= op_addi | op_addr ;
+		op_sub_regd <= op_subi | op_subr ;
+        op_addsub_regd <= op_addi | op_addr | op_subi | op_subr ;
 		op_ldi_regd <= op_ldi ;
 		op_setsp_regd <= op_setsp ;
 		op_bf_regd <= op_bf ;
 		op_call_regd <= op_call ;
-		op_shlzi_regd <= op_shlzi ;
-		op_shlzr_regd <= op_shlzr ;
-		op_shloi_regd <= op_shloi ;
-		op_shlor_regd <= op_shlor ;
-		op_shrzi_regd <= op_shrzi ;
-		op_shrzr_regd <= op_shrzr ;
-		op_asri_regd <= op_asri ;
-		op_asrr_regd <= op_asrr ;
+		op_shlz_regd <= op_shlzi | op_shlzr ;
+		op_shlo_regd <= op_shloi | op_shlor ;
+		op_shrz_regd <= op_shrzi | op_shrzr ;
+		op_asr_regd <= op_asri | op_asrr;
 		op_in_regd <= op_in ;
 		op_out_regd <= op_out ;
 		op_setb_regd <= op_setb ;
@@ -334,9 +327,9 @@ assign imm_alu_a = data_regd_2 ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_addm_regd, op_sub_subm_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -691,14 +684,14 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_shl, op_shlo, op_shr, op_asr) ;
+module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [d_width-1:0] b ;
 input op_or, op_and, op_not ;
-input op_add, op_sub;
+input op_add, op_sub, op_addsub ;
 input op_shl, op_shlo, op_shr, op_asr ;
 
 output [d_width-1:0] y ;
@@ -726,13 +719,23 @@ wire [d_width-1:0] addsubout ;
 assign addsubi = op_sub ? ~b : b ;
 assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 
-assign y = op_or ? or_out :
-	   op_and ? and_out :
-	   op_not ? neg_out :
-	   op_add ? add_out :
-	   op_sub ? sub_out :
-//	   op_addsub ? addsubout :
-	   shift_out ; // any of the three shifts
+//assign y = op_or ? or_out :
+//	   op_and ? and_out :
+//	   op_not ? neg_out :
+//	   op_add ? add_out :
+//	   op_sub ? sub_out :
+////	   op_addsub ? addsubout :
+//	   shift_out ; // any of the three shifts
+
+//assign y = op_sub ? a - b :
+//           op_add ? a + b :
+
+assign y = op_addsub ? addsubout :
+            op_or ? a | b :
+            op_and ? a & b :
+            op_not ? ~a :
+            shift_out ;
+
 
 
 /*
