@@ -428,6 +428,7 @@ always @(posedge clk)
 		//match, which gives unexpected execution results.
 
 		data_out <= result ;
+		field_out <= result ;
 
 		if (bubbles > 0) begin
 			bubbles <= bubbles - 1 ;
@@ -455,7 +456,6 @@ always @(posedge clk)
 		end
 
 		if (dest_field_regd) begin
-			field_out <= result ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
 		end
