@@ -712,14 +712,12 @@ negator theNeg(a, neg_out) ;
 // enhancement from Introduction to Logic Synthesis Using Verilog HDL
 // By Robert Bryan Reese, Mitchell Aaron Thornton
 // seems to be quicker than my solution //TODO: see if still true
-wire op_addsub = op_add | op_sub ; // TODO: op_addsub could be pushed to previous pipeline cycle to speed
 wire [d_width-1:0] addsubi ;
 wire [d_width-1:0] addsubout ;
 assign addsubi = op_sub ? ~b : b ;
 assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 
 //assign y = op_or ? or_out :
-<<<<<<< HEAD
 //or_out   op_and ? and_out :
 //and_out   op_not ? neg_out :
 //neg_out   op_add ? add_out :
@@ -727,8 +725,6 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 ////sub_out   op_addsub ? addsubout :
 //addsubout   shift_out ; // any of the three shifts
 
-assign y = op_sub ? a - b :
-            op_add ? a + b :
 //assign y = op_sub ? a - b :
 //           op_add ? a + b :
 //	   op_and ? and_out :
@@ -749,10 +745,6 @@ assign y = op_addsub ? addsubout :
 
 
 
-/*
-assign y = op_add ? add_out :
-	    sub_out ;
-*/
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
