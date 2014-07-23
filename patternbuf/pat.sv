@@ -719,6 +719,7 @@ assign addsubi = op_sub ? ~b : b ;
 assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 
 //assign y = op_or ? or_out :
+<<<<<<< HEAD
 //or_out   op_and ? and_out :
 //and_out   op_not ? neg_out :
 //neg_out   op_add ? add_out :
@@ -730,11 +731,27 @@ assign y = op_sub ? a - b :
             op_add ? a + b :
 //assign y = op_sub ? a - b :
 //           op_add ? a + b :
+=======
+//	   op_and ? and_out :
+//	   op_not ? neg_out :
+//	   op_add ? add_out :
+//	   op_sub ? sub_out :
+////	   op_addsub ? addsubout :
+//	   shift_out ; // any of the three shifts
+
+//assign y = op_sub ? a - b :
+//           op_add ? a + b :
+
+>>>>>>> 63996cc2a7d2f5e0e27fe455ead58000ed01cbad
 assign y = op_addsub ? addsubout :
             op_or ? a | b :
             op_and ? a & b :
             op_not ? ~a :
             shift_out ;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 63996cc2a7d2f5e0e27fe455ead58000ed01cbad
 
 
 /*
