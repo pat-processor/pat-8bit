@@ -332,21 +332,21 @@ assign io_b_msb_output_enable = vdd_logic1 ;
 // iMem initialisation
 
 
-reg [49:0] input_shifter ;
+reg [55:0] input_shifter ;
 wire [9:0] imem_write_adr ;
-wire [39:0] imem_in ;
+wire [45:0] imem_in ;
 
 reg imem_clock_prev ;
 // shift data address and value to write in on port a if the imem_clock has made a +ve transition
 always @(posedge clk_int) begin
 	imem_clock_prev <= imem_clock_synched ;
 	if (imem_clock_synched && !imem_clock_prev) begin
-	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a_synched ;
+	   input_shifter <= (input_shifter[45:0] << 8) | inputs_a_synched ;
 	end
 end
 
-assign imem_write_adr = input_shifter[49:40] ;
-assign imem_in = input_shifter[39:0] ;
+assign imem_write_adr = input_shifter[55:46] ;
+assign imem_in = input_shifter[45:0] ;
 
 
 

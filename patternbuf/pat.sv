@@ -16,6 +16,7 @@ parameter opcode_i3_width = 4 ; // width of opcode for i3 instruction
 parameter opcode_i0_width = 4 ; // width of opcode for i0 instruction
 parameter field_latency = 4 ; // cycle count between field read and write
 
+
 `define i3_opcode_prefix 4'b1111  // prefix string from i8 space
 `define i0_opcode_prefix 4'b1111  // prefix string from i3 space
 
@@ -168,7 +169,6 @@ reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
-reg [d_width-1:0] immediate_value_2 ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -280,6 +280,7 @@ wire [d_adr_width-1:0] data_read_adr ;
 reg [d_adr_width-1:0] data_write_adr ;
 reg data_write ;
 reg [d_width-1:0] data_regd ;
+reg [d_width-1:0] data_regd_2 ;
 
 assign data_read_adr = Rn ;
 assign data_write_adr = Rd_2 ;
@@ -329,7 +330,7 @@ assign acc_alu_a = data_out ;
 assign acc_alu_b = data_regd ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
-assign imm_alu_a = data_regd ;
+assign imm_alu_a = data_regd_2 ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
@@ -366,6 +367,7 @@ endtask
 task getData() ;
 	begin
 		data_regd <= data_in ;
+		data_regd_2 <= data_in ;
 	end
 endtask
 
@@ -820,7 +822,7 @@ parameter i_buffer_size = 2 ;
 parameter i_mem_size = 512 ;
 parameter i_mem_lines =  256 ; //imem_size / i_buffer_size ;
 parameter i_adr_width = 10 ; // instruction address space size
-parameter i_width = 20 ; // instruction width
+parameter i_width = 23 ; // instruction width
 
 input [i_adr_width-1:0] imem_read_adr ;
 input [i_adr_width-1:0] imem_write_adr ;
@@ -867,7 +869,7 @@ module instruction_buffer(clk, reset, instruction_address, instruction_out, imem
 parameter i_buffer_size = 2 ;
 parameter i_mem_adr_start_bit = 1 ; // first address bit of significance for imem
 parameter i_adr_width = 10 ;
-parameter i_width = 20 ; // instruction width
+parameter i_width = 23 ; // instruction width
 
 
 input clk, reset ;

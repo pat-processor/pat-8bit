@@ -1,13 +1,12 @@
 ######################################################################
 
-# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Tue Jul 22 19:16:17 +0100 2014
+# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Wed Jul 23 10:43:19 +0100 2014
 
 # This file contains the RC script for /designs/pads
 
 ######################################################################
 
 set_attribute -quiet information_level 2 /
-set_attribute -quiet gui_auto_update false /
 set_attribute -quiet lib_search_path /home/research/software/asic/kits/ams/H18/liberty/h18_1.8V /
 set_attribute -quiet hdl_track_filename_row_col true /
 set_attribute -quiet dp_postmap_upsize true /
@@ -96,13 +95,13 @@ set_attribute -quiet external_driver_input_slew {100.0 100.0 100.0 100.0} /desig
 set_attribute -quiet external_driver_input_slew {100.0 100.0 100.0 100.0} /designs/pads/ports_in/pad_f5v_select
 set_attribute -quiet ideal_network true /designs/pads/instances_comb/iopad_modesel_0/pins_out/Y
 set_attribute -quiet hdl_user_name digital /designs/pads/subdesigns/digital
-set_attribute -quiet hdl_parameters {{d_width 8 0 8} {i_adr_width 10 0 10} {i_width 20 0 20} {i_buffer_size 2 0 2} {bufp_width 3 0 3} {fieldp_width 5 0 5}} /designs/pads/subdesigns/digital
+set_attribute -quiet hdl_parameters {{d_width 8 0 8} {i_adr_width 10 0 10} {i_width 23 0 23} {i_buffer_size 2 0 2} {bufp_width 3 0 3} {fieldp_width 5 0 5}} /designs/pads/subdesigns/digital
 set_attribute -quiet hdl_filelist {{default -sv {SYNTHESIS} {pat.sv}} {default -sv {SYNTHESIS} {digital.sv}}} /designs/pads/subdesigns/digital
 set_attribute -quiet dft_auto_created 1 /designs/pads/instances_hier/theCore/subports_in/SCAN_sdi
 set_attribute -quiet dft_auto_created 1 /designs/pads/instances_hier/theCore/subports_in/SCAN_sen
 set_attribute -quiet dft_auto_created 1 /designs/pads/instances_hier/theCore/subports_out/SCAN_sdo
 set_attribute -quiet hdl_user_name inst_mem /designs/pads/subdesigns/inst_mem
-set_attribute -quiet hdl_parameters {{i_buffer_size 2 0 2} {i_mem_size 512 0 512} {i_mem_lines 256 0 256} {i_adr_width 10 0 10} {i_width 20 0 20}} /designs/pads/subdesigns/inst_mem
+set_attribute -quiet hdl_parameters {{i_buffer_size 2 0 2} {i_mem_size 512 0 512} {i_mem_lines 256 0 256} {i_adr_width 10 0 10} {i_width 23 0 23}} /designs/pads/subdesigns/inst_mem
 set_attribute -quiet hdl_filelist {{default -sv {SYNTHESIS} {pat.sv}}} /designs/pads/subdesigns/inst_mem
 set_attribute -quiet is_sop_cluster true /designs/pads/subdesigns/pat
 set_attribute -quiet hdl_user_name pat /designs/pads/subdesigns/pat
