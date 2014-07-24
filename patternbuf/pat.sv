@@ -601,7 +601,7 @@ module shifter(a, b, y, op_shl, op_shlo, op_shr, op_asr) ;
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
-input [2:0] b ;
+input [1:0] b ;
 input op_shl, op_shlo, op_shr, op_asr ;
 
 output [d_width-1:0] y ;
@@ -619,11 +619,12 @@ assign shlo =
 	(b == 0) ? a :
 	(b == 1) ? (a << 1) | {1{1'b1}} :
 	(b == 2) ? (a << 2) | {2{1'b1}} :
-	(b == 3) ? (a << 3) | {3{1'b1}} :
-	(b == 4) ? (a << 4) | {4{1'b1}} :
-	(b == 5) ? (a << 5) | {5{1'b1}} :
-	(b == 6) ? (a << 6) | {6{1'b1}} :
-	(a << 7) | {7{1'b1}} ; // b == 7 case
+	(a << 3) | {3{1'b1}} ;
+//	(b == 3) ? (a << 3) | {3{1'b1}} :
+//	(b == 4) ? (a << 4) | {4{1'b1}} :
+//	(b == 5) ? (a << 5) | {5{1'b1}} :
+//	(b == 6) ? (a << 6) | {6{1'b1}} :
+//	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
 assign y = op_shl ? shl :

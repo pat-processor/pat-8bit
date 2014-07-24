@@ -1,12 +1,13 @@
 ######################################################################
 
-# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Wed Jul 23 14:23:18 +0100 2014
+# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Jul 24 11:12:59 +0100 2014
 
 # This file contains the RC script for /designs/pads
 
 ######################################################################
 
 set_attribute -quiet information_level 2 /
+set_attribute -quiet gui_auto_update false /
 set_attribute -quiet lib_search_path /home/research/software/asic/kits/ams/H18/liberty/h18_1.8V /
 set_attribute -quiet hdl_track_filename_row_col true /
 set_attribute -quiet dp_postmap_upsize true /
