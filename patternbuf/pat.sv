@@ -326,9 +326,9 @@ assign imm_alu_a = data_regd_2 ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shl_regd, op_shlo_regd, op_shr_regd, op_asr_regd) ;
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -400,8 +400,7 @@ task registerOutput ;
 	begin
 		// TODO: Replace the case statement
 		// when multiple outputs are connected up.
-			outputs[0] <= acc ;
-		//case (immediate_all_regd[2:0])
+			outputs[0] <= data_out ;
 			//3'b001: outputs[0] <= acc ;
 			//3'b010: outputs[1] <= acc ;
 			//3'b100: outputs[2] <= acc ;
@@ -611,17 +610,15 @@ wire [d_width-1:0] shlo ;
 wire [d_width-1:0] shr ;
 wire [d_width-1:0] asr ;
 
-assign shl = a << b ;
-assign shr = a >> b ;
-assign asr = a >>> b ;
+assign shl = a << (b+1) ;
+assign shr = a >> (b+1) ;
+assign asr = a >>> (b+1) ;
 
 assign shlo =
-	(b == 0) ? a :
-	(b == 1) ? (a << 1) | {1{1'b1}} :
-	(b == 2) ? (a << 2) | {2{1'b1}} :
-	(a << 3) | {3{1'b1}} ;
-//	(b == 3) ? (a << 3) | {3{1'b1}} :
-//	(b == 4) ? (a << 4) | {4{1'b1}} :
+	(b == 0) ? (a << 1) | {1{1'b1}} :
+	(b == 1) ? (a << 2) | {2{1'b1}} :
+	(b == 2) ? (a << 3) | {3{1'b1}} :
+	(a << 4) | {4{1'b1}} ;
 //	(b == 5) ? (a << 5) | {5{1'b1}} :
 //	(b == 6) ? (a << 6) | {6{1'b1}} :
 //	(a << 7) | {7{1'b1}} ; // b == 7 case
@@ -936,8 +933,8 @@ begin
 
 	if (instruction_address[0] == 0)
 	begin
-		i_buffer[0] <=  imem_out[19:0] ;
-		i_buffer[1] <= 	imem_out[39:20] ;
+		i_buffer[0] <=  imem_out[(i_width-1):0] ;
+		i_buffer[1] <= 	imem_out[((i_width*2)-1):i_width] ;
 	end
 end
 
