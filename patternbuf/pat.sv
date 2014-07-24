@@ -700,7 +700,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[2:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
+shifter theShifter(a, b[1:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
@@ -726,6 +726,7 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 assign y = op_sub ? sub_out :
            op_add ? add_out :
 	   op_and ? and_out :
+	   op_or  ? or_out :
 	   op_not ? neg_out :
 	   op_add ? add_out :
 	   op_sub ? sub_out :
@@ -743,7 +744,7 @@ assign y = op_sub ? sub_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 4 ; // data address space size
+parameter d_adr_width = 3 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter dmemsize = 8 ;
 
