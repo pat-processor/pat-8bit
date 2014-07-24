@@ -142,7 +142,7 @@ setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
 
 # add core filler to prevent DRC violation
-amsFillcore 
+#amsFillcore 
 
 
 # wroute -wdbName final.wdb
@@ -152,7 +152,7 @@ amsFillcore
 #optDesign -postRoute
 
 # save result
-saveDesign -cellview {patternbuffer patternbuffer layout}
+#saveDesign -cellview {patternbuffer patternbuffer layout}
 
 # open GUI
 win

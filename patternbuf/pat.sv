@@ -729,8 +729,9 @@ assign y = op_sub ? sub_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
 	   op_add ? add_out :
-	   op_sub ? sub_out :
-	   shift_out ; // any of the three shifts
+	   sub_out ;
+//	   op_sub ? sub_out :
+//	   shift_out ; // any of the three shifts
 
 
 //assign y = op_addsub ? addsubout :
