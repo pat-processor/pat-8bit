@@ -41,7 +41,6 @@ reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
-reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
 reg z ; // zero flag
 reg n ; // neg flag
@@ -281,8 +280,6 @@ reg [d_width-1:0] data_regd_2 ;
 
 assign data_read_adr = Rn ;
 assign data_write_adr = Rd_2 ;
-// TODO: Consider role of op_lda
-//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
 data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
 
@@ -377,8 +374,8 @@ task updateFlags() ;
 		end
 		else
 		begin
-			z <= (acc == 0) ;
-			n <= (acc[d_width-1] == 1) ;
+			z <= (data_out == 0) ;
+			n <= (data_out[d_width-1] == 1) ;
 		end
 	end
 endtask
@@ -406,9 +403,6 @@ task registerOutput ;
 		// TODO: Replace the case statement
 		// when multiple outputs are connected up.
 			outputs[0] <= data_out ;
-			//3'b001: outputs[0] <= acc ;
-			//3'b010: outputs[1] <= acc ;
-			//3'b100: outputs[2] <= acc ;
 		//endcase
 	end
 endtask
