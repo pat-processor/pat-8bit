@@ -167,8 +167,10 @@ reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
+reg [d_width-1:0] immediate_value_2 ;
 reg [d_width-1:0] source1_value ;
 reg [d_width-1:0] source2_value ;
+reg [d_width-1:0] source2_value_2 ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -207,8 +209,10 @@ task reg_instr ;
 
 		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		immediate_value <= immediate_i_all ;
+		immediate_value_2 <= immediate_i_all ;
 		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ;
 		source2_value <= (source_imm) ? immediate_i_all : data_in ;
+		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
@@ -311,10 +315,12 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 // instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
+wire [d_width-1:0] acc_alu_b_2 ;
 wire [d_width-1:0] acc_alu_y ;
 
 wire [d_width-1:0] imm_alu_a ;
 wire [d_width-1:0] imm_alu_b ;
+wire [d_width-1:0] imm_alu_b_2 ;
 wire [d_width-1:0] imm_alu_y ;
 
 wire [d_width-1:0] result ;
@@ -322,15 +328,17 @@ wire [d_width-1:0] result ;
 
 assign acc_alu_a = data_out ;
 assign acc_alu_b = source2_value ; // allows shift by Rd
+assign acc_alu_b_2 = source2_value_2 ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
+assign imm_alu_b_2 = immediate_value_2 ; // immediates for shift must come in on b
 assign imm_alu_a = source1_value ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_b_2, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_b_2, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -682,12 +690,13 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_asr) ;
+module alu(a, b, b_2, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [d_width-1:0] b ;
+input [d_width-1:0] b_2 ;
 input op_or, op_and, op_not ;
 input op_add, op_sub, op_addsub ;
 input op_shl, op_shlo, op_shr, op_asr ;
@@ -701,7 +710,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[1:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
+shifter theShifter(a, b_2[1:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
