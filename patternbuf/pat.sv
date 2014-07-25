@@ -168,6 +168,8 @@ reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
+reg [d_width-1:0] source1_value ;
+reg [d_width-1:0] source2_value ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -204,7 +206,10 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 
-		immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		immediate_value <= immediate_i_all ;
+		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ;
+		source2_value <= (source_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
@@ -319,10 +324,10 @@ wire [d_width-1:0] result ;
 
 
 assign acc_alu_a = data_out ;
-assign acc_alu_b = data_regd ; // allows shift by Rd
+assign acc_alu_b = source2_value ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
-assign imm_alu_a = data_regd_2 ;
+assign imm_alu_a = source1_value ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
@@ -610,11 +615,13 @@ wire [d_width-1:0] shlo ;
 wire [d_width-1:0] shr ;
 wire [d_width-1:0] asr ;
 
+// Shift by 1--4
 assign shl = a << (b+1) ;
 assign shr = a >> (b+1) ;
 assign asr = a >>> (b+1) ;
 
 assign shlo =
+//	(b == 0) ? (a << 0) :
 	(b == 0) ? (a << 1) | {1{1'b1}} :
 	(b == 1) ? (a << 2) | {2{1'b1}} :
 	(b == 2) ? (a << 3) | {3{1'b1}} :
@@ -625,7 +632,7 @@ assign shlo =
 
 
 assign y = op_shl ? shl :
-	   op_shr ? shr :
+	   op_shr ? shr : 
 	   op_shlo ? shlo :
 		asr ;
 
@@ -729,9 +736,8 @@ assign y = op_sub ? sub_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
 	   op_add ? add_out :
-	   sub_out ;
-//	   op_sub ? sub_out :
-//	   shift_out ; // any of the three shifts
+	   op_sub ? sub_out :
+	   shift_out ; // any of the three shifts
 
 
 //assign y = op_addsub ? addsubout :
