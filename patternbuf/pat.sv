@@ -615,12 +615,13 @@ output [d_width-1:0] y ;
 wire [d_width-1:0] shl ;
 wire [d_width-1:0] shlo ;
 wire [d_width-1:0] shr ;
-wire [d_width-1:0] asr ;
+wire [d_width-1:0] shro ;
+//wire [d_width-1:0] asr ;
 
 // Shift by 1--4
 assign shl = a << (b+1) ;
 assign shr = a >> (b+1) ;
-assign asr = a >>> (b+1) ;
+//assign asr = a >>> (b+1) ;
 
 assign shlo =
 //	(b == 0) ? (a << 0) :
@@ -633,10 +634,16 @@ assign shlo =
 //	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
+assign shro = 
+	(b == 0) ? 8'b10000000 | (a >> 1) :
+	(b == 1) ? 8'b11000000 | (a >> 2) :
+	(b == 2) ? 8'b11100000 | (a >> 3) :
+	           8'b11110000 | (a >> 4) ;
+
 assign y = op_shl ? shl :
 	   op_shr ? shr : 
 	   op_shlo ? shlo :
-		asr ;
+		shro ;
 
 endmodule
 
