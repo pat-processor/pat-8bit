@@ -55,10 +55,9 @@ editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacin
 editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 333.14 -pin {{tweak_delay_5[0]} {tweak_delay_5[1]} {tweak_delay_5[2]}}
 
 # p drive
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 350.06 -pin {{p_drive[7]} {p_drive[6]} {p_drive[5]} {p_drive[4]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 350.06 -pin {{p_drive[3]} {p_drive[2]} {p_drive[1]} {p_drive[0]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 363.64 -pin {{p_drive[3]} {p_drive[2]} {p_drive[1]} {p_drive[0]}}
-
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 363.64 -pin {{p_drive[7]} {p_drive[6]} {p_drive[5]} {p_drive[4]}}
 
 ########### PAT CONNECTIONS #############
 

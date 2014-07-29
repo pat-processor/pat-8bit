@@ -1,3 +1,76 @@
+namespace eval control {
+    namespace export waitForAny
+    variable waitForAnyKey 0
+
+    # new "vwait" that takes multiple variables and/or optional timeout
+    # usage:  waitForAny ?timeout? variable ?variable ...?
+    proc waitForAny {args} {
+        variable waitForAnyArray
+        variable waitForAnyKey
+
+        # if first arg is a number, then that is max wait time
+        if {[string is int [lindex $args 0]]} {
+            set timeout [lindex $args 0]
+            set args [lrange $args 1 end]
+        }
+
+        # create trigger script that will cause vwait to fall thru
+        # (trailing comment is to eat appended args in trace command)
+        set index "Key[incr waitForAnyKey]"
+        set trigger "[namespace code [list set waitForAnyArray($index) 1]] ;#"
+
+        # create trace to trip trigger
+        foreach var $args {
+            uplevel \#0 [list trace variable $var w $trigger]
+        }
+
+        # set timer is user requested one
+        if {[info exists timeout]} {
+            set timerId [after $timeout $trigger]
+        }
+        vwait [namespace which -variable waitForAnyArray]($index)
+
+        # remove all traces
+        foreach var $args {
+            uplevel \#0 [list trace vdelete $var w $trigger]
+        }
+
+        # cancel timer
+        if [info exists timerId] {
+            after cancel $timerId
+        }
+        # cleanup
+        unset waitForAnyArray($index)
+    }
+}
+
+
+proc pause {{message "Hit Enter to continue ==> "}} {
+    puts -nonewline $message
+    flush stdout
+    gets stdin
+}
+
+
+proc next {{message "Continue y/n?"}} {
+global interactive 
+if (!$interactive) {
+    puts $message
+    flush stdout
+    set answer [gets stdin]
+    if (![string compare $answer "n"]) { break }
+  }
+}
+
+
+## BEGIN SCRIPT
+
+puts "Set script into interactive mode? y/n"
+set answer [gets stdin]
+set interactive [string compare $answer "y"]
+
+next
+
 # load
 set defHierChar /
 set conf_gen_footprint 1
@@ -105,6 +178,8 @@ placeDesign -prePlaceOpt
 # Call the script with exact pin placements
 source patternbuffer-pin-edit.tcl
 
+# after 2000 # pause for 2s
+next "Design placed. Continue y/n"
 
 # power routing
 sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
@@ -122,6 +197,8 @@ clockDesign -specFile Clock.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 report_timing
 
+next "Clock tree synthesized. Optimize? y/n"
+
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
@@ -138,11 +215,15 @@ routeDesign -globalDetail
 timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 
+next "Design routed. Optimise? y/n"
+
 # from AMS FAQ
 optDesign -postRoute
 
 # add core filler to prevent DRC violation
-#amsFillcore 
+
+next "Design optimsed. Add filler? y/n"
+amsFillcore 
 
 
 # wroute -wdbName final.wdb

@@ -635,8 +635,9 @@ assign shlo =
 
 assign y = op_shl ? shl :
 	   op_shr ? shr : 
-	   op_shlo ? shlo :
-		asr ;
+	   shlo ;
+//	   op_shlo ? shlo :
+//		asr ;
 
 endmodule
 
@@ -738,8 +739,9 @@ assign y = op_sub ? sub_out :
 	   op_and ? and_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
-	   op_add ? add_out :
-	   op_sub ? sub_out :
+	   op_addsub ? addsubout :
+//	   op_add ? add_out :
+//	   op_sub ? sub_out :
 	   shift_out ; // any of the three shifts
 
 
