@@ -635,9 +635,8 @@ assign shlo =
 
 assign y = op_shl ? shl :
 	   op_shr ? shr : 
-	   shlo ;
-//	   op_shlo ? shlo :
-//		asr ;
+	   op_shlo ? shlo :
+		asr ;
 
 endmodule
 
