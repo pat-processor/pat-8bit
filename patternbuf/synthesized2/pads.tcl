@@ -1,8 +1,8 @@
-proc pause {{message "Hit Enter to continue ==> "}} {
-    puts -nonewline $message
-    flush stdout
-    gets stdin
-}
+source utility.tcl
+
+puts "Set script into interactive mode? y/n"
+set answer [gets stdin]
+set interactive [string compare $answer "y"]
 
 # load
 set defHierChar /
@@ -36,16 +36,15 @@ init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 # locate the components
-#floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
-#floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
+floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
 # below is smallest floorplan that doesn't crash
-floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
+#floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
 
 
 # 50% util
-#setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
+setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
 # 60% util
-setObjFPlanBox Module theCore 428.400 1335.939 1183.280 2566.480
+#setObjFPlanBox Module theCore 428.400 1335.939 1183.280 2566.480
 # 70% util
 #setObjFPlanBox Module theCore 428.400 1336.720 1093.470 2566.480
 # blockage width 750 height 750 X 635 Y 340 Layers All
@@ -154,6 +153,8 @@ addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_
 
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+next "Begin placement? y/n"
+
 # Place
 setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
 
@@ -182,19 +183,26 @@ editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
 editTrim
 #editPowerVia -via_columns 3 -bottom_layer M1 -modify_vias 1 -via_rows 1 -top_layer AM
 
+next "Begin post-power optimisation? y/n"
+
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
 #optDesign -preCTS
 
+next "Clock design? y/n"
+
 clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 #report_timing
+
+next "Post-clock opt? y/n"
 
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
+next "Begin routing? y/n"
 
 # main routing
 setNanoRouteMode -quiet -routeWithTimingDriven 1
@@ -204,10 +212,14 @@ setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
 routeDesign -globalDetail
 
+next "Post-route optimisation? y/n"
+
 # report and optimise timing
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
+
+next "Add filler? y/n"
 
 # add core filler to prevent DRC violation
 amsFillcore 
