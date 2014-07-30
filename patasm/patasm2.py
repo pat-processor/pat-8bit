@@ -118,6 +118,23 @@ def write_hexfile(mem):
 		address += 2	
 	out.close()
 
+def write_hexfile_23bit(mem):
+	out = open(output_file_name, 'w')
+	address = 0
+	while (address < len(mem)):
+		out.write('@'+str(address/2)+' ')
+		if (address + 1 < len(mem)):
+			first = int(mem[address], 16)
+			second = int(mem[address+1], 16)
+			out.write(hex(first << 23 | second)[2:])
+		else:
+			first = int(mem[address], 16)
+			second = 0
+			out.write(hex(first << 23 | second)[2:])
+		out.write("\n")
+		address += 2	
+	out.close()
+
 ##################################
 address = 0
 mem = []
@@ -174,7 +191,7 @@ for instr in input_file:
 		mem.append(emit) 
 		address += 1
 
-write_hexfile(mem)	
+write_hexfile_23bit(mem)	
 #address = 0
 #for item in mem:
 #	print(address, item)
