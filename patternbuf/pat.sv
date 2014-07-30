@@ -425,7 +425,7 @@ always @(posedge clk)
         data_write <= 1'b0 ;
         low_high_buffer <= 1'b0 ;
     end
-    else begin
+    begin
 		instruction_1 <= instruction_in ;
 		instruction_3 <= instruction_in ;
 		instruction_4 <= instruction_in ;

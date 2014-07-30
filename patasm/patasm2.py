@@ -22,7 +22,7 @@ I3_OPS = ["SHLZI", "SHLZR", "SHLOI", "SHLOR", "SHRZI", "SHRZR", "ASRI", "ASRR", 
 I3_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xb, 0xc]
 
 #i0 operators
-I0_OPS = ["NOT", "TEST", "RETURN", "NOP"]
+I0_OPS = ["NOTR", "TEST", "RETURN", "NOP"]
 I0_OPCODES = [0, 2, 3]
 
 CONDITIONS = ["Z", "NZ", "LT", "AL"]
@@ -94,9 +94,9 @@ def encode_instr(rd, fieldp, cond, opcode, shift, dest, immediate):
 	if (shift == 8):
 		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (opcode << 8) | immediate)
 	elif (shift == 4):
-		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (opcode << 4) | immediate)
+		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (0xf << 8) | (opcode << 4) | immediate)
 	else:
-		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | opcode)
+		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (0xff << 4) | opcode)
 
 
 def write_hexfile(mem):
@@ -189,6 +189,7 @@ for instr in input_file:
 		#print (cond, opcode, shift, dest, immediate, instr)
 		emit = encode_instr(rd, 0, cond, opcode, shift, dest, immediate)
 		emit = (hex(emit)[2:]).zfill(6) # to hex, pad with zeroes and lose the '0x' prefix
+		print(emit)
 		#print(emit)
 		mem.append(emit) 
 		address += 1
