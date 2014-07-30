@@ -1,3 +1,9 @@
+source utility.tcl
+
+puts "Set script into interactive mode? y/n"
+set answer [gets stdin]
+set interactive [string compare $answer "y"]
+
 # load
 set defHierChar /
 set locv_inter_clock_use_worst_derate false
@@ -30,10 +36,17 @@ init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 # locate the components
-#floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
-#floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
-floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 100 200.0
+floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
+# below is smallest floorplan that doesn't crash
+#floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
+
+
+# 50% util
 setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
+# 60% util
+#setObjFPlanBox Module theCore 428.400 1335.939 1183.280 2566.480
+# 70% util
+#setObjFPlanBox Module theCore 428.400 1336.720 1093.470 2566.480
 # blockage width 750 height 750 X 635 Y 340 Layers All
 createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {400 400 1150 1150}
 #createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
@@ -46,10 +59,10 @@ setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
 
 # Allow cut-outs!!!
 setPreference EnableRectilinearDesign 1
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2682.1700 1498.7100 2682.1700 1498.7100 297.0400 2700.0000 297.0400 2700.0000 0.0000 0.0000 0.0000
-
 setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 1269.3000 386.4400 1269.3000 386.4400 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
+
+# too small setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2636.4100 1224.8500 2636.4100 1224.8500 387.4800 2700.0000 387.4800 2700.0000 0.0000 0.0000 0.0000
+
 
 
 setOaxMode -compressLevel 0
@@ -57,7 +70,38 @@ setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
 
-createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
+createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_
+
+
+# ams scripts
+amsUserGrid
+# connect power (both if with I/O), "core" if not
+#amsGlobalConnect both
+amsGlobalConnect both
+#amsHVringBlk corebox
+amsHVringBlk corebox 10 70
+
+globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
+globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
+globalNetConnect vdd1v8o! -type pgpin -pin vdd1v8o! -inst * -module {}
+globalNetConnect por1v8r! -type pgpin -pin por1v8r! -inst * -module {}
+globalNetConnect trig1v8! -type pgpin -pin trig1v8! -inst * -module {}
+
+globalNetConnect gnd1v8l! -type pgpin -pin gnd1v8l! -inst * -module {}
+globalNetConnect gnd1v8r! -type pgpin -pin gnd1v8r! -inst * -module {}
+globalNetConnect gnd1v8o! -type pgpin -pin gnd1v8o! -inst * -module {}
+globalNetConnect subc1v8! -type pgpin -pin subc1v8! -inst * -module {}
+
+globalNetConnect vdd! -type pgpin -pin vdd! -inst * -module {}
+globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
+
+
+selectObject Module theCore
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 4.9
+
+addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
+
+high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 
 createPinGroup patternbuffer_low -cell pads -pin {pwm_low reset_patternbuf_low field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
 
@@ -109,6 +153,8 @@ addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_
 
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+next "Begin placement? y/n"
+
 # Place
 setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
 
@@ -137,19 +183,26 @@ editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
 editTrim
 #editPowerVia -via_columns 3 -bottom_layer M1 -modify_vias 1 -via_rows 1 -top_layer AM
 
+next "Begin post-power optimisation? y/n"
+
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
 #optDesign -preCTS
 
+next "Clock design? y/n"
+
 clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 #report_timing
+
+next "Post-clock opt? y/n"
 
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
+next "Begin routing? y/n"
 
 # main routing
 setNanoRouteMode -quiet -routeWithTimingDriven 1
@@ -159,10 +212,14 @@ setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
 routeDesign -globalDetail
 
+next "Post-route optimisation? y/n"
+
 # report and optimise timing
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
+
+next "Add filler? y/n"
 
 # add core filler to prevent DRC violation
 amsFillcore 

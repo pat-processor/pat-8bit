@@ -41,7 +41,6 @@ reg [i_width-1:0] instruction_1 ;
 reg [i_width-1:0] instruction_3 ; // duplicate for FO optimisation
 reg [i_width-1:0] instruction_4 ; // duplicate for FO optimisation
 
-reg [d_width-1:0] acc ; // the main accumulator
 reg [d_adr_width-1:0] sp ; // stack pointer
 reg z ; // zero flag
 reg n ; // neg flag
@@ -168,6 +167,10 @@ reg [7:0] immediate_i8_regd ;
 reg [7:0] immediate_pc ;
 reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
+reg [d_width-1:0] immediate_value_2 ;
+reg [d_width-1:0] source1_value ;
+reg [d_width-1:0] source2_value ;
+reg [d_width-1:0] source2_value_2 ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -204,7 +207,12 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 
-		immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
+		immediate_value <= immediate_i_all ;
+		immediate_value_2 <= immediate_i_all ;
+		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ;
+		source2_value <= (source_imm) ? immediate_i_all : data_in ;
+		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
@@ -276,8 +284,6 @@ reg [d_width-1:0] data_regd_2 ;
 
 assign data_read_adr = Rn ;
 assign data_write_adr = Rd_2 ;
-// TODO: Consider role of op_lda
-//assign data_read_adr = (op_lda) ? acc : (op_ldsp) ? sp : immediate_i8 ;
 
 data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in) ;
 
@@ -309,26 +315,30 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 // instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] acc_alu_a ;
 wire [d_width-1:0] acc_alu_b ;
+wire [d_width-1:0] acc_alu_b_2 ;
 wire [d_width-1:0] acc_alu_y ;
 
 wire [d_width-1:0] imm_alu_a ;
 wire [d_width-1:0] imm_alu_b ;
+wire [d_width-1:0] imm_alu_b_2 ;
 wire [d_width-1:0] imm_alu_y ;
 
 wire [d_width-1:0] result ;
 
 
 assign acc_alu_a = data_out ;
-assign acc_alu_b = data_regd ; // allows shift by Rd
+assign acc_alu_b = source2_value ; // allows shift by Rd
+assign acc_alu_b_2 = source2_value_2 ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
-assign imm_alu_a = data_regd_2 ;
+assign imm_alu_b_2 = immediate_value_2 ; // immediates for shift must come in on b
+assign imm_alu_a = source1_value ;
 
 assign result = source_immediate ? imm_alu_y : acc_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
+alu accALU(acc_alu_a, acc_alu_b, acc_alu_b_2, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_b_2, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
 
 // END ALUS
@@ -372,8 +382,8 @@ task updateFlags() ;
 		end
 		else
 		begin
-			z <= (acc == 0) ;
-			n <= (acc[d_width-1] == 1) ;
+			z <= (data_out == 0) ;
+			n <= (data_out[d_width-1] == 1) ;
 		end
 	end
 endtask
@@ -401,9 +411,6 @@ task registerOutput ;
 		// TODO: Replace the case statement
 		// when multiple outputs are connected up.
 			outputs[0] <= data_out ;
-			//3'b001: outputs[0] <= acc ;
-			//3'b010: outputs[1] <= acc ;
-			//3'b100: outputs[2] <= acc ;
 		//endcase
 	end
 endtask
@@ -608,13 +615,16 @@ output [d_width-1:0] y ;
 wire [d_width-1:0] shl ;
 wire [d_width-1:0] shlo ;
 wire [d_width-1:0] shr ;
-wire [d_width-1:0] asr ;
+wire [d_width-1:0] shro ;
+//wire [d_width-1:0] asr ;
 
+// Shift by 1--4
 assign shl = a << (b+1) ;
 assign shr = a >> (b+1) ;
-assign asr = a >>> (b+1) ;
+//assign asr = a >>> (b+1) ;
 
 assign shlo =
+//	(b == 0) ? (a << 0) :
 	(b == 0) ? (a << 1) | {1{1'b1}} :
 	(b == 1) ? (a << 2) | {2{1'b1}} :
 	(b == 2) ? (a << 3) | {3{1'b1}} :
@@ -624,10 +634,16 @@ assign shlo =
 //	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
+assign shro = 
+	(b == 0) ? 8'b10000000 | (a >> 1) :
+	(b == 1) ? 8'b11000000 | (a >> 2) :
+	(b == 2) ? 8'b11100000 | (a >> 3) :
+	           8'b11110000 | (a >> 4) ;
+
 assign y = op_shl ? shl :
-	   op_shr ? shr :
+	   op_shr ? shr : 
 	   op_shlo ? shlo :
-		asr ;
+		shro ;
 
 endmodule
 
@@ -681,12 +697,13 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_asr) ;
+module alu(a, b, b_2, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_asr) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
 input [d_width-1:0] b ;
+input [d_width-1:0] b_2 ;
 input op_or, op_and, op_not ;
 input op_add, op_sub, op_addsub ;
 input op_shl, op_shlo, op_shr, op_asr ;
@@ -700,7 +717,7 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b[2:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
+shifter theShifter(a, b_2[1:0], shift_out, op_shl, op_shlo, op_shr, op_asr) ;
 adder theAdder(a, b, add_out) ;
 subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
@@ -726,9 +743,11 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 assign y = op_sub ? sub_out :
            op_add ? add_out :
 	   op_and ? and_out :
+	   op_or  ? or_out :
 	   op_not ? neg_out :
-	   op_add ? add_out :
-	   op_sub ? sub_out :
+	   op_addsub ? addsubout :
+//	   op_add ? add_out :
+//	   op_sub ? sub_out :
 	   shift_out ; // any of the three shifts
 
 
@@ -743,7 +762,7 @@ assign y = op_sub ? sub_out :
 endmodule
 
 module data_mem(clk, data_read_adr, data_write_adr, data_write, data_in, data_out) ;
-parameter d_adr_width = 4 ; // data address space size
+parameter d_adr_width = 3 ; // data address space size
 parameter d_width = 8 ; // data width
 parameter dmemsize = 8 ;
 
