@@ -169,7 +169,7 @@ for instr in input_file:
 		dest = get_dest(instr)
 		#print (cond, opcode, shift, dest, immediate, instr)
 		emit = encode_instr(rd, 0, cond, opcode, shift, dest, immediate)
-		emit = (hex(emit)[2:]).zfill(5) # to hex, pad with zeroes and lose the '0x' prefix
+		emit = (hex(emit)[2:]).zfill(6) # to hex, pad with zeroes and lose the '0x' prefix
 		#print(emit)
 		mem.append(emit) 
 		address += 1

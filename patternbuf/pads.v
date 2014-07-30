@@ -96,7 +96,7 @@ wire io_b_msb_input_enable ;
 wire io_b_lsb_output_enable ;
 wire io_b_msb_output_enable ;
 
-wire reset ; 
+wire reset ;
 wire modesel_0 ;
 wire modesel_1 ;
 wire clock_out ;
@@ -146,7 +146,7 @@ output f5v_select ;
 
 // IOPads: .VDDLOGIC1 and .VDDLOGIC0 are outputs
 //
-// Also available: Analogue pads with only "PAD" and "Z" pins: 
+// Also available: Analogue pads with only "PAD" and "Z" pins:
 // APRIO1V8_00{'', _HC, _VHC}, APRIO1V8_1k4, APRIO1V8_200, APRIO1V8_500, APRIO1V8_50
 //
 // PE: pull-enable: open pad to be pulled to zero/one (state of pin A). 100kOhm
@@ -247,11 +247,11 @@ wire[7:0] outputs ;
 assign sout = (s_low_high) ? sout_high : sout_low ;
 
 // set one for pull up behaviour of resets (b0--b3 are inputs in DEBUG mode)
-assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[0] ; 
+assign io_b0_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[0] ;
 assign io_b1_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[1] ;
 assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[2] ;
 assign io_b3_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[3] ;
-assign io_b4_out = (mode == `MODE_DEBUG) ? sout : outputs[4] ; 
+assign io_b4_out = (mode == `MODE_DEBUG) ? sout : outputs[4] ;
 assign io_b5_out = outputs[5] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
 assign io_b6_out = outputs[6] ;
 assign io_b7_out = outputs[7] ;
@@ -355,21 +355,24 @@ assign io_b_msb_output_enable = vdd_logic1 ;
 // iMem initialisation
 
 
-reg [49:0] input_shifter ;
+reg [57:0] input_shifter ;
 wire [9:0] imem_write_adr ;
-wire [39:0] imem_in ;
+wire [45:0] imem_in ;
 
 reg imem_clock_prev ;
 // shift data address and value to write in on port a if the imem_clock has made a +ve transition
 always @(posedge clk_int) begin
 	imem_clock_prev <= imem_clock_synched ;
 	if (imem_clock_synched && !imem_clock_prev) begin
-	   input_shifter <= (input_shifter[41:0] << 8) | inputs_a_synched ;
+	   input_shifter <= (input_shifter[49:0] << 8) | inputs_a_synched ;
 	end
 end
 
-assign imem_write_adr = input_shifter[49:40] ;
-assign imem_in = input_shifter[39:0] ;
+assign imem_write_adr = input_shifter[57:48] ;
+// Configure so that we sift in as 24-bit patterns,
+// but memory is internally only 23-bits
+// so produce a 46 not 48 bit output
+assign imem_in = {input_shifter[46:24], input_shifter[22:0]} ;
 
 
 
