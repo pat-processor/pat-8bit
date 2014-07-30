@@ -210,7 +210,7 @@ task reg_instr ;
 		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
-		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ;
+		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : (op_ldi) ? 8'b0 : data_in ;
 		source2_value <= (source_imm) ? immediate_i_all : data_in ;
 		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
@@ -231,10 +231,10 @@ reg op_not_regd, op_test_regd, op_return_regd, op_nop_regd ;
 
 task reg_ops ;
 	begin
-	        Rd_1 <= Rn ;
-                Rd_2 <= Rd_1 ;
+	    Rd_1 <= Rn ;
+        Rd_2 <= Rd_1 ;
 		field_op_regd <= field_op ;
-		op_or_regd <= op_ori | op_orr ;
+		op_or_regd <= op_ori | op_orr | op_ldi ; // ldi is OR with 0
 		op_and_regd <= op_andi | op_andr ;
 		op_add_regd <= op_addi | op_addr ;
 		op_sub_regd <= op_subi | op_subr ;
