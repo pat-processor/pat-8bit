@@ -122,15 +122,15 @@ def write_hexfile_23bit(mem):
 	out = open(output_file_name, 'w')
 	address = 0
 	while (address < len(mem)):
-		out.write('@'+str(address/2)+' ')
+		out.write('@'+str(int(address/2))+' ')
 		if (address + 1 < len(mem)):
 			first = int(mem[address], 16)
 			second = int(mem[address+1], 16)
-			out.write(hex(first << 23 | second)[2:])
+			out.write((hex(first << 23 | second)[2:]).zfill(12))
 		else:
 			first = int(mem[address], 16)
 			second = 0
-			out.write(hex(first << 23 | second)[2:])
+			out.write((hex(first << 23 | second)[2:]).zfill(12))
 		out.write("\n")
 		address += 2	
 	out.close()
