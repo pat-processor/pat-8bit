@@ -156,6 +156,8 @@ for instr in input_file:
 	if len(tokens) > 2:
 		immediate = tokens[2]
 		immediate.strip()
+	else:
+		immediate = "240" ; # immediate unused in this instruction format
 
 	if (instr.startswith(':')): # labels start with ':' and are all alpha
 		instr = instr.strip(':')

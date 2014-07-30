@@ -172,6 +172,7 @@ reg [d_width-1:0] immediate_value_2 ;
 reg [d_width-1:0] source1_value ;
 reg [d_width-1:0] source2_value ;
 reg [d_width-1:0] source2_value_2 ;
+reg source_immediate ;
 wire [d_width-1:0] field_value_muxd ;
 
 wire [d_width-1:0] immediate_i_all ;
@@ -212,8 +213,8 @@ task reg_instr ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
 		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : (op_ldi) ? 8'b0 : data_in ;
-		source2_value <= (source2_imm) ? immediate_i_all : data_in ;
-		source2_value_2 <= (source2_imm) ? immediate_i_all : data_in ;
+		source2_value <= (source_imm) ? immediate_i_all : data_in ;
+		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
@@ -259,7 +260,6 @@ task reg_ops ;
 endtask
 
 
-reg source_immediate ;
 reg dest_reg_regd  ;
 reg dest_field_regd ;
 reg dest_pc_regd ;
@@ -314,10 +314,10 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 // =====================================================================
 
 // instantiate two ALUs to speed up by preventing input MUX
-wire [d_width-1:0] acc_alu_a ;
-wire [d_width-1:0] acc_alu_b ;
-wire [d_width-1:0] acc_alu_b_2 ;
-wire [d_width-1:0] acc_alu_y ;
+wire [d_width-1:0] reg_alu_a ;
+wire [d_width-1:0] reg_alu_b ;
+wire [d_width-1:0] reg_alu_b_2 ;
+wire [d_width-1:0] reg_alu_y ;
 
 wire [d_width-1:0] imm_alu_a ;
 wire [d_width-1:0] imm_alu_b ;
@@ -327,17 +327,17 @@ wire [d_width-1:0] imm_alu_y ;
 wire [d_width-1:0] result ;
 
 
-assign acc_alu_a = data_out ;
-assign acc_alu_b = source2_value ; // allows shift by Rd
-assign acc_alu_b_2 = source2_value_2 ; // allows shift by Rd
+assign reg_alu_a = data_out ;
+assign reg_alu_b = source2_value ; // allows shift by Rd
+assign reg_alu_b_2 = source2_value_2 ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
 assign imm_alu_b_2 = immediate_value_2 ; // immediates for shift must come in on b
 assign imm_alu_a = source1_value ;
 
-assign result = source_immediate ? imm_alu_y : acc_alu_y ;
+assign result = source_immediate ? imm_alu_y : reg_alu_y ;
 
-alu accALU(acc_alu_a, acc_alu_b, acc_alu_b_2, acc_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
+alu accALU(reg_alu_a, reg_alu_b, reg_alu_b_2, reg_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
 alu immALU(imm_alu_a, imm_alu_b, imm_alu_b_2, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_asr_regd) ;
 
