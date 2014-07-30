@@ -135,13 +135,13 @@ assign op_setb =(opcode_i3 == 4'b1100) && i_t_i3 ;
 // 4'b1111 is i0 prefix
 
 // i0 operations
-wire op_not, op_mov, op_test, op_return, op_nop ;
+wire op_not, op_test, op_return, op_nop ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
 //assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
-assign op_nop = (opcode_i0 == 4'b1111) && i_t_i0 ;
+assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 
 // operation type selection
 wire source_field, source_imm, source_in ;
@@ -418,7 +418,13 @@ endtask
 
 assign jump = jump_forward | jump_return ;
 always @(posedge clk)
-	begin
+    if (reset)
+    begin
+        jumping <= 1'b1 ;
+        bubbles <= `NOPIPELINEBUBBLES ;
+        data_write <= 1'b0 ;
+    end
+    else begin
 		instruction_1 <= instruction_in ;
 		instruction_3 <= instruction_in ;
 		instruction_4 <= instruction_in ;
@@ -634,14 +640,14 @@ assign shlo =
 //	(a << 7) | {7{1'b1}} ; // b == 7 case
 
 
-assign shro = 
+assign shro =
 	(b == 0) ? 8'b10000000 | (a >> 1) :
 	(b == 1) ? 8'b11000000 | (a >> 2) :
 	(b == 2) ? 8'b11100000 | (a >> 3) :
 	           8'b11110000 | (a >> 4) ;
 
 assign y = op_shl ? shl :
-	   op_shr ? shr : 
+	   op_shr ? shr :
 	   op_shlo ? shlo :
 		shro ;
 
