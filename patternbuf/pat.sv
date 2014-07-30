@@ -375,10 +375,18 @@ task getData() ;
 endtask
 
 task updateFlags() ;
-	begin
-		z <= (data_out == 0) ;
-		n <= (data_out[d_width-1] == 1) ;
-	end
+    begin
+        if (field_op_regd)
+        begin
+            z <= (field_value_muxd == 0) ;
+            n <= (field_value_muxd[d_width-1] == 1) ;
+        end
+        else
+        begin
+            z <= (data_out == 0) ;
+            n <= (data_out[d_width-1] == 1) ;
+        end
+    end
 endtask
 
 `define COND_Z 0 // zero
