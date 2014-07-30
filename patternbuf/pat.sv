@@ -376,16 +376,8 @@ endtask
 
 task updateFlags() ;
 	begin
-		if (field_op_regd)
-		begin
-			z <= (field_value_muxd == 0) ;
-			n <= (field_value_muxd[d_width-1] == 1) ;
-		end
-		else
-		begin
-			z <= (data_out == 0) ;
-			n <= (data_out[d_width-1] == 1) ;
-		end
+		z <= (data_out == 0) ;
+		n <= (data_out[d_width-1] == 1) ;
 	end
 endtask
 
@@ -419,6 +411,7 @@ endtask
 
 assign jump = jump_forward | jump_return ;
 always @(posedge clk)
+begin
     if (reset)
     begin
         jumping <= 1'b1 ;
@@ -426,7 +419,6 @@ always @(posedge clk)
         data_write <= 1'b0 ;
         low_high_buffer <= 1'b0 ;
     end
-    else begin
 		instruction_1 <= instruction_in ;
 		instruction_3 <= instruction_in ;
 		instruction_4 <= instruction_in ;

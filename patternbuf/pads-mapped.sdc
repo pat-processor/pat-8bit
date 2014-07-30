@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Tue Jul 29 18:46:09 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Wed Jul 30 16:30:59 +0100 2014
 
 # ####################################################################
 
@@ -63,55 +63,61 @@ set_multicycle_path -from [list \
   [get_ports pad_vref_select]  \
   [get_ports pad_f5v_select] ] -setup -end 4
 set_multicycle_path -from [list \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[0]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[1]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[2]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[3]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[4]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[5]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[6]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[7]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[8]}] ] -to [list \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][0]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][10]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][11]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][12]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][13]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][14]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][15]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][16]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][17]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][18]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][19]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][1]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][2]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][3]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][4]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][5]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][6]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][7]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][8]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[0][9]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][0]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][10]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][11]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][12]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][13]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][14]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][15]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][16]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][17]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][18]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][19]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][1]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][2]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][3]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][4]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][5]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][6]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][7]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][8]}]  \
-  [get_cells {theCore/iBuffer_i_buffer_reg[1][9]}] ] -setup -end 2
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[0]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[1]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[2]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[3]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[4]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[5]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[6]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[7]}]  \
+  [get_cells {theCore_thePAT/thePC/pc_out_reg[8]}] ] -to [list \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][0]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][10]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][11]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][12]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][13]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][14]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][15]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][16]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][17]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][18]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][19]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][1]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][20]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][21]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][22]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][2]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][3]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][4]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][5]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][6]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][7]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][8]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[0][9]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][0]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][10]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][11]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][12]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][13]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][14]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][15]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][16]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][17]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][18]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][19]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][1]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][20]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][21]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][22]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][2]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][3]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][4]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][5]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][6]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][7]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][8]}]  \
+  [get_cells {theCore_iBuffer/i_buffer_reg[1][9]}] ] -setup -end 2
 set_clock_gating_check -setup 0.0 
 set_ideal_network [get_ports pad_modesel_0]
 set_ideal_network [get_pins iopad_modesel_0/Y]
