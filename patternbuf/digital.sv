@@ -3,7 +3,7 @@ bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, f
 
 parameter d_width = 8 ;
 parameter i_adr_width = 10 ;
-parameter i_width = 20 ; // instruction width
+parameter i_width = 23 ; // instruction width
 parameter i_buffer_size = 2 ;
 parameter bufp_width = 3 ;
 parameter fieldp_width = 5 ;
