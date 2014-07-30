@@ -144,11 +144,12 @@ assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
 
 // operation type selection
-wire source_field, source_imm, source_in ;
+wire source_field, source_imm, source2_imm, source_in ;
 wire dest_reg, dest_field, dest_pc, dest_out, dest_null ;
 
 assign source_field = field_op ;
 assign source_imm = (i_t_i8 && (opcode_i8[0] == 0)) | (i_t_i3 && (opcode_i3[0] == 0)) ;
+assign source2_imm = !(op_shlzr | op_shlor | op_shrzr | op_asrr) ;
 assign source_in = op_in ;
 
 
@@ -211,8 +212,8 @@ task reg_instr ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
 		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : (op_ldi) ? 8'b0 : data_in ;
-		source2_value <= (source_imm) ? immediate_i_all : data_in ;
-		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
+		source2_value <= (source2_imm) ? immediate_i_all : data_in ;
+		source2_value_2 <= (source2_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
@@ -423,6 +424,7 @@ always @(posedge clk)
         jumping <= 1'b1 ;
         bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
+        low_high_buffer <= 1'b0 ;
     end
     else begin
 		instruction_1 <= instruction_in ;

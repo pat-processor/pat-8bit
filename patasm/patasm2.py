@@ -25,7 +25,7 @@ I3_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xb, 0xc]
 I0_OPS = ["NOT", "TEST", "RETURN", "NOP"]
 I0_OPCODES = [0, 2, 3]
 
-CONDITIONS = ["Z", "LT", "GT", "AL"]
+CONDITIONS = ["Z", "NZ", "LT", "AL"]
 COND_CODES = [0, 1, 2, 3]
 
 
@@ -69,7 +69,7 @@ def get_opcode(instr):
 		i+=1
 
 def is_branch(instr):
-	return instr.startswith("B") or instr.startswith("ZB") or instr.startswith("ALB") or instr.startswith("LTB") or instr.startswith("GTB")
+	return instr.startswith("B") or instr.startswith("ZB") or instr.startswith("ALB") or instr.startswith("NZB") or instr.startswith("LT")
 
 def calculate_branch(address, immediate):
 	offset = immediate - address
@@ -126,11 +126,11 @@ def write_hexfile_23bit(mem):
 		if (address + 1 < len(mem)):
 			first = int(mem[address], 16)
 			second = int(mem[address+1], 16)
-			out.write((hex(first << 23 | second)[2:]).zfill(12))
+			out.write((hex(second << 23 | first)[2:]).zfill(12))
 		else:
 			first = int(mem[address], 16)
 			second = 0
-			out.write((hex(first << 23 | second)[2:]).zfill(12))
+			out.write((hex(first)[2:]).zfill(12))
 		out.write("\n")
 		address += 2	
 	out.close()
