@@ -302,7 +302,7 @@ reg [2:0] bubbles ;
 reg jumping ;
 reg jump_forward ;
 reg jump_return ;
-`define NOPIPELINEBUBBLES 4
+`define NOPIPELINEBUBBLES 5
 
 program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ;
 

@@ -72,14 +72,14 @@ def is_branch(instr):
 	return instr.startswith("B") or instr.startswith("ZB") or instr.startswith("ALB") or instr.startswith("NZB") or instr.startswith("LT")
 
 def calculate_branch(address, immediate):
-	offset = immediate - address
+	offset = (immediate - address) - 6
 	if (offset >= 0):
 		print("Branch forward by:", offset)
 		return (offset, "BF")
 	else:
-		offset = abs(offset)
-		print("Branch backward by:", offset)
-		return (offset, "BB")
+		offset = offset & 0xff ; # byte conversion
+		print("Branch backward by:", 256 - offset)
+		return (offset, "BF")
 
 
 # see if the destination is a field or the acc
