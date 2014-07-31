@@ -440,8 +440,6 @@ begin
 		//updateFlags() ; // Having this regd means two cycles of
 		//match, which gives unexpected execution results.
 
-		data_out <= result ;
-		field_out <= result ;
 
 		if (bubbles > 0) begin
 			bubbles <= bubbles - 1 ;
@@ -455,6 +453,11 @@ begin
 
 	if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
 	begin
+        // commit the result
+        data_out <= result ;
+        // field_out has seperate write signals, so can always update if desired
+        field_out <= result ;
+
 		if (dest_pc_regd) begin
 			if (op_return_regd) begin
 				jump_return <= 1'b1 ;
