@@ -1,6 +1,6 @@
 ######################################################################
 
-# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Jul 31 22:59:35 +0100 2014
+# Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Jul 31 23:21:20 +0100 2014
 
 # This file contains the RC script for /designs/pads
 
@@ -13,7 +13,7 @@ set_attribute -quiet hdl_track_filename_row_col true /
 set_attribute -quiet dp_postmap_upsize true /
 set_attribute -quiet optimize_merge_flops false /
 set_attribute -quiet dft_prefix SCAN_ /
-set_attribute -quiet break_timing_paths true /designs/pads/instances_comb/g1478/pins_in/S
+set_attribute -quiet break_timing_paths true /designs/pads/instances_comb/g1474/pins_in/S
 set_attribute -quiet ple_correlation_factors {1.9000 2.0000} /
 set_attribute -quiet maximum_interval_of_vias infinity /
 set_attribute -quiet interconnect_mode wireload /
@@ -26,7 +26,7 @@ set_attribute -quiet tree_type balanced_tree /libraries/h18_IOLIB_HV_TYP/operati
 # BEGIN MSV SECTION
 # END MSV SECTION
 define_clock -name clk -domain domain_1 -period 1000.0 -divide_period 1 -rise 0 -divide_rise 1 -fall 1 -divide_fall 2 -design /designs/pads /designs/pads/ports_in/clk_int
-external_delay -accumulate -output {no_value no_value 0.0 0.0} -clock /designs/pads/timing/clock_domains/domain_1/clk -edge_fall -name clk_gating_check_1 /designs/pads/instances_comb/g1478/pins_in/S
+external_delay -accumulate -output {no_value no_value 0.0 0.0} -clock /designs/pads/timing/clock_domains/domain_1/clk -edge_fall -name clk_gating_check_1 /designs/pads/instances_comb/g1474/pins_in/S
 set_attribute -quiet clock_network_latency_included true /designs/pads/timing/external_delays/clk_gating_check_1
 set_attribute -quiet clock_source_latency_included true /designs/pads/timing/external_delays/clk_gating_check_1
 multi_cycle -paths [specify_paths -lenient -from {/designs/pads/ports_in/clk_int /designs/pads/ports_in/sout_low /designs/pads/ports_in/sout_high {/designs/pads/ports_in/field_toPAT_low[7]} {/designs/pads/ports_in/field_toPAT_low[6]} {/designs/pads/ports_in/field_toPAT_low[5]} {/designs/pads/ports_in/field_toPAT_low[4]} {/designs/pads/ports_in/field_toPAT_low[3]} {/designs/pads/ports_in/field_toPAT_low[2]} {/designs/pads/ports_in/field_toPAT_low[1]} {/designs/pads/ports_in/field_toPAT_low[0]} {/designs/pads/ports_in/field_toPAT_high[7]} {/designs/pads/ports_in/field_toPAT_high[6]} {/designs/pads/ports_in/field_toPAT_high[5]} {/designs/pads/ports_in/field_toPAT_high[4]} {/designs/pads/ports_in/field_toPAT_high[3]} {/designs/pads/ports_in/field_toPAT_high[2]} {/designs/pads/ports_in/field_toPAT_high[1]} {/designs/pads/ports_in/field_toPAT_high[0]} /designs/pads/ports_in/pad_vdd_core /designs/pads/ports_in/pad_gnd_core /designs/pads/ports_in/pad_vdd_1v8_all /designs/pads/ports_in/pad_gnd_all /designs/pads/ports_in/pad_clock_out /designs/pads/ports_in/pad_clock_in /designs/pads/ports_in/pad_pwm_high /designs/pads/ports_in/pad_pwm_low /designs/pads/ports_in/pad_modesel_0 /designs/pads/ports_in/pad_modesel_1 /designs/pads/ports_in/pad_io_a0 /designs/pads/ports_in/pad_io_a1 /designs/pads/ports_in/pad_io_a2 /designs/pads/ports_in/pad_io_a3 /designs/pads/ports_in/pad_io_a4 /designs/pads/ports_in/pad_io_a5 /designs/pads/ports_in/pad_io_a6 /designs/pads/ports_in/pad_io_a7 /designs/pads/ports_in/pad_io_b0 /designs/pads/ports_in/pad_io_b1 /designs/pads/ports_in/pad_io_b2 /designs/pads/ports_in/pad_io_b3 /designs/pads/ports_in/pad_io_b4 /designs/pads/ports_in/pad_io_b5 /designs/pads/ports_in/pad_io_b6 /designs/pads/ports_in/pad_io_b7 /designs/pads/ports_in/pad_clock_select /designs/pads/ports_in/pad_vref_select /designs/pads/ports_in/pad_f5v_select}]  -launch_shift 0 -capture_shift 4 -name mc_1 -setup -user_priority -999424
