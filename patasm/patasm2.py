@@ -14,7 +14,7 @@ input_file = open(input_file_name, 'r')
 output_file_name = 'pat.hex'
 
 # i8 operators
-I8_OPS = ["ORI", "ORR", "ANDI", "ANDR", "ADDI", "ADDR", "SUBI", "SUBR", "LDIR", "BF", "CALL"] 
+I8_OPS = ["ORI", "ORR", "ANDI", "ANDR", "ADDI", "ADDR", "SUBI", "SUBR", "LDI", "BF", "CALL"] 
 I8_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xd, 0xe]
 
 #i3 operators
@@ -23,7 +23,7 @@ I3_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xb, 0xc]
 
 #i0 operators
 I0_OPS = ["NOTR", "TEST", "RETURN", "NOP"]
-I0_OPCODES = [0, 2, 3]
+I0_OPCODES = [0, 2, 3, 5]
 
 CONDITIONS = ["Z", "NZ", "LT", "AL"]
 COND_CODES = [0, 1, 2, 3]
@@ -142,6 +142,8 @@ labels = {}
 
 for instr in input_file:
 	# assert 
+	if (instr.startswith('#')): # comment
+		continue
 	print(instr)
 	tokens = instr.split()
 #	for t in tokens:
@@ -153,6 +155,8 @@ for instr in input_file:
 		print("Rd is", rd, ", ",  end="")
 		rd = rd[1:] # strip 'r'
 		rd = int(rd)
+	else:
+		rd = 0
 	if len(tokens) > 2:
 		immediate = tokens[2]
 		immediate.strip()
