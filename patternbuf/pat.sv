@@ -211,7 +211,7 @@ task reg_instr ;
 		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
-		source1_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : (op_ldi) ? 8'b0 : data_in ;
+		source1_value <= (op_ldi) ? 8'h00 : (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ; // order important - op_ldi applies to field too
 		source2_value <= (source_imm) ? immediate_i_all : data_in ;
 		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
