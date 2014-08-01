@@ -190,7 +190,28 @@ function [7:0] selectInput ;
 end
 endfunction
 
+reg [2:0] bubbles ;
+reg jumping ;
+reg jump_forward ;
+reg jump_return ;
+`define NOPIPELINEBUBBLES 5
 
+`define COND_Z 0 // zero
+`define COND_NZ 1 // not-zero
+`define COND_N 2 // negative
+`define COND_AL 3 // always
+
+reg execute_next ;
+task precompute_condition ;
+    begin
+        case (condition)
+            `COND_Z: execute_next <= z & ~jumping;
+            `COND_NZ: execute_next <= ~z & ~jumping;
+            `COND_N: execute_next <= n & ~jumping;
+            `COND_AL: execute_next <= ~jumping ;
+        endcase
+    end
+endtask
 
 assign field_value_muxd = (low_high_buffer) ?  field_in_high : field_in_low ;
 wire [d_width-1:0] data_in ;
@@ -298,12 +319,6 @@ wire [i_adr_width-1:0] return_address ;
 //assign pc_immediate = instruction_2[7:0] ; // immediate_i8 ;
 //assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
 
-reg [2:0] bubbles ;
-reg jumping ;
-reg jump_forward ;
-reg jump_return ;
-`define NOPIPELINEBUBBLES 5
-
 program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ;
 
 // * End program counter *
@@ -388,10 +403,6 @@ task updateFlags() ;
     end
 endtask
 
-`define COND_Z 0 // zero
-`define COND_NZ 1 // not-zero
-`define COND_N 2 // negative
-`define COND_AL 3 // always
 
 function checkCondition ;
 	input [3:0] cond_decoded ;
@@ -452,7 +463,8 @@ begin
 			jumping <= 1'b0 ;
 		end
 
-	if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
+    //if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
+    if (execute_next) //TODO: Restore conditionality
 	begin
         // commit the result
         data_out <= result ;
