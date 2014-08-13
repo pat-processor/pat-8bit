@@ -752,8 +752,9 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 ////sub_out   op_addsub ? addsubout :
 //addsubout   shift_out ; // any of the three shifts
 
-assign y = op_sub ? sub_out :
-           op_add ? add_out :
+assign y = 
+//op_sub ? sub_out :
+// op_add ? add_out :
 	   op_and ? and_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
