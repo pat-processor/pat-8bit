@@ -49,6 +49,7 @@ reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
 reg [d_width-1:0] data_out ;
+reg [d_width-1:0] data_out_2 ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
@@ -159,8 +160,6 @@ assign dest_pc = op_bf | op_call | op_return ;
 assign dest_field = field_op && !(dest_out | dest_null | dest_pc) ;
 assign dest_reg = !field_op && !(dest_out | dest_null | dest_pc) ;
 
-// register f
-// immediate_pc <= immediate_i8_regd ; // delay a further cycle for PCor next stage of the pipeline
 reg [3:0] immediate_bufp_regd ;
 reg [d_width-1:0] immediate_all_regd ;
 reg [7:0] immediate_i8_regd ;
@@ -169,6 +168,7 @@ reg [3:0] condition_decoded ;
 reg [d_width-1:0] immediate_value ;
 reg [d_width-1:0] immediate_value_2 ;
 reg [d_width-1:0] source1_value ;
+reg [d_width-1:0] source1_value_2 ;
 reg [d_width-1:0] source2_value ;
 reg [d_width-1:0] source2_value_2 ;
 reg source_immediate ;
@@ -229,7 +229,6 @@ task reg_instr ;
 			3: condition_decoded <= 4'b1000 ;
 		endcase
 
-		//immediate_value <= (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : immediate_i_all ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
 		source1_value <= (op_ldi) ? 8'h00 : (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ; // order important - op_ldi applies to field too
@@ -260,7 +259,7 @@ task reg_ops ;
 		op_and_regd <= op_andi | op_andr ;
 		op_add_regd <= op_addi | op_addr ;
 		op_sub_regd <= op_subi | op_subr ;
-        op_addsub_regd <= op_addi | op_addr | op_subi | op_subr ;
+	        op_addsub_regd <= op_addi | op_addr | op_subi | op_subr ;
 		op_ldi_regd <= op_ldi ;
 		op_setsp_regd <= op_setsp ;
 		op_bf_regd <= op_bf ;
@@ -316,9 +315,6 @@ data_mem dmem(clk, data_read_adr, data_write_adr, data_write, data_out, data_in)
 wire [d_width-1:0] pc_immediate ;
 wire [i_adr_width-1:0] return_address ;
 
-//assign pc_immediate = instruction_2[7:0] ; // immediate_i8 ;
-//assign return_address = (op_return) ? call_stack[call_stack_pointer] : immediate_i8 ;
-
 program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, op_call_regd) ;
 
 // * End program counter *
@@ -329,11 +325,12 @@ program_counter thePC(clk, reset, pc, immediate_pc, jump_forward, jump_return, o
 
 // instantiate two ALUs to speed up by preventing input MUX
 wire [d_width-1:0] reg_alu_a ;
+wire [d_width-1:0] reg_alu_a_2 ;
 wire [d_width-1:0] reg_alu_b ;
 wire [d_width-1:0] reg_alu_b_2 ;
 wire [d_width-1:0] reg_alu_y ;
 
-wire [d_width-1:0] imm_alu_a ;
+wire [d_width-1:0] imm_alu_a_2 ;
 wire [d_width-1:0] imm_alu_b ;
 wire [d_width-1:0] imm_alu_b_2 ;
 wire [d_width-1:0] imm_alu_y ;
@@ -342,18 +339,20 @@ wire [d_width-1:0] result ;
 
 
 assign reg_alu_a = data_out ;
+assign reg_alu_a_2 = field_out ; // = data_out
 assign reg_alu_b = source2_value ; // allows shift by Rd
 assign reg_alu_b_2 = source2_value_2 ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
 assign imm_alu_b_2 = immediate_value_2 ; // immediates for shift must come in on b
 assign imm_alu_a = source1_value ;
+assign imm_alu_a_2 = source1_value_2 ;
 
 assign result = source_immediate ? imm_alu_y : reg_alu_y ;
 
-alu accALU(reg_alu_a, reg_alu_b, reg_alu_b_2, reg_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
+alu accALU(reg_alu_a, reg_alu_a_2, reg_alu_b, reg_alu_b_2, reg_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_b, imm_alu_b_2, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
+alu immALU(imm_alu_a, imm_alu_a_2, imm_alu_b, imm_alu_b_2, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
 
 
 // END ALUS
@@ -441,7 +440,6 @@ begin
 		instruction_1 <= instruction_in ;
 		instruction_3 <= instruction_in ;
 		instruction_4 <= instruction_in ;
-		//dmem_in <= immediate_i8 ; // TODO: Restore latching
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
@@ -463,8 +461,8 @@ begin
 			jumping <= 1'b0 ;
 		end
 
-    //if (checkCondition(condition_decoded, z, n) && !jumping) //TODO: Restore conditionality
-    if (execute_next) //TODO: Restore conditionality
+    //if (checkCondition(condition_decoded, z, n) && !jumping) 
+    if (execute_next) 
 	begin
         // commit the result
         data_out <= result ;
@@ -549,21 +547,10 @@ always @(posedge clk)
 		else
 		begin
 			if (call) lr <= pc - `PC_CALL_ADJUST ; // TODO: Check value of call adjust
-		//	if (op_call) pc <= immediate_i8 ; // FIXME add call back
-		//	if (op_return) pc <= return_adr ; // FIXME add return back
-/*			if (op_bf) begin
-			  pc <= pcAdd ;
-			  pc_out <= pcAdd ;
-			end
-			else if (op_bb) begin
-				pc <= pcSub ;
-				pc_out <= pcSub ;
-			end
-			*/
-		       if (jump_forward) begin
+		        if (jump_forward) begin
 			       pc <= pcAdd ;
 			       pc_out <= pcAdd ;
-		       end
+		        end
 			else if (jump_return) begin
 				pc <= lr ;
 				pc_out <= lr ;
@@ -720,11 +707,12 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, b, b_2, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_shro) ;
+module alu(a, a_2, b, b_2, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_shro) ;
 
 parameter d_width = 8 ;
 
 input [d_width-1:0] a ;
+input [d_width-1:0] a_2 ;
 input [d_width-1:0] b ;
 input [d_width-1:0] b_2 ;
 input op_or, op_and, op_not ;
@@ -741,8 +729,8 @@ wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
 shifter theShifter(a, b_2[1:0], shift_out, op_shl, op_shlo, op_shr, op_shro) ;
-adder theAdder(a, b, add_out) ;
-subtractor theSub(a, b, sub_out) ;
+adder theAdder(a_2, b, add_out) ;
+subtractor theSub(a_2, b, sub_out) ;
 orer theOR(a, b, or_out) ;
 ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
