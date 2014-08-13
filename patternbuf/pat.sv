@@ -79,15 +79,16 @@ wire i_t_i8 ;
 
 // instruction immediate values
 wire [rd_width-1:0] Rn ; // Source and destination register
+wire [1:0] condition ;
 wire [7:0] immediate_i8 ;
 wire [2:0] immediate_i3 ;
 wire [fieldp_width-1:0] fieldp_next ;
-wire [1:0] condition ;
 wire [opcode_i8_width-1:0] opcode_i8 ;
 wire [opcode_i3_width-1:0] opcode_i3 ;
 wire [opcode_i0_width-1:0] opcode_i0 ;
 wire field_op ; // 0 := ACC op ; 1 := field op
 
+//   [22:20]   [19:14]     [14:13]    [12]     [11:8]      [7:0]
 assign {Rn, fieldp_next, condition, field_op, opcode_i8, immediate_i8} = instruction_1 ;
 
 assign opcode_i3 = instruction_3[7:4] ; // TODO: parameterise. Must not overlap with i0 opcode space
@@ -139,7 +140,6 @@ assign op_setb =(opcode_i3 == 4'b1100) && i_t_i3 ;
 wire op_not, op_test, op_return, op_nop ;
 
 assign op_not = (opcode_i0 == 4'b0000) && i_t_i0 ;
-//assign op_mov = (opcode_i0 == 4'b0001) && i_t_i0 ;
 assign op_test = (opcode_i0 == 4'b0010) && i_t_i0 ;
 assign op_return = (opcode_i0 == 4'b0011) && i_t_i0 ;
 assign op_nop = (opcode_i0 == 4'b0101) && i_t_i0 ;
@@ -203,6 +203,7 @@ reg jump_return ;
 
 reg execute_next ;
 task precompute_condition ;
+    input [1:0] condition ;
     begin
         case (condition)
             `COND_Z: execute_next <= z & ~jumping;
@@ -232,14 +233,15 @@ task reg_instr ;
 		immediate_value <= immediate_i_all ;
 		immediate_value_2 <= immediate_i_all ;
 		source1_value <= (op_ldi) ? 8'h00 : (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ; // order important - op_ldi applies to field too
+		source1_value_2 <= (op_ldi) ? 8'h00 : (field_op) ? field_value_muxd : (source_in) ? selectInput(inputs, immediate_i3) : data_in ; // order important - op_ldi applies to field too
 		source2_value <= (source_imm) ? immediate_i_all : data_in ;
 		source2_value_2 <= (source_imm) ? immediate_i_all : data_in ;
 	end
 endtask
 
 reg field_op_regd ;
-reg [2:0] Rd_1 ;
-reg [2:0] Rd_2 ;
+reg [rd_width-1:0] Rd_1 ;
+reg [rd_width-1:0] Rd_2 ;
 
 reg op_or_regd, op_and_regd, op_add_regd, op_addsub_regd ;
 reg op_sub_regd,  op_ldi_regd, op_setsp_regd, op_bf_regd, op_call_regd ;
@@ -252,8 +254,8 @@ reg op_not_regd, op_test_regd, op_return_regd, op_nop_regd ;
 
 task reg_ops ;
 	begin
-	    Rd_1 <= Rn ;
-        Rd_2 <= Rd_1 ;
+		Rd_1 <= Rn ;
+	        Rd_2 <= Rd_1 ;
 		field_op_regd <= field_op ;
 		op_or_regd <= op_ori | op_orr | op_ldi ; // ldi is OR with 0
 		op_and_regd <= op_andi | op_andr ;
@@ -444,6 +446,7 @@ begin
 		reg_instr() ;
 		reg_ops() ;
 		reg_srcdest() ;
+		precompute_condition(condition) ;
           	//getField() ;
 		updateFieldp() ;
 		updateFieldwp() ;
@@ -715,7 +718,7 @@ parameter d_width = 8 ;
 input [d_width-1:0] a ;
 input [d_width-1:0] a_2 ;
 input [d_width-1:0] b ;
-input [d_width-1:0] b_2 ;
+input [d_width-1:0] b_2 ; //TODO: Not all bits are needed of b_2, so can shrink port size
 input op_or, op_and, op_not ;
 input op_add, op_sub, op_addsub ;
 input op_shl, op_shlo, op_shr, op_shro ;
@@ -753,8 +756,6 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 //addsubout   shift_out ; // any of the three shifts
 
 assign y = 
-//op_sub ? sub_out :
-// op_add ? add_out :
 	   op_and ? and_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
