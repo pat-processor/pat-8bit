@@ -330,6 +330,7 @@ wire [d_width-1:0] reg_alu_b ;
 wire [d_width-1:0] reg_alu_b_2 ;
 wire [d_width-1:0] reg_alu_y ;
 
+wire [d_width-1:0] imm_alu_a ;
 wire [d_width-1:0] imm_alu_a_2 ;
 wire [d_width-1:0] imm_alu_b ;
 wire [d_width-1:0] imm_alu_b_2 ;
