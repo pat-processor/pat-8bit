@@ -33,7 +33,7 @@ dc::set_time_unit -picoseconds
 # set pad input slew in ps, rise/fall and 4 cycle path to logic
 #set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
 
-set_attribute external_driver [find [find / -libcell CLKBUFX4_HV] -libpin Q] /designs/$currentDesign/ports_in/*
+set_attribute external_driver [find [find / -libcell INVX2_HV] -libpin Q] /designs/$currentDesign/ports_in/*
 set_attribute external_pin_cap 1.5 /designs/$currentDesign/ports_out/*
 
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]

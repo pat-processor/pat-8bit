@@ -31,7 +31,7 @@ set clock [define_clock -period 1000 -name clk [find / -port clk_int]]
 dc::current_design $currentDesign
 dc::set_time_unit -picoseconds
 # external output capacitance in fF. 1.5 is approx INVX1 
-set_attribute external_driver [find [find / -libcell CLKBUFX4_HV] -libpin Q] /designs/$currentDesign/ports_in/*
+set_attribute external_driver [find [find / -libcell INVX2_HV] -libpin Q] /designs/$currentDesign/ports_in/*
 set_attribute external_pin_cap 1.5 /designs/$currentDesign/ports_out/*
 # set pad input slew in ps, rise/fall and 4 cycle path to logic
 #set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
@@ -55,7 +55,7 @@ dc::set_false_path -from [find / -port pad_modesel_1] -exception_name mode1
 dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exception_name reset_pat
 dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
 dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
-
+dc::set_false_path -from [find / -port pad_io_b* ] -exception_name pad_resets
 
 
 if {$insertScanChain == "y"} {
