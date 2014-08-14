@@ -37,7 +37,7 @@ set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
 dc::set_multicycle_path -setup 4 -from [find /des* -port ports_in/*]
 
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]
-set_attribute optimize_merge_flops false /
+set_attribute optimize_merge_flops true /
 dc::set_multicycle_path -setup 2 -from [find / -inst pc_out_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
 
 #dc::set_false_path -from [find / -port pad_modesel_0] -exception_name mode0
