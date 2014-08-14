@@ -670,10 +670,9 @@ assign shro =
 	           8'b11110000 | (a >> 4) ;
 
 assign y = op_shl ? shl :
-//	   op_shr ? shr :
-	   shr ;
-//	   op_shlo ? shlo :
-//		shro ;
+	   op_shr ? shr :
+	   op_shlo ? shlo :
+		shro ;
 
 endmodule
 
@@ -778,11 +777,8 @@ assign y =
 	   op_or  ? or_out :
 	   op_not ? neg_out :
 //	   op_addsub ? addsubout :
-//	   op_add ? add_out :
+	   op_add ? add_out :
 	   op_sub ? sub_out : shift_out ;
-//op_sub ? sub_out :
-//	   shift_out ; // any of the three shifts
-
 
 //assign y = op_addsub ? addsubout :
 //            op_or ? a | b :

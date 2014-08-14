@@ -30,22 +30,31 @@ elaborate $currentDesign
 set clock [define_clock -period 1000 -name clk [find / -port clk_int]]
 dc::current_design $currentDesign
 dc::set_time_unit -picoseconds
-#dc::set_false_path -from [ find / -inst *dmem*] -to [ find / -inst *dmem*] -exception_name memToMem
-#set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
+# external output capacitance in fF. 1.5 is approx INVX1 
+set_attribute external_driver [find [find / -libcell CLKBUFX4_HV] -libpin Q] /designs/$currentDesign/ports_in/*
+set_attribute external_pin_cap 1.5 /designs/$currentDesign/ports_out/*
 # set pad input slew in ps, rise/fall and 4 cycle path to logic
-set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
+#set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
+
+
+
 dc::set_multicycle_path -setup 4 -from [find /des* -port ports_in/*]
 
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]
 set_attribute optimize_merge_flops true /
+#set_attribute optimize_merge_seq false [find / -inst field_out_reg*]
+# new below
+set_attribute auto_partition true /
+set_attribute ungroup_ok false [find /designs/ -instance thePAT]
+
 dc::set_multicycle_path -setup 2 -from [find / -inst pc_out_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
 
-#dc::set_false_path -from [find / -port pad_modesel_0] -exception_name mode0
-#dc::set_false_path -from [find / -port pad_modesel_1] -exception_name mode1
+dc::set_false_path -from [find / -port pad_modesel_0] -exception_name mode0
+dc::set_false_path -from [find / -port pad_modesel_1] -exception_name mode1
 
-#dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exception_name reset_pat
-#dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
-#dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
+dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exception_name reset_pat
+dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
+dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
 
 
 
@@ -58,7 +67,9 @@ define_dft shift_enable -active high pad_modesel_0 -hookup_pin iopad_modesel_0/Y
 define_dft scan_chain -shared_out -sdo iopad_b5/A -hookup_pin_sdo iopad_b5/A -sdi iopad_a7/Y -domain scan_clock -name scan_chain_1
 #  Choose between this and shared system 
 #define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
-
+set_attribute optimize_merge_seq false [find / -inst field_out_reg*]
+set_attribute dft_dont_scan true [find / -inst field_out_reg*]
+set_attribute dft_dont_scan false [find / -inst data_out_reg*]
 
 # choose what to scan and what not to
 #set_attribute dft_dont_scan true /designs/patternbuffer/instances_hier/theBuffers/
