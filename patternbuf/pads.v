@@ -310,6 +310,10 @@ reg imem_clock_sync_1 ;
 reg imem_clock_synched ;
 reg imem_write_sync_1 ;
 reg imem_write_synched ;
+reg pwm_low_sync_1 ;
+reg pwm_low_synched ;
+reg pwm_high_sync_1 ;
+reg pwm_high_synched ;
 always @(posedge clk_int) begin
 	inputs_a_sync_1 <= inputs_a ;
 	inputs_a_synched <= inputs_a_sync_1 ;
@@ -317,6 +321,10 @@ always @(posedge clk_int) begin
 	imem_clock_synched <= imem_clock_sync_1 ;
 	imem_write_sync_1 <= imem_write ;
 	imem_write_synched <= imem_write_sync_1 ;
+	pwm_low_sync_1 <= pwm_low ;
+	pwm_low_synched <= pwm_low_sync_1 ;
+	pwm_high_sync_1 <= pwm_high ;
+	pwm_high_synched <= pwm_high_sync_1 ;
 end
 
 // PAT clock divider
@@ -385,7 +393,7 @@ wire [fieldp_width-1:0] fieldwp ;
 
 // Instantiate the cores
 //                I     I      I         I               I         I        O        O
-digital theCore(clk_int, reset_pat, pwm_low, pwm_high, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
+digital theCore(clk_int, reset_pat, pwm_low_synched, pwm_high_synched, inputs_a_synched, imem_write_adr, imem_write_synched, imem_in, outputs,
 bufp, fieldp, fieldwp, field_write_en_low, field_write_en_high, field_fromPAT, field_toPAT_low, field_toPAT_high) ;
 // these signals are shared across both patter buffers
 assign bufp_low = bufp ;
