@@ -34,10 +34,11 @@ set fp_core_to_bottom 50.000000
 
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
-set_interactive_constraint_modes [all_constraint_modes -active]
+
 
 # locate the components
-floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
+#                                             left btm right top
+floorPlan -site ams018hvSite -d 1500.0 3000.0 100 1100 100 200
 # below is smallest floorplan that doesn't crash
 #floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
 
@@ -217,3 +218,5 @@ next "Add filler? y/n"
 # add core filler to prevent DRC violation
 amsFillcore 
 amsFillperi
+
+set_interactive_constraint_modes [all_constraint_modes -active]

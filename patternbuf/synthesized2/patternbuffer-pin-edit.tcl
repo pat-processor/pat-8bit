@@ -1,65 +1,67 @@
 ############# DRIVER PIN CONNECTIONS ###########
 
-set pin_offset_driver 150
+set pin_offst_ndriver 0
+set pin_offset_tweak 150
+set pin_offset_pdriver 500
 
 # n_drive
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 50.00] -pin {{n_drive[7]} {n_drive[6]} {n_drive[5]} {n_drive[4]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_ndriver + 50.00] -pin {{n_drive[7]} {n_drive[6]} {n_drive[5]} {n_drive[4]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 63.39] -pin {{n_drive[3]} {n_drive[2]} {n_drive[1]} {n_drive[0]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_ndriver + 63.39] -pin {{n_drive[3]} {n_drive[2]} {n_drive[1]} {n_drive[0]}}
 
 # tweak 0
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 77.22] -pin {tweak_enable_0 tweak_sense_0}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 77.22] -pin {tweak_enable_0 tweak_sense_0}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver + 84.15] -pin {{tweak_duration_0[0]} {tweak_duration_0[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak + 84.15] -pin {{tweak_duration_0[0]} {tweak_duration_0[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 104.31] -pin {{tweak_delay_0[0]} {tweak_delay_0[1]} {tweak_delay_0[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 104.31] -pin {{tweak_delay_0[0]} {tweak_delay_0[1]} {tweak_delay_0[2]}}
 
 # tweak 1
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 119.38] -pin {tweak_enable_1 tweak_sense_1}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 119.38] -pin {tweak_enable_1 tweak_sense_1}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver + 126.31] -pin {{tweak_duration_1[0]} {tweak_duration_1[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak + 126.31] -pin {{tweak_duration_1[0]} {tweak_duration_1[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 146.47] -pin {{tweak_delay_1[0]} {tweak_delay_1[1]} {tweak_delay_1[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 146.47] -pin {{tweak_delay_1[0]} {tweak_delay_1[1]} {tweak_delay_1[2]}}
 
 # tweak 2
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 161.54] -pin {tweak_enable_2 tweak_sense_2}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 161.54] -pin {tweak_enable_2 tweak_sense_2}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver + 168.47] -pin {{tweak_duration_2[0]} {tweak_duration_2[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak + 168.47] -pin {{tweak_duration_2[0]} {tweak_duration_2[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 188.63] -pin {{tweak_delay_2[0]} {tweak_delay_2[1]} {tweak_delay_2[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 188.63] -pin {{tweak_delay_2[0]} {tweak_delay_2[1]} {tweak_delay_2[2]}}
 
 
 # clock
-editPin -side Right -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -start 749.468 [expr $pin_offset_driver + 202.6] -pin clk
+editPin -side Right -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -start 749.468 [expr $pin_offset_tweak + 202.6] -pin clk
 
 # global delay
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -spacing 1 -start 783.52 [expr $pin_offset_driver + 203.39] -pin {{tweak_global_delay[0]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]}}
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -spacing 1 -start 783.52 [expr $pin_offset_tweak + 203.39] -pin {{tweak_global_delay[0]} {tweak_global_delay[1]} {tweak_global_delay[2]} {tweak_global_delay[3]} {tweak_global_delay[4]} {tweak_global_delay[5]} {tweak_global_delay[6]} {tweak_global_delay[7]}}
 
 # tweak 3
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 221.73] -pin {tweak_enable_3 tweak_sense_3}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 221.73] -pin {tweak_enable_3 tweak_sense_3}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver + 228.66] -pin {{tweak_duration_3[0]} {tweak_duration_3[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak + 228.66] -pin {{tweak_duration_3[0]} {tweak_duration_3[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 248.82] -pin {{tweak_delay_3[0]} {tweak_delay_3[1]} {tweak_delay_3[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 248.82] -pin {{tweak_delay_3[0]} {tweak_delay_3[1]} {tweak_delay_3[2]}}
 
 # tweak 4
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 263.89] -pin {tweak_enable_4 tweak_sense_4}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 263.89] -pin {tweak_enable_4 tweak_sense_4}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver + 270.82] -pin {{tweak_duration_4[0]} {tweak_duration_4[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak + 270.82] -pin {{tweak_duration_4[0]} {tweak_duration_4[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 290.98] -pin {{tweak_delay_4[0]} {tweak_delay_4[1]} {tweak_delay_4[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 290.98] -pin {{tweak_delay_4[0]} {tweak_delay_4[1]} {tweak_delay_4[2]}}
 
 # tweak 5
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_driver + 306.05] -pin {tweak_enable_5 tweak_sense_5}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_tweak + 306.05] -pin {tweak_enable_5 tweak_sense_5}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_driver +  312.98] -pin {{tweak_duration_5[0]} {tweak_duration_5[1]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.5 -start 783.52 [expr $pin_offset_tweak +  312.98] -pin {{tweak_duration_5[0]} {tweak_duration_5[1]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_driver + 333.14] -pin {{tweak_delay_5[0]} {tweak_delay_5[1]} {tweak_delay_5[2]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4 -start 783.52 [expr $pin_offset_tweak + 333.14] -pin {{tweak_delay_5[0]} {tweak_delay_5[1]} {tweak_delay_5[2]}}
 
 # p drive
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 [expr $pin_offset_driver + 350.06] -pin {{p_drive[3]} {p_drive[2]} {p_drive[1]} {p_drive[0]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 [expr $pin_offset_pdriver + 350.06] -pin {{p_drive[3]} {p_drive[2]} {p_drive[1]} {p_drive[0]}}
 
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 [expr $pin_offset_driver + 363.64] -pin {{p_drive[7]} {p_drive[6]} {p_drive[5]} {p_drive[4]}}
+editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing -1.4 -start 783.52 [expr $pin_offset_pdriver + 363.64] -pin {{p_drive[7]} {p_drive[6]} {p_drive[5]} {p_drive[4]}}
 
 ########### PAT CONNECTIONS #############
 
