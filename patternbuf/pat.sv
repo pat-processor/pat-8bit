@@ -350,8 +350,7 @@ wire [d_width-1:0] imm_alu_y ;
 
 wire [d_width-1:0] result ;
 
-reg field_write_en_high_next ;
-reg field_write_en_low_next ;
+reg dest_field_regd_2 ;
 
 assign reg_alu_a = data_out ;
 assign reg_alu_a_2 = field_out ; // = data_out
@@ -481,9 +480,6 @@ begin
 			jumping <= 1'b0 ;
 		end
 
-    // field_out has seperate write signals, so can always update if desired
-    field_out <= data_out ;
-
     //if (checkCondition(condition_decoded, z, n) && !jumping) 
     if (execute_next) 
 	begin
@@ -505,19 +501,17 @@ begin
 			end
 		end
 
-		// pipeline field write signals to match extra cycle delay of field_out
-		if (dest_field_regd) begin
-			if (low_high_buffer) field_write_en_high_next <= 1'b1 ;
-			else field_write_en_low_next <= 1'b1 ;
+		// field_out is an extra pipeline stage, to speed up ALU operations by ~80ps
+		dest_field_regd_2 <= dest_field_regd ;
+		if (dest_field_regd_2) begin
+			field_out <= data_out ;
+			if (low_high_buffer) field_write_en_high <= 1'b1 ;
+			else field_write_en_low <= 1'b1 ;
 		end
 		else begin
-			field_write_en_high_next <= 1'b0 ;
-			field_write_en_low_next <= 1'b0 ;
+			field_write_en_high <= 1'b0 ;
+			field_write_en_low <= 1'b0 ;
 		end
-		// unconditional update of output
-		field_write_en_high <= field_write_en_high_next ;
-		field_write_en_low <= field_write_en_low_next ;
-		// done with field_out
 
 		if (dest_reg_regd) begin
 		data_write <= 1'b1 ;

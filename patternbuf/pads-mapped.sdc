@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 14 19:38:11 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Fri Aug 15 10:57:54 +0100 2014
 
 # ####################################################################
 
@@ -222,6 +222,15 @@ set_multicycle_path -from [list \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][7]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][8]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][9]}] ] -setup -end 2
+set_multicycle_path -from [list \
+  [get_ports pad_io_a0]  \
+  [get_ports pad_io_a1]  \
+  [get_ports pad_io_a2]  \
+  [get_ports pad_io_a3]  \
+  [get_ports pad_io_a4]  \
+  [get_ports pad_io_a5]  \
+  [get_ports pad_io_a6]  \
+  [get_ports pad_io_a7] ] -setup -end 13
 set_clock_gating_check -setup 0.0 
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports clk_int]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_low]

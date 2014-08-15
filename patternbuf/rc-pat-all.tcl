@@ -56,10 +56,9 @@ dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exc
 dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
 dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
 dc::set_false_path -from [find / -port pad_io_b* ] -exception_name pad_resets
-# I/O pad latency, as seen by encounter (why so high?)
-dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_a* ] -exception_name io_a_pads
+# I/O pad latency, as seen by encounter (why so high - I think it's a loop out->in)
+dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_a* ] -exception_name io_a_pads1
 
-set_interactive_constraint_modes [all_constraint_modes -active]
 
 if {$insertScanChain == "y"} {
 # SCAN CHAIN
@@ -71,8 +70,8 @@ define_dft scan_chain -shared_out -sdo iopad_b5/A -hookup_pin_sdo iopad_b5/A -sd
 #  Choose between this and shared system 
 #define_dft scan_chain -sdi scan_in_2 -sdo scan_out_2 -create_ports -domain scan_clock -name scan_chain_2
 set_attribute optimize_merge_seq false [find / -inst field_out_reg*]
-set_attribute dft_dont_scan true [find / -inst field_out_reg*]
-set_attribute dft_dont_scan false [find / -inst data_out_reg*]
+set_attribute dft_dont_scan false [find / -inst field_out_reg*]
+set_attribute dft_dont_scan true [find / -inst data_out_reg*]
 
 # choose what to scan and what not to
 #set_attribute dft_dont_scan true /designs/patternbuffer/instances_hier/theBuffers/
