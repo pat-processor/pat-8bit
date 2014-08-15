@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 14 18:28:21 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 14 19:38:11 +0100 2014
 
 # ####################################################################
 
@@ -108,7 +108,15 @@ set_false_path -from [list \
   [get_ports pad_modesel_1]  \
   [get_pins theCore/reset]  \
   [get_ports reset_patternbuf_high]  \
-  [get_ports reset_patternbuf_low] ]
+  [get_ports reset_patternbuf_low]  \
+  [get_ports pad_io_b7]  \
+  [get_ports pad_io_b6]  \
+  [get_ports pad_io_b5]  \
+  [get_ports pad_io_b4]  \
+  [get_ports pad_io_b3]  \
+  [get_ports pad_io_b2]  \
+  [get_ports pad_io_b1]  \
+  [get_ports pad_io_b0] ]
 set_multicycle_path -from [list \
   [get_ports clk_int]  \
   [get_ports sout_low]  \
@@ -215,54 +223,54 @@ set_multicycle_path -from [list \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][8]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][9]}] ] -setup -end 2
 set_clock_gating_check -setup 0.0 
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports clk_int]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_low]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_high]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[7]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[6]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[5]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[4]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[3]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[2]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[1]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[0]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[7]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[6]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[5]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[4]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[3]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[2]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[1]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[0]}]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_core]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_gnd_core]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_1v8_all]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_gnd_all]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_out]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_in]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_pwm_high]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_pwm_low]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_modesel_0]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_modesel_1]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a0]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a1]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a2]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a3]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a4]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a5]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a6]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a7]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b0]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b1]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b2]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b3]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b4]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b5]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b6]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b7]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_select]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vref_select]
-set_driving_cell -lib_cell CLKBUFX4_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_f5v_select]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports clk_int]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_low]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_high]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[7]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[6]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[5]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[4]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[3]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[2]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[1]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_low[0]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[7]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[6]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[5]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[4]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[3]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[2]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[1]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[0]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_core]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_gnd_core]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_1v8_all]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_gnd_all]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_out]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_in]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_pwm_high]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_pwm_low]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_modesel_0]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_modesel_1]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a0]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a1]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a2]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a3]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a4]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a5]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a6]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_a7]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b0]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b1]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b2]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b3]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b4]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b5]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b6]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b7]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_select]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vref_select]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_f5v_select]
 set_ideal_network [get_ports pad_modesel_0]
 set_ideal_network [get_pins iopad_modesel_0/Y]
 set_wire_load_mode "enclosed"

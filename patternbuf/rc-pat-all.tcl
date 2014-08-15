@@ -56,7 +56,10 @@ dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exc
 dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
 dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
 dc::set_false_path -from [find / -port pad_io_b* ] -exception_name pad_resets
+# I/O pad latency, as seen by encounter (why so high?)
+dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_a* ] -exception_name io_a_pads
 
+set_interactive_constraint_modes [all_constraint_modes -active]
 
 if {$insertScanChain == "y"} {
 # SCAN CHAIN

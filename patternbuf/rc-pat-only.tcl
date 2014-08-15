@@ -39,8 +39,8 @@ set_attribute external_pin_cap 1.5 /designs/$currentDesign/ports_out/*
 set_attribute ungroup_ok false [find /designs/ -instance thePC ]
 set_attribute optimize_merge_flops true /
 set_attribute optimize_merge_seq false [find / -inst field_out_reg*]
-set_attribute dft_dont_scan true [find / -inst field_out_reg*]
-set_attribute dft_dont_scan false [find / -inst data_out_reg*]
+set_attribute dft_dont_scan false [find / -inst field_out_reg*]
+set_attribute dft_dont_scan true [find / -inst data_out_reg*]
 # below two lines are implicit with optimize_merge_flops true
 #set_attribute optimize_merge_seq true [find / -inst data_out_reg*]
 #set_attribute optimize_merge_seq true [find / -inst data_out_2_reg*]

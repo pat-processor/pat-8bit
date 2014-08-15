@@ -350,6 +350,8 @@ wire [d_width-1:0] imm_alu_y ;
 
 wire [d_width-1:0] result ;
 
+reg field_write_en_high_next ;
+reg field_write_en_low_next ;
 
 assign reg_alu_a = data_out ;
 assign reg_alu_a_2 = field_out ; // = data_out
@@ -479,14 +481,16 @@ begin
 			jumping <= 1'b0 ;
 		end
 
+    // field_out has seperate write signals, so can always update if desired
+    field_out <= data_out ;
+
     //if (checkCondition(condition_decoded, z, n) && !jumping) 
     if (execute_next) 
 	begin
         // commit the result
         data_out <= result ;
         data_out_2 <= result ;
-        // field_out has seperate write signals, so can always update if desired
-        field_out <= result ;
+
 
 		if (dest_pc_regd) begin
 			if (op_return_regd) begin
@@ -501,14 +505,19 @@ begin
 			end
 		end
 
+		// pipeline field write signals to match extra cycle delay of field_out
 		if (dest_field_regd) begin
-			if (low_high_buffer) field_write_en_high <= 1'b1 ;
-			else field_write_en_low <= 1'b1 ;
+			if (low_high_buffer) field_write_en_high_next <= 1'b1 ;
+			else field_write_en_low_next <= 1'b1 ;
 		end
 		else begin
-			field_write_en_high <= 1'b0 ;
-			field_write_en_low <= 1'b0 ;
+			field_write_en_high_next <= 1'b0 ;
+			field_write_en_low_next <= 1'b0 ;
 		end
+		// unconditional update of output
+		field_write_en_high <= field_write_en_high_next ;
+		field_write_en_low <= field_write_en_low_next ;
+		// done with field_out
 
 		if (dest_reg_regd) begin
 		data_write <= 1'b1 ;
@@ -804,8 +813,6 @@ input data_write ;
 output [d_width-1:0] data_out ;
 
 reg [d_width-1:0] dmem [dmemsize] ;
-//wire [d_width-1:0] read_bus [dmemsize] ;
-//genvar i,j ;
 
 
 assign data_out = dmem[data_read_adr] ;
@@ -816,7 +823,9 @@ always @(posedge clk) begin
 
 
 // read decoder
-/*
+/*genvar i,j ;
+wire [d_width-1:0] read_bus [dmemsize] ;
+
 for (i = 0 ; i < dmemsize ; i++)
 begin
 	assign read_bus[i] = (data_read_adr == i) ? dmem[i] : {d_width{1'b0}} ;

@@ -34,6 +34,7 @@ set fp_core_to_bottom 50.000000
 
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
+set_interactive_constraint_modes [all_constraint_modes -active]
 
 # locate the components
 floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
@@ -115,8 +116,6 @@ createPinGuide -pingroup patternbuffer_high -cell pads -edge 2 -layer M3
 createPinGuide -pingroup patternbuffer_low -cell pads -edge 2 -layer M3
 createPinGuide -pingroup selects -cell pads -edge 2 -layer M3
 createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
-
-
 
 
 # ams scripts
