@@ -1,8 +1,8 @@
 ############# DRIVER PIN CONNECTIONS ###########
 
-set pin_offst_ndriver 0
+set pin_offset_ndriver 50
 set pin_offset_tweak 150
-set pin_offset_pdriver 500
+set pin_offset_pdriver 300
 
 # n_drive
 editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_ndriver + 50.00] -pin {{n_drive[7]} {n_drive[6]} {n_drive[5]} {n_drive[4]}}

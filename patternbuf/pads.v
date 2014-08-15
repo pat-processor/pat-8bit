@@ -168,7 +168,8 @@ IOPAD1V8_3_HV iopad_modesel_1(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_
 IOPAD1V8_3_HV iopad_pwm_low(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_pwm_low), .Y(pwm_low)) ;
 IOPAD1V8_3_HV iopad_pwm_high(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_pwm_high), .Y(pwm_high)) ;
 // clock input
-IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clock_external)) ;
+//IOPAD1V8_3_HV iopad_clock_in(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(vdd_logic0), .IE(vdd_logic1), .OE0(vdd_logic0), .OE1(vdd_logic0), .PAD (pad_clock_in), .Y(clock_external)) ;
+APRIO1V8_50_HV iopad_clock_in(.PAD (pad_clock_in), .Z(clock_external)) ;
 
 // Output-only pins
 IOPAD1V8_3_HV iopad_clock_out(.SR(vdd_logic0), .PE(vdd_logic0), .VDD_LOGIC1(vdd_logic1), .VDD_LOGIC0(vdd_logic0), .A(clock_out), .IE(vdd_logic0), .OE0(vdd_logic1), .OE1(vdd_logic1), .PAD (pad_clock_out), .Y( )) ;
