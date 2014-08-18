@@ -32,7 +32,7 @@ dc::current_design $currentDesign
 dc::set_time_unit -picoseconds
 # external output capacitance in fF. 1.5 is approx INVX1 
 set_attribute external_driver [find [find / -libcell INVX2_HV] -libpin Q] /designs/$currentDesign/ports_in/*
-set_attribute external_pin_cap 1.5 /designs/$currentDesign/ports_out/*
+set_attribute external_pin_cap 10 /designs/$currentDesign/ports_out/*
 # set pad input slew in ps, rise/fall and 4 cycle path to logic
 #set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
 

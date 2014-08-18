@@ -143,7 +143,7 @@
 	)
 	(inst
 		name = iopad_f5v_select
-		offset = 2310
+		offset = 2200
 		place_status = fixed
 	)
 
@@ -240,7 +240,7 @@
 	)
 	(inst
 		name = avdd
-		offset = 2500
+		offset = 2670
 		place_status = fixed
 		cell = VDDPAD5V_CORE_HV
 	)
