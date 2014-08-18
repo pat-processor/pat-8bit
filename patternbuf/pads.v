@@ -336,11 +336,9 @@ reg pat_clock_division ;
 wire mode_is_reset ;
 wire mode_is_debug ; 
 assign mode_is_reset = (mode == `MODE_RESET) ;
-assign mode_is_debug = (mode == `MODE_DEBUG) ;
-always @(posedge mode_is_debug or posedge mode_is_reset)
+always @(mode_is_reset or io_a5_in)
 begin
-	if (mode_is_reset) pat_clock_division <= 1'b1 ;
-	else if	(mode_is_debug) pat_clock_division <= io_b3_in ;
+	if (mode_is_reset) pat_clock_division <= io_a5_in ;
 end
 
 /*
