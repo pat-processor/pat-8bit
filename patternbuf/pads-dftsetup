@@ -87,7 +87,7 @@ DFT actual scan chains
           scan-out hookup_pin: none 
           shared out: true
           shift_enable: pad_modesel_0 
-          length: 411
+          length: 412
           segment objects: none
           analyzed: false
           test_clock domain: scan_clock

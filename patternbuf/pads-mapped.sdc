@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Mon Aug 18 12:15:18 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Mon Aug 18 20:50:43 +0100 2014
 
 # ####################################################################
 
@@ -13,7 +13,6 @@ set_units -time 1000.0ps
 current_design pads
 
 create_clock -name "clk" -add -period 1.0 -waveform {0.0 0.5} [get_ports clk_int]
-set_load -pin_load -max 0.01 [get_ports clock_external]
 set_load -pin_load -max 0.01 [get_ports pat_clock_division]
 set_load -pin_load -max 0.01 [get_ports reset_patternbuf_low]
 set_load -pin_load -max 0.01 [get_ports reset_patternbuf_high]
@@ -75,6 +74,8 @@ set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[3]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[2]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[1]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[0]}]
+set_load -pin_load -max 0.01 [get_ports ring_osc_start_1]
+set_load -pin_load -max 0.01 [get_ports ring_osc_start_2]
 set_load -pin_load -max 0.01 [get_ports pad_clock_in]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_high]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_low]
@@ -125,6 +126,8 @@ set_multicycle_path -from [list \
   [get_ports {field_toPAT_high[2]}]  \
   [get_ports {field_toPAT_high[1]}]  \
   [get_ports {field_toPAT_high[0]}]  \
+  [get_ports ring_osc_in_1]  \
+  [get_ports ring_osc_in_2]  \
   [get_ports pad_vdd_core]  \
   [get_ports pad_gnd_core]  \
   [get_ports pad_vdd_1v8_all]  \
@@ -247,6 +250,8 @@ set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_po
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[2]}]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[1]}]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports {field_toPAT_high[0]}]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports ring_osc_in_1]
+set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports ring_osc_in_2]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_core]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_gnd_core]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vdd_1v8_all]

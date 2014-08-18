@@ -39,6 +39,7 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 # locate the components
 #                                             left btm right top
 floorPlan -site ams018hvSite -d 1500.0 3000.0 100 1100 100 200
+#floorPlan -site ams018hvSite -d 1500.0 3000.0 100 1100 100 200
 # below is smallest floorplan that doesn't crash
 #floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
 
