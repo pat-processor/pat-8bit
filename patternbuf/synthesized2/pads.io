@@ -35,11 +35,6 @@
 
  (left
 	(inst
-		name = iopad_b6
-	#	offset = 100
-		place_status = fixed
-	)
-	(inst
 		name = iopad_b5
 	#	offset = 200
 		place_status = fixed
@@ -88,14 +83,15 @@
 	#	offset = 200
 		place_status = fixed
 	)
-  )
-
-  (top
 	(inst
 		name = iopad_a4
 	#	offset = 200
 		place_status = fixed
 	)
+
+  )
+
+  (top
 	(inst
 		name = iopad_a3
 	#	offset = 200
@@ -114,6 +110,10 @@
 	(inst
 		name = iopad_a0
 	#	offset = 200
+		place_status = fixed
+	)
+	(inst
+		name = iopad_pwm_low
 		place_status = fixed
 	)
 	(inst
@@ -170,6 +170,11 @@
 	
   )
   (bottom
+  	(inst
+		name = iopad_b6
+	#	offset = 100
+		place_status = fixed
+	)
 	(inst
 		name = iopad_b7
 		#offset = 0
@@ -191,10 +196,6 @@
 #		place_status = fixed
 #		cell = GNDPAD1V8_CORE_HV
 #	)
-	(inst
-		name = iopad_pwm_low
-		place_status = fixed
-	)
 	(inst
 		name = iopad_clock_out
 	#	offset = 200

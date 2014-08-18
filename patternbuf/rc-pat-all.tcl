@@ -37,6 +37,12 @@ set_attribute external_pin_cap 10 /designs/$currentDesign/ports_out/*
 #set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
 
 
+# Preserve pads not connected in the verilog
+# This may not strictly be necessary, but this is belt-and-braces
+set_attribute preserve true [find /designs/ -instance iopad_clock_select]
+set_attribute preserve true [find /designs/ -instance iopad_vref_select]
+set_attribute preserve true [find /designs/ -instance iopad_f5v_select]
+
 
 dc::set_multicycle_path -setup 4 -from [find /des* -port ports_in/*]
 
@@ -49,18 +55,23 @@ set_attribute ungroup_ok false [find /designs/ -instance thePAT]
 
 dc::set_multicycle_path -setup 2 -from [find / -inst pc_out_reg*] -to [find / -inst iBuffer/i_buffer_reg*]
 
+
+# Relax I/O timing
 dc::set_false_path -from [find / -port pad_modesel_0] -exception_name mode0
 dc::set_false_path -from [find / -port pad_modesel_1] -exception_name mode1
 
 dc::set_false_path -from /designs/pads/instances_hier/theCore/pins_in/reset -exception_name reset_pat
 dc::set_false_path -from [find / -port reset_patternbuf_high] -exception_name reset_buf_h
 dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name reset_buf_l
-dc::set_false_path -from [find / -port pad_io_b* ] -exception_name pad_resets
-# I/O pad latency, as seen by encounter (why so high - I think it's a loop out->in)
+# false path has higher priority than multi-cycle path
+dc::set_false_path -from [find / -port pad_io_b0 ] -exception_name pad_reset_patternbuf_low
+dc::set_false_path -from [find / -port pad_io_b1 ] -exception_name pad_reset_patternbuf_high
+dc::set_false_path -from [find / -port pad_io_b2 ] -exception_name pad_reset_pat
+# I/O pad latency, as seen by encounter (why so high - unrepeated!)
 dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_a* ] -exception_name io_a_pads
-#dc::set_false_path -from [ find / -port pad_io_a* ] -exception_name io_a_pads
-dc::set_false_path -from [ find / -port pad_pwm_low ] -exception_name io_pwm_low
-dc::set_false_path -from [ find / -port pad_pwm_high ] -exception_name io_pwm_high
+dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_b* ] -exception_name io_a_pads
+dc::set_multicycle_path -setup 10 -from [ find / -port pad_pwm_low ] -exception_name io_pwm_low
+dc::set_multicycle_path -setup 10 -from [ find / -port pad_pwm_high ] -exception_name io_pwm_high
 
 
 if {$insertScanChain == "y"} {

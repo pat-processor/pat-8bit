@@ -5,9 +5,8 @@ module pads (
 	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_pwm_high, pad_pwm_low, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
-	pad_clock_select, pad_vref_select, pad_f5v_select,
         // outputs
-	clock_external, clock_pat, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, clock_select, vref_select, f5v_select) ;
+	clock_external, clock_pat, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
@@ -85,9 +84,6 @@ inout pad_io_b4 ;
 inout pad_io_b5 ;
 inout pad_io_b6 ;
 inout pad_io_b7 ;
-inout pad_clock_select ;
-inout pad_vref_select ;
-inout pad_f5v_select ;
 
 wire io_a_input_enable ;
 wire io_a_output_enable ;
@@ -138,10 +134,6 @@ wire io_b5_out ;
 wire io_b6_out ;
 wire io_b7_out ;
 
-// analogue outputs
-output clock_select ;
-output vref_select ;
-output f5v_select ;
 
 
 // IOPads: .VDDLOGIC1 and .VDDLOGIC0 are outputs
@@ -409,8 +401,8 @@ assign field_fromPAT_high = field_fromPAT ;
 
 
 // clock divider
-reg [2:0] clk_div ;
-assign clock_out  = clk_div[2] ;
+reg [3:0] clk_div ;
+assign clock_out  = clk_div[3] ;
 always @(posedge clk_int) begin
 	clk_div <= clk_div + 1 ;
 end
