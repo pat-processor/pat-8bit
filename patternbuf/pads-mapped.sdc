@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Mon Aug 18 11:37:16 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Mon Aug 18 12:15:18 +0100 2014
 
 # ####################################################################
 
@@ -14,7 +14,6 @@ current_design pads
 
 create_clock -name "clk" -add -period 1.0 -waveform {0.0 0.5} [get_ports clk_int]
 set_load -pin_load -max 0.01 [get_ports clock_external]
-set_load -pin_load -max 0.01 [get_ports clock_pat]
 set_load -pin_load -max 0.01 [get_ports pat_clock_division]
 set_load -pin_load -max 0.01 [get_ports reset_patternbuf_low]
 set_load -pin_load -max 0.01 [get_ports reset_patternbuf_high]
@@ -76,9 +75,6 @@ set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[3]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[2]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[1]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[0]}]
-set_load -pin_load -max 0.01 [get_ports clock_select]
-set_load -pin_load -max 0.01 [get_ports vref_select]
-set_load -pin_load -max 0.01 [get_ports f5v_select]
 set_load -pin_load -max 0.01 [get_ports pad_clock_in]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_high]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_low]
@@ -100,25 +96,15 @@ set_load -pin_load -max 0.01 [get_ports pad_io_b4]
 set_load -pin_load -max 0.01 [get_ports pad_io_b5]
 set_load -pin_load -max 0.01 [get_ports pad_io_b6]
 set_load -pin_load -max 0.01 [get_ports pad_io_b7]
-set_load -pin_load -max 0.01 [get_ports pad_clock_select]
-set_load -pin_load -max 0.01 [get_ports pad_vref_select]
-set_load -pin_load -max 0.01 [get_ports pad_f5v_select]
 set_false_path -from [list \
   [get_ports pad_modesel_0]  \
   [get_ports pad_modesel_1]  \
   [get_pins theCore/reset]  \
   [get_ports reset_patternbuf_high]  \
   [get_ports reset_patternbuf_low]  \
-  [get_ports pad_io_b7]  \
-  [get_ports pad_io_b6]  \
-  [get_ports pad_io_b5]  \
-  [get_ports pad_io_b4]  \
-  [get_ports pad_io_b3]  \
-  [get_ports pad_io_b2]  \
-  [get_ports pad_io_b1]  \
   [get_ports pad_io_b0]  \
-  [get_ports pad_pwm_low]  \
-  [get_ports pad_pwm_high] ]
+  [get_ports pad_io_b1]  \
+  [get_ports pad_io_b2] ]
 set_multicycle_path -from [list \
   [get_ports clk_int]  \
   [get_ports sout_low]  \
@@ -164,10 +150,7 @@ set_multicycle_path -from [list \
   [get_ports pad_io_b4]  \
   [get_ports pad_io_b5]  \
   [get_ports pad_io_b6]  \
-  [get_ports pad_io_b7]  \
-  [get_ports pad_clock_select]  \
-  [get_ports pad_vref_select]  \
-  [get_ports pad_f5v_select] ] -setup -end 4
+  [get_ports pad_io_b7] ] -setup -end 4
 set_multicycle_path -from [list \
   [get_cells {theCore/thePAT/thePC/pc_out_reg[0]}]  \
   [get_cells {theCore/thePAT/thePC/pc_out_reg[1]}]  \
@@ -225,14 +208,25 @@ set_multicycle_path -from [list \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][8]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][9]}] ] -setup -end 2
 set_multicycle_path -from [list \
-  [get_ports pad_io_a0]  \
-  [get_ports pad_io_a1]  \
-  [get_ports pad_io_a2]  \
-  [get_ports pad_io_a3]  \
-  [get_ports pad_io_a4]  \
-  [get_ports pad_io_a5]  \
+  [get_ports pad_pwm_low]  \
+  [get_ports pad_pwm_high] ] -setup -end 10
+set_multicycle_path -from [list \
+  [get_ports pad_io_a7]  \
   [get_ports pad_io_a6]  \
-  [get_ports pad_io_a7] ] -setup -end 13
+  [get_ports pad_io_a5]  \
+  [get_ports pad_io_a4]  \
+  [get_ports pad_io_a3]  \
+  [get_ports pad_io_a2]  \
+  [get_ports pad_io_a1]  \
+  [get_ports pad_io_a0]  \
+  [get_ports pad_io_b7]  \
+  [get_ports pad_io_b6]  \
+  [get_ports pad_io_b5]  \
+  [get_ports pad_io_b4]  \
+  [get_ports pad_io_b3]  \
+  [get_ports pad_io_b2]  \
+  [get_ports pad_io_b1]  \
+  [get_ports pad_io_b0] ] -setup -end 13
 set_clock_gating_check -setup 0.0 
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports clk_int]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports sout_low]
@@ -279,13 +273,13 @@ set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_po
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b5]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b6]
 set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_io_b7]
-set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_clock_select]
-set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_vref_select]
-set_driving_cell -lib_cell INVX2_HV -library h18_CORELIB_HV_TYP -pin "Q" [get_ports pad_f5v_select]
 set_ideal_network [get_ports pad_modesel_0]
 set_ideal_network [get_pins iopad_modesel_0/Y]
 set_wire_load_mode "enclosed"
 set_wire_load_selection_group "sub_micron" -library "h18_CORELIB_HV_TYP"
+set_dont_touch [get_cells iopad_clock_select]
+set_dont_touch [get_cells iopad_f5v_select]
+set_dont_touch [get_cells iopad_vref_select]
 set_dont_use [get_lib_cells h18_CORELIB_HV_TYP/BUSHDX1_HV]
 set_dont_use [get_lib_cells h18_CORELIB_HV_TYP/FILLCELLX1_HV]
 set_dont_use [get_lib_cells h18_CORELIB_HV_TYP/FILLCELLX2_HV]
