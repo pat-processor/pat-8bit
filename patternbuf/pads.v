@@ -1,12 +1,12 @@
 module pads (
 	//// inputs
-	clk_int, sout_low, sout_high, field_toPAT_low, field_toPAT_high,
+	clk_int, sout_low, sout_high, field_toPAT_low, field_toPAT_high, ring_osc_in_1, ring_osc_in_2,
 	// pads
 	pad_vdd_core, pad_gnd_core, pad_vdd_1v8_all, pad_gnd_all, pad_clock_in, pad_clock_out, pad_pwm_high, pad_pwm_low, pad_modesel_0, pad_modesel_1,
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
         // outputs
-	clock_external, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high) ;
+	pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, ring_osc_start_1, ring_osc_start_2) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
@@ -21,6 +21,10 @@ input sout_low ;
 input sout_high ;
 input [d_width-1:0] field_toPAT_low ;
 input [d_width-1:0] field_toPAT_high ;
+
+// David's test circuit inputs
+input ring_osc_in_1 ;
+input ring_osc_in_2 ;
 
 
 wire scan_enable ; // dedicated pin
@@ -55,8 +59,11 @@ output field_write_en_high ;
 output [d_width-1:0] field_fromPAT_low ;
 output [d_width-1:0] field_fromPAT_high ;
 
-output clock_external ;
 output pat_clock_division ;
+
+// For David's test circuits
+output ring_osc_start_1 ;
+output ring_osc_start_2 ;
 
 
 inout pad_clock_in ;
@@ -245,8 +252,8 @@ assign io_b2_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[2] ;
 assign io_b3_out = (mode == `MODE_DEBUG) ? 1'b1 : outputs[3] ;
 assign io_b4_out = (mode == `MODE_DEBUG) ? sout : outputs[4] ;
 assign io_b5_out = outputs[5] ; // MUX RESERVED for scan out: scan out is automatically MUXd by dft routine
-assign io_b6_out = outputs[6] ;
-assign io_b7_out = outputs[7] ;
+assign io_b6_out = (mode == `MODE_RESET) ? ring_osc_in_1 : outputs[6] ;
+assign io_b7_out = (mode == `MODE_RESET) ? ring_osc_in_2 : outputs[7] ;
 
 // TODO: Port b enables TODO
 
@@ -290,9 +297,13 @@ wire imem_write ;
 assign imem_clock = (mode == `MODE_MEMLOAD) ? io_b0_in : 1'b0 ;
 assign imem_write = (mode == `MODE_MEMLOAD) ? io_b1_in : 1'b0 ;
 
+// io_b3 used for setting clock divider in debug mode
 assign reset_pat = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode == `MODE_DEBUG) && io_b2_in) ;
 assign reset_patternbuf_high = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode == `MODE_DEBUG) && io_b1_in) ;
 assign reset_patternbuf_low = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode == `MODE_DEBUG) && io_b0_in) ;
+
+assign ring_osc_start_1 = (mode == `MODE_RESET) && io_a3_in ;
+assign ring_osc_start_2 = (mode == `MODE_RESET) && io_a4_in ;
 
 
 // synchronise asynchronous inputs with a two-flop synchroniser
@@ -323,11 +334,13 @@ end
 // Set to 1 if mode is reset. Update from I/O pin on DEBUG mode
 reg pat_clock_division ;
 wire mode_is_reset ;
+wire mode_is_debug ; 
 assign mode_is_reset = (mode == `MODE_RESET) ;
-always @(posedge clock_external or posedge mode_is_reset)
+assign mode_is_debug = (mode == `MODE_DEBUG) ;
+always @(posedge mode_is_debug or posedge mode_is_reset)
 begin
 	if (mode_is_reset) pat_clock_division <= 1'b1 ;
-	else if	(mode == `MODE_DEBUG) pat_clock_division <= io_b3_in ;
+	else if	(mode_is_debug) pat_clock_division <= io_b3_in ;
 end
 
 /*
