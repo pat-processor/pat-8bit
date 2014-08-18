@@ -39,7 +39,7 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 # locate the components
 #                                             left btm right top
 # -200um
-floorPlan -site ams018hvSite -d 1270.0 3000.0 70 1100 100 100
+floorPlan -site ams018hvSite -d 1270.0 3000.0 100 1100 100 100
 #floorPlan -site ams018hvSite -d 1500.0 3000.0 100 1100 100 200
 # below is smallest floorplan that doesn't crash
 #floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
@@ -50,9 +50,9 @@ floorPlan -site ams018hvSite -d 1270.0 3000.0 70 1100 100 100
 # -100um
 #setObjFPlanBox Module theCore 328.720 1326.955 1288.000 2672.320
 # -200um
-#setObjFPlanBox Module theCore 328.720 1326.640 1199.442 2672.320
+setObjFPlanBox Module theCore 328.720 1326.640 1199.442 2672.320
 # -230um
-setObjFPlanBox Module theCore 297.16 1326.64 1167.96 2672.32
+#setObjFPlanBox Module theCore 297.16 1326.64 1167.96 2672.32
 # 60% util
 #setObjFPlanBox Module theCore 428.400 1335.939 1183.280 2566.480
 # 70% util
@@ -135,7 +135,7 @@ amsUserGrid
 #amsGlobalConnect both
 amsGlobalConnect both
 #amsHVringBlk corebox
-amsHVringBlk corebox 10 70
+amsHVringBlk corebox 10 80
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -153,7 +153,8 @@ globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
 
 
 selectObject Module theCore
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 4.9
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 15 bottom 30 top 30 right 15} -spacing 10 -offset 4.9
+
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
