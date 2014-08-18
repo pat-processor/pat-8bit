@@ -6,7 +6,7 @@ module pads (
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
         // outputs
-	clock_external, clock_pat, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high) ;
+	clock_external, pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
@@ -56,7 +56,6 @@ output [d_width-1:0] field_fromPAT_low ;
 output [d_width-1:0] field_fromPAT_high ;
 
 output clock_external ;
-output clock_pat ;
 output pat_clock_division ;
 
 
@@ -331,14 +330,17 @@ begin
 	else if	(mode == `MODE_DEBUG) pat_clock_division <= io_b3_in ;
 end
 
+/*
 reg pat_clock_slow ;
 always @(posedge clk_int)
 begin
 	pat_clock_slow <= ~pat_clock_slow ;
 end
 
+
 wire clock_pat ;
 assign clock_pat = (pat_clock_division) ? pat_clock_slow : clk_int ;
+*/
 
 // **** Functionality ****
 
