@@ -108,7 +108,7 @@ high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 createPinGroup patternbuffer_low -cell pads -pin {pwm_low reset_patternbuf_low field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
 
 
-createPinGroup selects -cell pads -pin {clock_external clock_select vref_select f5v_select} -spacing 4
+createPinGroup selects -cell pads -pin {clock_external} -spacing 4
 
 
 createPinGroup clocks -cell pads -pin {clk_int} -spacing 4
