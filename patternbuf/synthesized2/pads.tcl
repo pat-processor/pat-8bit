@@ -50,7 +50,7 @@ setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
 # 70% util
 #setObjFPlanBox Module theCore 428.400 1336.720 1093.470 2566.480
 # blockage width 750 height 750 X 635 Y 340 Layers All
-createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {400 400 1150 1150}
+createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {300 430 1050 1180}
 #createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
 
 # move corner pads closer to corners.
