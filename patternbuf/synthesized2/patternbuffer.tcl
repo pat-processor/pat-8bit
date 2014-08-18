@@ -43,7 +43,8 @@ setOaxMode -compressLevel 0
 # end load
 
 # floorplan
-floorPlan -site ams018hvSite -r 0.985468919242 0.50 100 100 100 100
+#floorPlan -site ams018hvSite -r 0.985468919242 0.50 100 100 100 100
+floorPlan -site ams018hvSite -r 0.985468919242 0.50 50 70 50 70
 selectObject Module theBuffers
 setObjFPlanBox Module theBuffers 54.320 56.225 698.392 680.400
 
@@ -53,7 +54,8 @@ amsUserGrid
 #amsGlobalConnect both
 amsGlobalConnect core
 #amsHVringBlk corebox
-amsHVringBlk corebox 10 70
+#amsHVringBlk corebox 10 70
+amsHVringBlk corebox 10 30
 
 # create pin groups
 createPinGroup tweak0 -cell patternbuffer -pin {tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0]} -spacing 4
@@ -93,7 +95,8 @@ createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
 
 
 # Do the work!
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 10
+#addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 10
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width {left 10 bottom 20 top 20 right 10} -spacing 10 -offset 4.9
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
