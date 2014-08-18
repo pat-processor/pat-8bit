@@ -55,7 +55,7 @@ amsUserGrid
 amsGlobalConnect core
 #amsHVringBlk corebox
 #amsHVringBlk corebox 10 70
-amsHVringBlk corebox 10 30
+#amsHVringBlk corebox 10 70
 
 # create pin groups
 createPinGroup tweak0 -cell patternbuffer -pin {tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0]} -spacing 4
