@@ -416,8 +416,8 @@ assign field_fromPAT_high = field_fromPAT ;
 
 
 // clock divider
-reg [3:0] clk_div ;
-assign clock_out  = clk_div[3] ;
+reg [4:0] clk_div ;
+assign clock_out  = clk_div[4] ;
 always @(posedge clk_int) begin
 	clk_div <= clk_div + 1 ;
 end
