@@ -342,7 +342,7 @@ wire [d_width-1:0] reg_alu_y ;
 
 wire [d_width-1:0] imm_alu_a ;
 wire [d_width-1:0] imm_alu_a_2 ;
-wire [d_width-1:0] imm_alu_a_3 ; 
+wire [d_width-1:0] imm_alu_a_3 ;
 wire [d_width-1:0] imm_alu_b ;
 wire [d_width-1:0] imm_alu_b_2 ;
 wire [d_width-1:0] imm_alu_b_3 ;
@@ -453,6 +453,8 @@ begin
         bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
         low_high_buffer <= 1'b0 ;
+        z <= 1'b0 ;
+        n <= 1'b0 ;
     end
     // else (explicit else much slows the system)
 		instruction_1 <= instruction_in ;
@@ -480,8 +482,8 @@ begin
 			jumping <= 1'b0 ;
 		end
 
-    //if (checkCondition(condition_decoded, z, n) && !jumping) 
-    if (execute_next) 
+    //if (checkCondition(condition_decoded, z, n) && !jumping)
+    if (execute_next)
 	begin
         // commit the result
         data_out <= result ;
@@ -775,7 +777,7 @@ assign addsubout = a + addsubi + {{d_width-1{1'b0}}, op_sub} ;
 ////sub_out   op_addsub ? addsubout :
 //addsubout   shift_out ; // any of the three shifts
 
-assign y = 
+assign y =
 	   op_and ? and_out :
 	   op_or  ? or_out :
 	   op_not ? neg_out :
