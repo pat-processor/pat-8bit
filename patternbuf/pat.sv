@@ -353,24 +353,16 @@ wire [d_width-1:0] result ;
 reg dest_field_regd_2 ;
 
 assign reg_alu_a = data_out ;
-assign reg_alu_a_2 = field_out ; // = data_out
-assign reg_alu_a_3 = data_out_2 ; // TODO: Replicate
 assign reg_alu_b = source2_value ; // allows shift by Rd
-assign reg_alu_b_2 = source2_value_2 ; // allows shift by Rd
-assign reg_alu_b_3 = source2_value_3 ; // allows shift by Rd
 
 assign imm_alu_b = immediate_value ; // immediates for shift must come in on b
-assign imm_alu_b_2 = immediate_value_2 ; // immediates for shift must come in on b
-assign imm_alu_b_3 = immediate_value_3 ;
 assign imm_alu_a = source1_value ;
-assign imm_alu_a_2 = source1_value_2 ;
-assign imm_alu_a_3 = source1_value_3 ;
 
 assign result = source_immediate ? imm_alu_y : reg_alu_y ;
 
-alu accALU(reg_alu_a, reg_alu_a_2, reg_alu_a_3, reg_alu_b, reg_alu_b_2, reg_alu_b_3, reg_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
+alu accALU(reg_alu_a, reg_alu_b, reg_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
 
-alu immALU(imm_alu_a, imm_alu_a_2, imm_alu_a_3, imm_alu_b, imm_alu_b_2, imm_alu_b_3, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
+alu immALU(imm_alu_a, imm_alu_b, imm_alu_y, op_or_regd, op_and_regd, op_not_regd, op_add_regd, op_sub_regd, op_addsub_regd, op_shlz_regd, op_shlo_regd, op_shrz_regd, op_shro_regd) ;
 
 
 // END ALUS
@@ -731,16 +723,12 @@ assign y = ~a ;
 
 endmodule
 
-module alu(a, a_2, a_3, b, b_2, b_3, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_shro) ;
+module alu(a, b, y, op_or, op_and, op_not, op_add, op_sub, op_addsub, op_shl, op_shlo, op_shr, op_shro) ;
 
 parameter d_width = 8 ;
 
 input  [d_width-1:0] a ;
-input [d_width-1:0] a_2 ;
-input [d_width-1:0] a_3 ;
 input [d_width-1:0] b ;
-input [d_width-1:0] b_2 ; //TODO: Not all bits are needed of b_2, so can shrink port size
-input [d_width-1:0] b_3 ;
 input op_or, op_and, op_not ;
 input op_add, op_sub, op_addsub ;
 input op_shl, op_shlo, op_shr, op_shro ;
@@ -754,9 +742,9 @@ wire [d_width-1:0] neg_out ;
 wire [d_width-1:0] and_out ;
 wire [d_width-1:0] or_out ;
 
-shifter theShifter(a, b_2[1:0], shift_out, op_shl, op_shlo, op_shr, op_shro) ;
-adder theAdder(a_2, b, add_out) ;
-subtractor theSub(a_3, b_3, sub_out) ;
+shifter theShifter(a, b[1:0], shift_out, op_shl, op_shlo, op_shr, op_shro) ;
+adder theAdder(a, b, add_out) ;
+subtractor theSub(a, b, sub_out) ;
 orer theOR(a, b, or_out) ;
 ander theAND(a, b, and_out) ;
 negator theNeg(a, neg_out) ;
