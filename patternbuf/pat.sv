@@ -444,7 +444,8 @@ begin
         jumping <= 1'b1 ;
         bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
-        low_high_buffer <= 1'b0 ;
+	data_out <= 8'b0 ;
+	low_high_buffer <= 1'b0 ;
         z <= 1'b0 ;
         n <= 1'b0 ;
     end
