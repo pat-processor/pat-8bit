@@ -49,7 +49,6 @@ reg [i_adr_width-1:0] call_stack [call_stack_size] ;
 reg [call_stack_pointer_size-1:0] call_stack_pointer ;
 
 reg [d_width-1:0] data_out ;
-reg [d_width-1:0] data_out_2 ;
 reg [bufp_width-1:0] bufp ;
 reg [fieldp_width-1:0] fieldp ;
 reg [fieldp_width-1:0] fieldwp ;
@@ -449,39 +448,32 @@ begin
         z <= 1'b0 ;
         n <= 1'b0 ;
     end
-    // else (explicit else much slows the system)
-		instruction_1 <= instruction_in ;
-		instruction_3 <= instruction_in ;
-		instruction_4 <= instruction_in ;
-		reg_instr() ;
-		reg_ops() ;
-		reg_srcdest() ;
-		precompute_condition(condition) ;
-          	//getField() ;
-		updateFieldp() ;
-		updateFieldwp() ;
-		getData() ;
-		//updateFlags() ; // Having this regd means two cycles of
-		//match, which gives unexpected execution results.
 
+    instruction_1 <= instruction_in ;
+    instruction_3 <= instruction_in ;
+    instruction_4 <= instruction_in ;
+    reg_instr() ;
+    reg_ops() ;
+    reg_srcdest() ;
+    precompute_condition(condition) ;
+    updateFieldp() ;
+    updateFieldwp() ;
+    getData() ;
 
-		if (bubbles > 0) begin
-			bubbles <= bubbles - 1 ;
-			jump_forward <= 1'b0 ;
-			jump_return <= 1'b0 ;
-		end
+    if (bubbles > 0) begin
+	bubbles <= bubbles - 1 ;
+	jump_forward <= 1'b0 ;
+	jump_return <= 1'b0 ;
+    end
 
-		if (bubbles == 0) begin
-			jumping <= 1'b0 ;
-		end
+    if (bubbles == 0) begin
+ 	jumping <= 1'b0 ;
+    end
 
-    //if (checkCondition(condition_decoded, z, n) && !jumping)
     if (execute_next)
 	begin
         // commit the result
         data_out <= result ;
-        data_out_2 <= result ;
-
 
 		if (dest_pc_regd) begin
 			if (op_return_regd) begin
