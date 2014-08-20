@@ -35,14 +35,17 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
-
+# Add I/O filler to complete pad rings. Do before floorplan since tool
+# won't consider those outside floorplan
+#amsFillperi
 # locate the components
 #                                             left btm right top
 # -200um
+# below will have some I/O pads out of routing range.
 floorPlan -site ams018hvSite -d 1270.0 3000.0 100 1100 100 100
-#floorPlan -site ams018hvSite -d 1500.0 3000.0 100 1100 100 200
-# below is smallest floorplan that doesn't crash
-#floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 700 200.0
+
+# below is big enough to encompass the I/O pads.
+#floorPlan -site ams018hvSite -d 3000.0 3000.0 100.43 1100.03 1830.0 100.0
 
 
 # 50% util
@@ -67,9 +70,8 @@ setObjFPlanBox Instance iopad_a4 230.162 2774.571 318.662 3001.181
 setObjFPlanBox Instance iopad_b6 1.634 232.024 228.244 320.524
 setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
 
-# Allow cut-outs!!!
-setPreference EnableRectilinearDesign 1
-setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
+
+setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2753.4400 1242.7300 2753.4400 1242.7300 284.7700 3000.0000 284.7700 3000.0000 0.0000 0.0000 0.0000
 
 # too small setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2636.4100 1224.8500 2636.4100 1224.8500 387.4800 2700.0000 387.4800 2700.0000 0.0000 0.0000 0.0000
 
@@ -90,7 +92,7 @@ amsUserGrid
 amsGlobalConnect both
 #amsHVringBlk corebox
 #amsHVringBlk corebox 10 70
-amsHVringBlk corebox 10 30
+#amsHVringBlk corebox 10 30
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -135,7 +137,7 @@ amsUserGrid
 #amsGlobalConnect both
 amsGlobalConnect both
 #amsHVringBlk corebox
-amsHVringBlk corebox 10 80
+#amsHVringBlk corebox 10 75
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -164,19 +166,29 @@ addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_
 
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+# Allow cut-outs!!!
+setPreference EnableRectilinearDesign 1
+puts "--> Adding cut-out"
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2667.6500 1244.0500 2667.6500 1244.0500 1400 3000.0000 1400 3000.0000 0.0000 0.0000 0.0000
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2668.1800 1270.0100 2668.1800 1270.0100 417.0900 3000.0000 417.0900 3000.0000 0.0000 0.0000 0.0000
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2668.8700 1640.9000 2668.8700 1640.9000 1289.9700 3000.0000 1289.9700 3000.0000 0.0000 0.0000 0.0000
+
+sjhHVringBlk 10 45 75
+
 next "Begin placement? y/n"
 
 # Place
+puts "--> Setting place mode"
 setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
-
+puts "--> placingDesign"
 placeDesign -prePlaceOpt
 
-
+puts "--> Adjusting pins"
 # Edit pin positions
 source pads-pin-edit.tcl
 
 
-
+puts "--> Performing power routing"
 # power routing
 sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
 # Whatever the last sroute operation is, it breaks the via spacing, so undo it!
@@ -227,7 +239,7 @@ optDesign -postRoute
 next "Add filler? y/n"
 
 # add core filler to prevent DRC violation
-amsFillcore 
+amsFillcore
 amsFillperi
 
 set_interactive_constraint_modes [all_constraint_modes -active]

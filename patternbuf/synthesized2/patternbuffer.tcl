@@ -57,6 +57,15 @@ amsGlobalConnect core
 #amsHVringBlk corebox 10 70
 #amsHVringBlk corebox 10 70
 
+# Block off pin area from M1 routing for deep nWell
+
+sjhHVringBlk 10 35 55
+#createRouteBlk -box 0 0 705.371 15.061 -layer 1
+#createRouteBlk -box 0 0 15.639 734.71 -layer 1
+#createRouteBlk -box 0 694.603 682.659 709.278 -layer 1
+#createRouteBlk -box 670 0.102 670 708.902 -layer 1
+
+
 # create pin groups
 createPinGroup tweak0 -cell patternbuffer -pin {tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0]} -spacing 4
 

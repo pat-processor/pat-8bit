@@ -61,3 +61,49 @@ if (!$interactive) {
     if (![string compare $answer "n"]) { break }
   }
 }
+
+
+proc sjhHVringBlk {{width 10} {offsetx 0} {offsety 0}} {
+        set coreboxlist [dbGet top.fPlan.corebox]
+        set corebox [lindex $coreboxlist 0]
+        set llx [lindex $corebox 0]
+	set lly [lindex $corebox 1]
+	set urx [lindex $corebox 2]
+	set ury [lindex $corebox 3]
+	print "---# Corebox: $llx $lly $urx $ury\n"
+
+        # create routing blockages for M1
+	set llxi [expr $llx-$offsetx]
+	set llyi [expr $lly-$offsetx]
+	set urxi [expr $urx+$offsetx]
+	set uryi [expr $ury+$offsetx]
+	set llxo [expr $llxi-$width]
+	set llyo [expr $llyi-$width]
+	set urxo [expr $urxi+$width]
+	set uryo [expr $uryi+$width]
+
+	print "$llxi $llyi $urxi $uryi"
+
+        # routing blockages for HV-Ring
+        # left
+	createRouteBlk -box $llxo $llyo $llxi $uryo -layer 1
+        # right
+	createRouteBlk -box $urxi $llyo $urxo $uryo -layer 1
+
+	set llxi [expr $llx-$offsety]
+	set llyi [expr $lly-$offsety]
+	set urxi [expr $urx+$offsety]
+	set uryi [expr $ury+$offsety]
+	set llxo [expr $llxi-$width]
+	set llyo [expr $llyi-$width]
+	set urxo [expr $urxi+$width]
+	set uryo [expr $uryi+$width]
+
+
+        # top
+	createRouteBlk -box $llxi $uryi $urxi $uryo -layer 1
+        # bottom
+	createRouteBlk -box $llxi $llyo $urxi $llyi -layer 1
+
+}
+

@@ -2,7 +2,7 @@
 
 set pin_offset_ndriver 50
 set pin_offset_tweak 150
-set pin_offset_pdriver 300
+set pin_offset_pdriver 260
 
 # n_drive
 editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 1.4 -start 783.52 [expr $pin_offset_ndriver + 50.00] -pin {{n_drive[7]} {n_drive[6]} {n_drive[5]} {n_drive[4]}}
@@ -68,7 +68,7 @@ editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacin
 # Pat Right <- Patternbuffer Left pins. Ideal spacing 41.04um (level shifter pitch)
 # insufficient space on left of Patternbuffer, so move to bottom.
 
-editPin -side Bottom -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.48 -start 7.037 105.558 -pin {sout {field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]}}
+editPin -side Bottom -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 4.48 -start 80 105.558 -pin {sout {field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]}}
 
 # Pat Right -> Patternbuffer Left pins
 #
@@ -77,6 +77,6 @@ editPin -side Bottom -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spaci
 #editPin -side Left -fixOverlap 1 -layer 3 -spreadType side -pin {{bufp_in[0]} {bufp_in[1]} {bufp_in[2]} clk {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sclk sin ssel}
 
 # or
-editPin -side Left -pinWidth 0.28 -pinDepth 1.12 -fixOverlap 1 -layer 2 -spreadType start -spacing 25 -start 0.0 0.28 -pin {{bufp_in[0]} {bufp_in[1]} {bufp_in[2]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sclk sin ssel}
+editPin -side Left -pinWidth 0.28 -pinDepth 1.12 -fixOverlap 1 -layer 2 -spreadType start -spacing 20 -start 0.0 75 -pin {{bufp_in[0]} {bufp_in[1]} {bufp_in[2]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} pwm reset {saddr[0]} {saddr[1]} {saddr[2]} sclk sin ssel}
 
 

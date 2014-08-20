@@ -438,17 +438,6 @@ endtask
 assign jump = jump_forward | jump_return ;
 always @(posedge clk)
 begin
-    if (reset)
-    begin
-        jumping <= 1'b1 ;
-        bubbles <= `NOPIPELINEBUBBLES ;
-        data_write <= 1'b0 ;
-	data_out <= 8'b0 ;
-	low_high_buffer <= 1'b0 ;
-        z <= 1'b0 ;
-        n <= 1'b0 ;
-    end
-
     instruction_1 <= instruction_in ;
     instruction_3 <= instruction_in ;
     instruction_4 <= instruction_in ;
@@ -459,6 +448,19 @@ begin
     updateFieldp() ;
     updateFieldwp() ;
     getData() ;
+
+    if (reset)
+    begin
+        jumping <= 1'b1 ;
+        bubbles <= `NOPIPELINEBUBBLES ;
+        data_write <= 1'b0 ;
+	data_out <= 8'b0 ;
+	low_high_buffer <= 1'b0 ;
+        z <= 1'b1 ;
+        n <= 1'b0 ;
+    end
+
+
 
     if (bubbles > 0) begin
 	bubbles <= bubbles - 1 ;

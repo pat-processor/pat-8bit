@@ -1,8 +1,10 @@
 #puts -nonewline "Insert Scan Chain? (y/N): "
 #flush stdout
-#set insertScanChainCt [gets stdin insertScanChain]
-puts "Insert Scan Chain?"
-puts -nonewline $insertScanChain
+#set insertScanChain [gets stdin insertScanChain]
+#puts "Insert Scan Chain?"
+#puts -nonewline $insertScanChain
+puts "Scan chain disabled in script."
+set insertScanChain n
 
 
 set_attribute lib_search_path /home/research/software/asic/kits/ams/H18/liberty/h18_1.8V
@@ -30,6 +32,8 @@ elaborate patternbuffer
 #set_attribute lp_clock_gating_test_signal *ssel* /
 #report clock_gating -preview -gated_ff -clock_pin clk
 
+dc::set_time_unit -picoseconds
+dc::current_design patternbuffer
 set clock [define_clock -period 1000 -name clk [find / -port clk]]
 
 # setup delay for level-shifter inputs
@@ -38,14 +42,22 @@ external_delay -clock clk -input 0 -name clk_nodelay [find /des* -port clk]
 # set the driving strength of the inputs to be equivalent to std cell output
 set_attribute external_driver [find [find / -libcell DFX1_HV] -libpin Q] [find /des* -port ports_in/*]
 
+# Set output slack needed w.r.t. this module's clock
+dc::set_output_delay 0 -clock clk [find /designs/ -port ports_out/*]
+set_attribute max_transition 300 [find /designs/ -port ports_out/*]
+
+# External interfaces are slower.
+#dc::set_multicycle_path -setup 10 -from [ find / -port ssel ]
+#dc::set_multicycle_path -setup 10 -from [ find / -port sin ]
+#dc::set_multicycle_path -setup 10 -from [ find / -port sclk ]
+# sout is allowed to take two cycles
+#dc::set_multicycle_path -setup 2 -to [ find / -port sout ]
+dc::set_output_delay -1000 -clock clk [find /designs/ -port sout]
+
 
 # set_max_delay -from <node> -to <node> <delay>
 #set_max_delay -from bufp -to current_buffer 1000
-#external_delay -output 2000 [find / -port ports_out/*]
-dc::current_design patternbuffer
-dc::set_time_unit -picoseconds
 #dc::set_load_unit -femtofarads
-#dc::set_output_delay 2000 -clock sclk [all_outputs]
 
 # path_disable == dc::set_false_path
 #dc::set_false_path -from [ find / -inst *bufp*] -to [ find / -inst *field_byte_out*] -exception_name bufpToFieldOut
