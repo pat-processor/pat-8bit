@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 21 12:04:57 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 21 16:00:46 +0100 2014
 
 # ####################################################################
 
@@ -155,15 +155,15 @@ set_multicycle_path -from [list \
   [get_ports pad_io_b6]  \
   [get_ports pad_io_b7] ] -setup -end 4
 set_multicycle_path -from [list \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[0]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[1]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[2]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[3]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[4]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[5]}]  \
   [get_cells {theCore/thePAT/thePC/pc_out_reg[6]}]  \
   [get_cells {theCore/thePAT/thePC/pc_out_reg[7]}]  \
-  [get_cells {theCore/thePAT/thePC/pc_out_reg[8]}] ] -to [list \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[8]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[0]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[1]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[4]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[5]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[3]}]  \
+  [get_cells {theCore/thePAT/thePC/pc_out_reg[2]}] ] -to [list \
   [get_cells {theCore/iBuffer/i_buffer_reg[0][0]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[0][10]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[0][11]}]  \

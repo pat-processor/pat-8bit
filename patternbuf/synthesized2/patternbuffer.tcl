@@ -100,7 +100,10 @@ createPinGuide -pingroup pdrive -cell patternbuffer -edge 2 -layer M3
 # PAT connections
 createPinGroup patpins -cell patternbuffer -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}} -spacing 4
 
-createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
+#createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
+# Fix digital pins in aligned location for pat component
+# Call the script with exact pin placements
+source patternbuffer-pin-edit.tcl
 
 
 # Do the work!

@@ -36,7 +36,7 @@
  (left
 	(inst
 		name = iopad_b5
-	#	offset = 200
+		offset = 230
 		place_status = fixed
 	)
 	(inst
@@ -55,10 +55,6 @@
 		place_status = fixed
 	)
 	(inst
-		name = porGen  # power on reset generator
-		cell = PORGEN_1V8_HV
-	)
-	(inst
 		name = iopad_b1
 	#	offset = 200
 		place_status = fixed
@@ -67,6 +63,10 @@
 		name = iopad_b0
 	#	offset = 200
 		place_status = fixed
+	)
+	(inst
+		name = porGen  # power on reset generator
+		cell = PORGEN_1V8_HV
 	)
 	(inst
 		name = iopad_a7
@@ -85,7 +85,7 @@
 	)
 	(inst
 		name = iopad_a4
-	#	offset = 200
+		offset = 2680
 		place_status = fixed
 	)
 
@@ -94,7 +94,7 @@
   (top
 	(inst
 		name = iopad_a3
-	#	offset = 200
+		offset = 230
 		place_status = fixed
 	)
 	(inst
@@ -143,7 +143,7 @@
 	)
 	(inst
 		name = iopad_f5v_select
-		offset = 2200
+		offset = 2062
 		place_status = fixed
 	)
 
@@ -170,19 +170,19 @@
 	
   )
   (bottom
-  	(inst
+	(inst
 		name = iopad_b6
-	#	offset = 100
+		offset = 230
 		place_status = fixed
 	)
 	(inst
 		name = iopad_b7
-		#offset = 0
+#		offset = 400
 		place_status = fixed
 	)
 	(inst
 		name = iopad_modesel_0
-	#	offset = 200
+#		offset = 400
 		place_status = fixed
 	)
 	(inst
@@ -241,7 +241,7 @@
 	)
 	(inst
 		name = avdd
-		offset = 2670
+		offset = 2362
 		place_status = fixed
 		cell = VDDPAD5V_CORE_HV
 	)

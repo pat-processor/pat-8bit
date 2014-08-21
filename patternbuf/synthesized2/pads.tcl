@@ -65,10 +65,10 @@ createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {300 430 1050 1180}
 #createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
 
 # move corner pads closer to corners.
-setObjFPlanBox Instance iopad_a5 0.262 2680.395 226.872 2768.895
-setObjFPlanBox Instance iopad_a4 230.162 2774.571 318.662 3001.181
-setObjFPlanBox Instance iopad_b6 1.634 232.024 228.244 320.524
-setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
+#setObjFPlanBox Instance iopad_a4 0.262 2680.395 226.872 2768.895
+#setObjFPlanBox Instance iopad_a3 230.162 2774.571 318.662 3001.181
+#setObjFPlanBox Instance iopad_b5 1.634 232.024 228.244 320.524
+#setObjFPlanBox Instance iopad_b6 232.612 0.0 321.112 226.61
 
 
 setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2753.4400 1242.7300 2753.4400 1242.7300 284.7700 3000.0000 284.7700 3000.0000 0.0000 0.0000 0.0000
