@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 21 18:02:05 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 21 19:01:17 +0100 2014
 
 # ####################################################################
 
@@ -231,8 +231,6 @@ set_multicycle_path -from [list \
   [get_ports pad_io_b1]  \
   [get_ports pad_io_b0] ] -setup -end 13
 set_clock_gating_check -setup 0.0 
-set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports pwm_low]
-set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports pwm_high]
 set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports {bufp_low[2]}]
 set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports {bufp_low[1]}]
 set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports {bufp_low[0]}]

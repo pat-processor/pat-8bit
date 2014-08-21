@@ -35,8 +35,8 @@ set_attribute external_driver [find [find / -libcell INVX2_HV] -libpin Q] /desig
 set_attribute external_pin_cap 10 /designs/$currentDesign/ports_out/*
 
 # Set output slack needed w.r.t. this module's clock
-dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_low]
-dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_high]
+#dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_low]
+#dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_high]
 dc::set_output_delay 0 -clock clk [find /designs/ -port bufp_low*]
 dc::set_output_delay 0 -clock clk [find /designs/ -port bufp_high*]
 dc::set_output_delay 0 -clock clk [find /designs/ -port fieldp_low*]
