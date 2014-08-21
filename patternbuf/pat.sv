@@ -436,7 +436,7 @@ endtask
 
 
 assign jump = jump_forward | jump_return ;
-always @(posedge clk)
+always @(posedge clk or posedge reset)
 begin
     instruction_1 <= instruction_in ;
     instruction_3 <= instruction_in ;
@@ -449,28 +449,33 @@ begin
     updateFieldwp() ;
     getData() ;
 
+    // define asynchronous reset signals
+    // in H18 lib, asynchronous reset dominates, so no need to use else
+    // over
     if (reset)
     begin
         jumping <= 1'b1 ;
         bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
-	data_out <= 8'b0 ;
-	low_high_buffer <= 1'b0 ;
+ //       data_out <= 8'b0 ;
+        low_high_buffer <= 1'b0 ;
+        field_write_en_low <= 1'b0 ;
+        field_write_en_high <= 1'b0 ;
+        field_out <= 8'b0 ;
         z <= 1'b1 ;
         n <= 1'b0 ;
     end
+    else begin
+        if (bubbles > 0) begin
+	   		bubbles <= bubbles - 1 ;
+	   		jump_forward <= 1'b0 ;
+	 		jump_return <= 1'b0 ;
+        end
 
+        if (bubbles == 0) begin
+            jumping <= 1'b0 ;
+        end
 
-
-    if (bubbles > 0) begin
-	bubbles <= bubbles - 1 ;
-	jump_forward <= 1'b0 ;
-	jump_return <= 1'b0 ;
-    end
-
-    if (bubbles == 0) begin
- 	jumping <= 1'b0 ;
-    end
 
     if (execute_next)
 	begin
@@ -523,7 +528,7 @@ begin
 	end
 
 	end
-
+end
 
 
 endmodule
