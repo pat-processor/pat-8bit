@@ -54,7 +54,7 @@ force -freeze sim:/digital/thePAT/jump_forward 1'b0 0 -cancel 1
 force -freeze sim:/digital/thePAT/jumping 1'b0 0 -cancel 1
 force -freeze sim:/digital/thePAT/n 1'b0 0 -cancel 1
 force -freeze sim:/digital/thePAT/z 1'b0 0 -cancel 1
-
+mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/thePAT/dmem/dmem
 
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
@@ -66,6 +66,7 @@ mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital
 mem load -filltype value -filldata {00ff30040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
 mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
 mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
+mem load -i D:/pat/pat/patasm/pat.hex -format hex /digital/iBuffer/iMem/imem
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/thePAT/dmem/dmem
 
 force -freeze sim:/digital/iBuffer/iMem/imem_in 0 0
@@ -81,6 +82,10 @@ run
 run
 force -freeze sim:/digital/reset 1'h0 0
 run 800
+
+
+N.B. LDI shows as OR 0
+
 
 
 *** 

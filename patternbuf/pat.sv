@@ -196,7 +196,7 @@ reg [2:0] bubbles ;
 reg jumping ;
 reg jump_forward ;
 reg jump_return ;
-`define NOPIPELINEBUBBLES 5
+`define NOPIPELINEBUBBLES 4
 
 `define COND_Z 0 // zero
 `define COND_NZ 1 // not-zero
@@ -480,6 +480,7 @@ begin
         end
 
 
+    if (!execute_next) data_write <= 1'b0 ;
     if (execute_next)
 	begin
         // commit the result
