@@ -436,7 +436,7 @@ endtask
 
 
 assign jump = jump_forward | jump_return ;
-always @(posedge clk or posedge reset)
+always @(posedge clk)
 begin
     instruction_1 <= instruction_in ;
     instruction_3 <= instruction_in ;
@@ -455,10 +455,11 @@ begin
     if (reset)
     begin
         jumping <= 1'b1 ;
-        bubbles <= `NOPIPELINEBUBBLES ;
+	jump_forward <= 1'b1 ;
+	bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
- //       data_out <= 8'b0 ;
-        low_high_buffer <= 1'b0 ;
+	bufp <= 0 ;
+	low_high_buffer <= 1'b0 ;
         field_write_en_low <= 1'b0 ;
         field_write_en_high <= 1'b0 ;
         field_out <= 8'b0 ;
@@ -497,7 +498,7 @@ begin
 
 		// field_out is an extra pipeline stage, to speed up ALU operations by ~80ps
 		dest_field_regd_2 <= dest_field_regd ;
-		if (dest_field_regd_2) begin
+		if (dest_field_regd_2 && !reset) begin
 			field_out <= data_out ;
 			if (low_high_buffer) field_write_en_high <= 1'b1 ;
 			else field_write_en_low <= 1'b1 ;
@@ -507,7 +508,7 @@ begin
 			field_write_en_low <= 1'b0 ;
 		end
 
-		if (dest_reg_regd) begin
+		if (dest_reg_regd && !reset) begin
 		data_write <= 1'b1 ;
 		end
 		else data_write <= 1'b0 ;
@@ -519,7 +520,7 @@ begin
 			registerOutput() ;
 		end
 
-		if (op_setb_regd)
+		if (op_setb_regd && !reset)
 		begin
 			bufp <= immediate_bufp_regd[2:0] ;
 			low_high_buffer <= immediate_bufp_regd[3] ;
