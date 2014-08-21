@@ -71,6 +71,8 @@ mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/thePA
 force -freeze sim:/digital/iBuffer/iMem/imem_in 0 0
 force -freeze sim:/digital/iBuffer/iMem/imem_write 1'h0 0
 force -freeze sim:/digital/iBuffer/imem_write_adr 10'h000 0
+force -freeze sim:/digital/thePAT/field_in_high 8'h42 0
+force -freeze sim:/digital/thePAT/field_in_low 8'h43 0
 
 force -freeze sim:/digital/clk 1 0, 0 {50 ns} -r 100
 force -freeze sim:/digital/reset 1'h1 0
