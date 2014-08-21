@@ -24,7 +24,7 @@ I8_OPS = ["ORI", "ORR", "ANDI", "ANDR", "ADDI", "ADDR", "SUBI", "SUBR", "LDI", "
 I8_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xd, 0xe]
 
 #i3 operators
-I3_OPS = ["SHLZI", "SHLZR", "SHLOI", "SHLOR", "SHRZI", "SHRZR", "ASRI", "ASRR", "INR", "OUTR", "SETB"]
+I3_OPS = ["SHLZI", "SHLZR", "SHLOI", "SHLOR", "SHRZI", "SHRZR", "SHROI", "SHROR", "INR", "OUTR", "SETB"]
 I3_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xb, 0xc]
 
 #i0 operators
