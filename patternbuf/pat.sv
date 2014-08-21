@@ -397,7 +397,7 @@ task getData() ;
 endtask
 
 task updateFlags() ;
-    begin
+    if (!reset)    begin 
         if (field_op_regd)
         begin
             z <= (field_value_muxd == 0) ;
@@ -463,6 +463,7 @@ begin
         field_write_en_low <= 1'b0 ;
         field_write_en_high <= 1'b0 ;
         field_out <= 8'b0 ;
+	data_out <= 8'b0 ;
         z <= 1'b1 ;
         n <= 1'b0 ;
     end
@@ -481,7 +482,7 @@ begin
     if (execute_next)
 	begin
         // commit the result
-        data_out <= result ;
+        if (!reset)  data_out <= result ;
 
 		if (dest_pc_regd) begin
 			if (op_return_regd) begin
