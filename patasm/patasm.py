@@ -20,7 +20,7 @@ I3_OPCODES = [0, 1, 2, 3, 6, 8, 9]
 I0_OPS = ["NOT", "TEST", "NOP"]
 I0_OPCODES = [0, 2, 5]
 
-CONDITIONS = ["Z", "LT", "GT", "AL"]
+CONDITIONS = ["Z", "NZ", "N", "AL"]
 COND_CODES = [0, 1, 2, 3]
 
 

@@ -5,6 +5,12 @@
 # Simon Hollis (simon@cs.bris.ac.uk)
 # For 23-bit implicit register version of PAT
 
+# Important info
+# --------------
+# * Results take 2 cycles to commit to a register.
+#   So, the following is invalid: ADDI r0 1 ; ADDI r0 1 - Use ADDR instead for the second
+#   The following is also invalid: ADDI r0 1 ; foo ; SUBI r0 1 - Use ADDI ; foo ; NOP ; SUBI instead
+
 from __future__ import print_function
 import sys
 
@@ -56,6 +62,7 @@ def get_opcode(instr):
 		if instr.startswith(I3_OPS[i]):
 			foo, bar, instr = instr.partition(I3_OPS[i])
 			opcode = I3_OPCODES[i]
+			print("i3opcode:", opcode)
 			return (opcode, 4, instr)
 		i+=1
 
@@ -103,7 +110,7 @@ def write_hexfile(mem):
 	out = open(output_file_name, 'w')
 	address = 0
 	while (address < len(mem)):
-		out.write('@'+str(address/2)+' ')
+		out.write('@'+hex(int(address/2))[2:]+' ')
 		if (address + 1 < len(mem)):
 			first = mem[address]
 			second = mem[address+1]
@@ -122,7 +129,7 @@ def write_hexfile_23bit(mem):
 	out = open(output_file_name, 'w')
 	address = 0
 	while (address < len(mem)):
-		out.write('@'+str(int(address/2))+' ')
+		out.write('@'+hex(int(address/2))[2:]+' ')
 		if (address + 1 < len(mem)):
 			first = int(mem[address], 16)
 			second = int(mem[address+1], 16)
@@ -161,7 +168,7 @@ for instr in input_file:
 		immediate = tokens[2]
 		immediate.strip()
 	else:
-		immediate = "240" ; # immediate unused in this instruction format
+		immediate = "0" ; # immediate unused in this instruction format
 
 	if (instr.startswith(':')): # labels start with ':' and are all alpha
 		instr = instr.strip(':')
