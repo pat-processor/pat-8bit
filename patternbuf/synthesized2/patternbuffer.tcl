@@ -141,7 +141,6 @@ undo
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
-optDesign -preCTS
 
 clockDesign -specFile Clock.ctstch -outDir clock_report -fixedInstBeforeCTS
 
@@ -168,6 +167,7 @@ setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 next "Design routed. Optimise? y/n"
 
 # from AMS FAQ
+optDesign -postRoute
 optDesign -postRoute
 
 # add core filler to prevent DRC violation

@@ -33,9 +33,22 @@ dc::set_time_unit -picoseconds
 # external output capacitance in fF. 1.5 is approx INVX1 
 set_attribute external_driver [find [find / -libcell INVX2_HV] -libpin Q] /designs/$currentDesign/ports_in/*
 set_attribute external_pin_cap 10 /designs/$currentDesign/ports_out/*
-# set pad input slew in ps, rise/fall and 4 cycle path to logic
-#set_attribute external_driver_input_slew {100 100} [find /des* -port ports_in/*]
 
+# Set output slack needed w.r.t. this module's clock
+dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_low]
+dc::set_output_delay 0 -clock clk [find /designs/ -port pwm_high]
+dc::set_output_delay 0 -clock clk [find /designs/ -port bufp_low*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port bufp_high*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port fieldp_low*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port fieldp_high*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port fieldwp_low*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port fieldwp_high*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port field_write_en_low]
+dc::set_output_delay 0 -clock clk [find /designs/ -port field_write_en_high]
+dc::set_output_delay 0 -clock clk [find /designs/ -port field_fromPAT_low*]
+dc::set_output_delay 0 -clock clk [find /designs/ -port field_fromPAT_high*]
+
+set_attribute max_transition 300 [find /designs/ -port ports_out/*]
 
 # Preserve pads not connected in the verilog
 # This may not strictly be necessary, but this is belt-and-braces
