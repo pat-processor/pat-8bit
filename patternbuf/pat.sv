@@ -397,7 +397,7 @@ task getData() ;
 endtask
 
 task updateFlags() ;
-    if (!reset)    begin 
+    if (!reset)    begin
         if (field_op_regd)
         begin
             z <= (field_value_muxd == 0) ;
@@ -455,15 +455,15 @@ begin
     if (reset)
     begin
         jumping <= 1'b1 ;
-	jump_forward <= 1'b1 ;
-	bubbles <= `NOPIPELINEBUBBLES ;
+        jump_forward <= 1'b1 ;
+        bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
-	bufp <= 0 ;
-	low_high_buffer <= 1'b0 ;
+        bufp <= 0 ;
+        low_high_buffer <= 1'b0 ;
         field_write_en_low <= 1'b0 ;
         field_write_en_high <= 1'b0 ;
         field_out <= 8'b0 ;
-	data_out <= 8'b0 ;
+	    data_out <= 8'b0 ;
         z <= 1'b1 ;
         n <= 1'b0 ;
     end
@@ -561,7 +561,10 @@ pc_add_signed pcAddrSigned(pc, jump_offset, pcAdd) ;
 
 always @(posedge clk)
 	begin
-		if (reset) pc <= 0 ;
+		if (reset) begin
+             pc <= 0 ;
+             pc_out <= 0 ;
+         end
 		else
 		begin
 			if (call) lr <= pc - `PC_CALL_ADJUST ; // TODO: Check value of call adjust

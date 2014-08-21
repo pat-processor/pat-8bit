@@ -1,10 +1,6 @@
 TOD: 5J25CTFF
 
 *** CONDITIONALITY ***
-
-* Reset Init z & n *
-* Reset init instruction *
-
 -- TESTS --
 
 ORA 3 06_0_03_06_0_03
