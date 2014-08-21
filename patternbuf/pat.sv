@@ -455,7 +455,8 @@ begin
     if (reset)
     begin
         jumping <= 1'b1 ;
-        jump_forward <= 1'b1 ;
+        jump_forward <= 1'b0 ;
+        jump_return <= 1'b0 ;
         bubbles <= `NOPIPELINEBUBBLES ;
         data_write <= 1'b0 ;
         bufp <= 0 ;
@@ -482,7 +483,9 @@ begin
     if (execute_next)
 	begin
         // commit the result
-        if (!reset)  data_out <= result ;
+        if (!reset)
+        begin
+         data_out <= result ;
 
 		if (dest_pc_regd) begin
 			if (op_return_regd) begin
@@ -496,6 +499,7 @@ begin
 				bubbles <= `NOPIPELINEBUBBLES ;
 			end
 		end
+        end
 
 		// field_out is an extra pipeline stage, to speed up ALU operations by ~80ps
 		dest_field_regd_2 <= dest_field_regd ;
@@ -934,7 +938,6 @@ reg [i_adr_width-1:0] imem_read_adr ;
 wire [(i_buffer_size*i_width)-1:0] imem_out ;
 
 reg [i_width-1:0] i_buffer [i_buffer_size] ;
-reg inst_index ;
 reg [1:0] jump_bubble ;
 
 inst_mem iMem(imem_read_adr, imem_write_adr, imem_write, imem_in, imem_out) ;
