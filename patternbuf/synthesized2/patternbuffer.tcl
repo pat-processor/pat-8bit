@@ -38,7 +38,10 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
+setDesignMode -process 180
 setOaxMode -compressLevel 0
+set init_oa_abstract_view {abstract layout}
+
 
 # end load
 
@@ -59,6 +62,7 @@ amsGlobalConnect core
 
 # Block off pin area from M1 routing for deep nWell
 
+# 35x55 routing blockage. Add 2um space on to prevent DRC errors.
 sjhHVringBlk 10 37 57
 #createRouteBlk -box 0 0 705.371 15.061 -layer 1
 #createRouteBlk -box 0 0 15.639 734.71 -layer 1
@@ -113,8 +117,8 @@ addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
 # Fix some DRCs
-editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
-editTrim
+#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+#editTrim
 
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
@@ -141,6 +145,7 @@ undo
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
+optDesign -preCTS
 
 clockDesign -specFile Clock.ctstch -outDir clock_report -fixedInstBeforeCTS
 
@@ -158,16 +163,13 @@ setNanoRouteMode -quiet -routeBottomRoutingLayer default
 setNanoRouteMode -quiet -drouteEndIteration default
 setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
-wroute
-#routeDesign -globalDetail
-
+routeDesign -globalDetail
 # report and optimise timing
 timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 
 next "Design routed. Optimise? y/n"
 
-# from AMS FAQ
 optDesign -postRoute
 optDesign -postRoute
 
