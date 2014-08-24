@@ -37,6 +37,7 @@ set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
 setDesignMode -process 180
 setOaxMode -compressLevel 0
+set init_oa_abstract_view {abstract layout}
 
 # Add I/O filler to complete pad rings. Do before floorplan since tool
 # won't consider those outside floorplan
@@ -67,6 +68,7 @@ setObjFPlanBox Module theCore 328.720 1326.640 1199.442 2672.320
 createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {300 430 1050 1180}
 #createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
 
+
 # move corner pads closer to corners.
 #setObjFPlanBox Instance iopad_a4 0.262 2680.395 226.872 2768.895
 #setObjFPlanBox Instance iopad_a3 230.162 2774.571 318.662 3001.181
@@ -90,33 +92,10 @@ createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_hig
 
 # ams scripts
 amsUserGrid
-# connect power (both if with I/O), "core" if not
-#amsGlobalConnect both
-amsGlobalConnect both
-#amsHVringBlk corebox
-#amsHVringBlk corebox 10 70
-#amsHVringBlk corebox 10 30
-
-globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
-globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
-globalNetConnect vdd1v8o! -type pgpin -pin vdd1v8o! -inst * -module {}
-globalNetConnect por1v8r! -type pgpin -pin por1v8r! -inst * -module {}
-globalNetConnect trig1v8! -type pgpin -pin trig1v8! -inst * -module {}
-
-globalNetConnect gnd1v8l! -type pgpin -pin gnd1v8l! -inst * -module {}
-globalNetConnect gnd1v8r! -type pgpin -pin gnd1v8r! -inst * -module {}
-globalNetConnect gnd1v8o! -type pgpin -pin gnd1v8o! -inst * -module {}
-globalNetConnect subc1v8! -type pgpin -pin subc1v8! -inst * -module {}
-
-globalNetConnect vdd! -type pgpin -pin vdd! -inst * -module {}
-globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
 
 
-selectObject Module theCore
-#addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width 20 -spacing 10 -offset 4.9
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 10 bottom 20 top 20 right 10} -spacing 10 -offset 4.9
 
-addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
+
 
 high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 
@@ -134,13 +113,10 @@ createPinGuide -pingroup selects -cell pads -edge 2 -layer M3
 createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
 
-# ams scripts
-amsUserGrid
-# connect power (both if with I/O), "core" if not
-#amsGlobalConnect both
+
+# -- begin power planning
+
 amsGlobalConnect both
-#amsHVringBlk corebox
-#amsHVringBlk corebox 10 75
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -163,6 +139,22 @@ addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+
+# to fix any DRC problems in power vias (forces generation of new custom power vias)
+editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
+
+# reserve routing for power connections
+createRouteBlk -layer {M2 AM} -box 219.474 1026.543 308.622 1252.106
+createRouteBlk -layer {M2 AM} -box 224.568 1496.468 282.115 1585.368
+createRouteBlk -layer {M2 AM} -box 1215 2708.595 1267.430 2757.95
+createRouteBlk -layer M2 -box 1215 2716.816 1266.940 3018.136
+
+
+# === End power planning
+
+
 # Allow cut-outs!!!
 setPreference EnableRectilinearDesign 1
 puts "--> Adding cut-out"
@@ -179,7 +171,8 @@ source pads-pin-edit.tcl
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
 
-sjhHVringBlk 10 45 75
+
+sjhHVringBlk 20 37 65
 
 next "Begin placement? y/n"
 
