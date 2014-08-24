@@ -80,11 +80,11 @@ dc::set_false_path -from [find / -port reset_patternbuf_low] -exception_name res
 dc::set_false_path -from [find / -port pad_io_b0 ] -exception_name pad_reset_patternbuf_low
 dc::set_false_path -from [find / -port pad_io_b1 ] -exception_name pad_reset_patternbuf_high
 dc::set_false_path -from [find / -port pad_io_b2 ] -exception_name pad_reset_pat
-# I/O pad latency, as seen by encounter (why so high - unrepeated!)
+# I/O pad latency, as seen by encounter (why so high - unrepeated! 13ns is the min observed latency)
 dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_a* ] -exception_name io_a_pads
 dc::set_multicycle_path -setup 13 -from [ find / -port pad_io_b* ] -exception_name io_a_pads
-dc::set_multicycle_path -setup 10 -from [ find / -port pad_pwm_low ] -exception_name io_pwm_low
-dc::set_multicycle_path -setup 10 -from [ find / -port pad_pwm_high ] -exception_name io_pwm_high
+dc::set_multicycle_path -setup 13 -from [ find / -port pad_pwm_low ] -exception_name io_pwm_low
+dc::set_multicycle_path -setup 13 -from [ find / -port pad_pwm_high ] -exception_name io_pwm_high
 
 
 if {$insertScanChain == "y"} {
