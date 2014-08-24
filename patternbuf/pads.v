@@ -6,7 +6,7 @@ module pads (
 	pad_io_a0, pad_io_a1, pad_io_a2, pad_io_a3, pad_io_a4, pad_io_a5, pad_io_a6, pad_io_a7,
 	pad_io_b0, pad_io_b1, pad_io_b2, pad_io_b3, pad_io_b4, pad_io_b5, pad_io_b6, pad_io_b7,
         // outputs
-	pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, ring_osc_start_1, ring_osc_start_2) ;
+	pat_clock_division, reset_patternbuf_low, reset_patternbuf_high, pwm_low, pwm_high, sclk_low, sclk_high, sin_low, sin_high, ssel_low, ssel_high, saddr_low, saddr_high, bufp_low, bufp_high, fieldp_low, fieldp_high, fieldwp_low, fieldwp_high, field_write_en_low, field_write_en_high, field_fromPAT_low, field_fromPAT_high, ring_osc_enable_1_n, ring_osc_enable_2_n, ring_osc_trigger_n) ;
 
 parameter d_width = 8 ;
 parameter bufp_width = 3 ;
@@ -62,8 +62,9 @@ output [d_width-1:0] field_fromPAT_high ;
 output pat_clock_division ;
 
 // For David's test circuits
-output ring_osc_start_1 ;
-output ring_osc_start_2 ;
+output ring_osc_enable_1_n ;
+output ring_osc_enable_2_n ;
+output ring_osc_trigger_n ;
 
 
 inout pad_clock_in ;
@@ -98,7 +99,6 @@ wire io_b_msb_input_enable ;
 wire io_b_lsb_output_enable ;
 wire io_b_msb_output_enable ;
 
-wire reset ;
 wire modesel_0 ;
 wire modesel_1 ;
 wire clock_out ;
@@ -302,8 +302,10 @@ assign reset_pat = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode ==
 assign reset_patternbuf_high = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode == `MODE_DEBUG) && io_b1_in) ;
 assign reset_patternbuf_low = (mode == `MODE_RESET) || (mode == `MODE_MEMLOAD) || ((mode == `MODE_DEBUG) && io_b0_in) ;
 
-assign ring_osc_start_1 = (mode == `MODE_RESET) && io_a3_in ;
-assign ring_osc_start_2 = (mode == `MODE_RESET) && io_a4_in ;
+// Active low enable and oscillator start signals
+assign ring_osc_enable_1_n = (mode != `MODE_RESET) || io_a3_in ;
+assign ring_osc_enable_2_n = (mode != `MODE_RESET) || io_a4_in ;
+assign ring_osc_trigger_n = (mode != `MODE_RESET) || io_a6_in ;
 
 
 // synchronise asynchronous inputs with a two-flop synchroniser
@@ -413,7 +415,7 @@ assign field_fromPAT_high = field_fromPAT ;
 
 
 
-// clock divider
+// clock divider ( / 32 ) 
 reg [4:0] clk_div ;
 assign clock_out  = clk_div[4] ;
 always @(posedge clk_int) begin
