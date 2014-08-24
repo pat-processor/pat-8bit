@@ -16,5 +16,5 @@ editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType s
 editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 15 -start 1495.065 $clock_offset -pin {clk_int pat_clock_division}
 
 # David's test circuit connections
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 15 -start 1300 $test_offset -pin {ring_osc_start_1 ring_osc_in_1 ring_osc_start_2 ring_osc_in_2}
+editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 3 -spreadType start -spacing 15 -start 1300 $test_offset -pin {ring_osc_enable_1_n ring_osc_in_1 ring_osc_trigger_n ring_osc_enable_2_n ring_osc_in_2}
 
