@@ -35,6 +35,9 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
+setDesignMode -process 180
+setOaxMode -compressLevel 0
+
 # Add I/O filler to complete pad rings. Do before floorplan since tool
 # won't consider those outside floorplan
 #amsFillperi
