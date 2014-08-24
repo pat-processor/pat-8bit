@@ -35,26 +35,6 @@
 
  (left
 	(inst
-		name = iopad_b5
-		offset = 230
-		place_status = fixed
-	)
-	(inst
-		name = iopad_b4
-	#	offset = 200
-		place_status = fixed
-	)
-	(inst
-		name = iopad_b3
-	#	offset = 200
-		place_status = fixed
-	)
-	(inst
-		name = iopad_b2
-	#	offset = 200
-		place_status = fixed
-	)
-	(inst
 		name = iopad_b1
 	#	offset = 200
 		place_status = fixed
@@ -67,6 +47,29 @@
 	(inst
 		name = porGen  # power on reset generator
 		cell = PORGEN_1V8_HV
+	)
+	(inst
+		name = gndAll
+	#	offset = 200
+		place_status = fixed
+		cell = GNDPAD1V8ALL_HV
+	)
+	(inst
+		name = iopad_clock_in
+	#	offset = 200
+		place_status = fixed
+		cell = APRIO1V8_50_HV
+	)
+	(inst
+		name = gndCore_1
+	#	offset = 200
+		place_status = fixed
+		cell = GNDPAD1V8_CORE_HV
+	)
+	(inst
+		name = iopad_clock_out
+	#	offset = 200
+		place_status = fixed
 	)
 	(inst
 		name = iopad_a7
@@ -171,8 +174,28 @@
   )
   (bottom
 	(inst
-		name = iopad_b6
+		name = iopad_b2
 		offset = 230
+		place_status = fixed
+	)
+	(inst
+		name = iopad_b3
+	#	offset = 200
+		place_status = fixed
+	)
+	(inst
+		name = iopad_b4
+	#	offset = 200
+		place_status = fixed
+	)
+	(inst
+		name = iopad_b5
+	#	offset = 200
+		place_status = fixed
+	)
+	(inst
+		name = iopad_b6
+#		offset = 230
 		place_status = fixed
 	)
 	(inst
@@ -187,7 +210,7 @@
 	)
 	(inst
 		name = iopad_modesel_1
-	#	offset = 200
+		offset = 1180
 		place_status = fixed
 	)
 #	(inst
@@ -196,29 +219,6 @@
 #		place_status = fixed
 #		cell = GNDPAD1V8_CORE_HV
 #	)
-	(inst
-		name = iopad_clock_out
-	#	offset = 200
-		place_status = fixed
-	)
-	(inst
-		name = gndCore_1
-	#	offset = 200
-		place_status = fixed
-		cell = GNDPAD1V8_CORE_HV
-	)
-	(inst
-		name = iopad_clock_in
-	#	offset = 200
-		place_status = fixed
-		cell = APRIO1V8_50_HV
-	)
-	(inst
-		name = gndAll
-	#	offset = 200
-		place_status = fixed
-		cell = GNDPAD1V8ALL_HV
-	)
 	(inst
 		name = avss
 		place_status = fixed

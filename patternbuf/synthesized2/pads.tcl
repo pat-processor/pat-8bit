@@ -71,7 +71,7 @@ createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {300 430 1050 1180}
 #setObjFPlanBox Instance iopad_b6 232.612 0.0 321.112 226.61
 
 
-setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2753.4400 1242.7300 2753.4400 1242.7300 284.7700 3000.0000 284.7700 3000.0000 0.0000 0.0000 0.0000
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2753.4400 1242.7300 2753.4400 1242.7300 284.7700 3000.0000 284.7700 3000.0000 0.0000 0.0000 0.0000
 
 # too small setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2636.4100 1224.8500 2636.4100 1224.8500 387.4800 2700.0000 387.4800 2700.0000 0.0000 0.0000 0.0000
 
@@ -160,6 +160,12 @@ addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+# Allow cut-outs!!!
+setPreference EnableRectilinearDesign 1
+puts "--> Adding cut-out"
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2700 1271.0000 2700 1271.0000 1291.5600 3000.0000 1291.5600 3000.0000 0.0000 0.0000 0.0000
+
+
 puts "--> Adjusting pins"
 # Edit pin positions
 source pads-pin-edit.tcl
@@ -169,12 +175,6 @@ source pads-pin-edit.tcl
 
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
-# Allow cut-outs!!!
-setPreference EnableRectilinearDesign 1
-puts "--> Adding cut-out"
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2667.6500 1244.0500 2667.6500 1244.0500 1400 3000.0000 1400 3000.0000 0.0000 0.0000 0.0000
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2668.1800 1270.0100 2668.1800 1270.0100 417.0900 3000.0000 417.0900 3000.0000 0.0000 0.0000 0.0000
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2668.8700 1640.9000 2668.8700 1640.9000 1289.9700 3000.0000 1289.9700 3000.0000 0.0000 0.0000 0.0000
 
 sjhHVringBlk 10 45 75
 

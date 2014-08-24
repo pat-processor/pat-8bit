@@ -59,7 +59,7 @@ amsGlobalConnect core
 
 # Block off pin area from M1 routing for deep nWell
 
-sjhHVringBlk 10 35 55
+sjhHVringBlk 10 37 57
 #createRouteBlk -box 0 0 705.371 15.061 -layer 1
 #createRouteBlk -box 0 0 15.639 734.71 -layer 1
 #createRouteBlk -box 0 694.603 682.659 709.278 -layer 1
@@ -158,7 +158,8 @@ setNanoRouteMode -quiet -routeBottomRoutingLayer default
 setNanoRouteMode -quiet -drouteEndIteration default
 setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
-routeDesign -globalDetail
+wroute
+#routeDesign -globalDetail
 
 # report and optimise timing
 timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
