@@ -1,6 +1,6 @@
 # ####################################################################
 
-#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Sun Aug 24 15:00:55 +0100 2014
+#  Created by Encounter(R) RTL Compiler v11.20-s017_1 on Thu Aug 21 19:01:17 +0100 2014
 
 # ####################################################################
 
@@ -74,9 +74,8 @@ set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[3]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[2]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[1]}]
 set_load -pin_load -max 0.01 [get_ports {field_fromPAT_high[0]}]
-set_load -pin_load -max 0.01 [get_ports ring_osc_enable_1_n]
-set_load -pin_load -max 0.01 [get_ports ring_osc_enable_2_n]
-set_load -pin_load -max 0.01 [get_ports ring_osc_trigger_n]
+set_load -pin_load -max 0.01 [get_ports ring_osc_start_1]
+set_load -pin_load -max 0.01 [get_ports ring_osc_start_2]
 set_load -pin_load -max 0.01 [get_ports pad_clock_in]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_high]
 set_load -pin_load -max 0.01 [get_ports pad_pwm_low]
@@ -212,6 +211,9 @@ set_multicycle_path -from [list \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][8]}]  \
   [get_cells {theCore/iBuffer/i_buffer_reg[1][9]}] ] -setup -end 2
 set_multicycle_path -from [list \
+  [get_ports pad_pwm_low]  \
+  [get_ports pad_pwm_high] ] -setup -end 10
+set_multicycle_path -from [list \
   [get_ports pad_io_a7]  \
   [get_ports pad_io_a6]  \
   [get_ports pad_io_a5]  \
@@ -227,9 +229,7 @@ set_multicycle_path -from [list \
   [get_ports pad_io_b3]  \
   [get_ports pad_io_b2]  \
   [get_ports pad_io_b1]  \
-  [get_ports pad_io_b0]  \
-  [get_ports pad_pwm_low]  \
-  [get_ports pad_pwm_high] ] -setup -end 13
+  [get_ports pad_io_b0] ] -setup -end 13
 set_clock_gating_check -setup 0.0 
 set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports {bufp_low[2]}]
 set_output_delay -clock [get_clocks clk] -add_delay 0.0 [get_ports {bufp_low[1]}]
@@ -336,9 +336,8 @@ set_max_transition 0.3 [get_ports {field_fromPAT_high[3]}]
 set_max_transition 0.3 [get_ports {field_fromPAT_high[2]}]
 set_max_transition 0.3 [get_ports {field_fromPAT_high[1]}]
 set_max_transition 0.3 [get_ports {field_fromPAT_high[0]}]
-set_max_transition 0.3 [get_ports ring_osc_enable_1_n]
-set_max_transition 0.3 [get_ports ring_osc_enable_2_n]
-set_max_transition 0.3 [get_ports ring_osc_trigger_n]
+set_max_transition 0.3 [get_ports ring_osc_start_1]
+set_max_transition 0.3 [get_ports ring_osc_start_2]
 set_max_transition 0.3 [get_ports pad_clock_in]
 set_max_transition 0.3 [get_ports pad_pwm_high]
 set_max_transition 0.3 [get_ports pad_pwm_low]

@@ -248,4 +248,7 @@ next "Add filler? y/n"
 amsFillcore
 amsFillperi
 
+# sign my name :)
+source sign.tcl
+
 set_interactive_constraint_modes [all_constraint_modes -active]
