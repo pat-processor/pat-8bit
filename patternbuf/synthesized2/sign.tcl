@@ -1,7 +1,7 @@
 # Sign the design!
 set scalefactor 5
-set xoffset 0
-set yoffset 0
+set xoffset 100
+set yoffset 20
 
 
 proc scaledpoly {{inx 0} {iny 0}} {
@@ -10,9 +10,9 @@ proc scaledpoly {{inx 0} {iny 0}} {
 	global yoffset
 
 	set newx [expr $inx * $scalefactor]
-	set nexx [expr $newx + [expr $xoffset * $scalefactor] ]
+	set newx [expr $newx + [expr $xoffset * $scalefactor] ]
 	set newy [expr $iny * $scalefactor]
-	set nexy [expr $newy + [expr $xoffset * $scalefactor] ]
+	set newy [expr $newy + [expr $yoffset * $scalefactor] ]
 
 	editAddPoly $newx $newy
 }
@@ -23,9 +23,9 @@ proc scaledpolycommit {{inx 0} {iny 0}} {
 	global yoffset
 
 	set newx [expr $inx * $scalefactor]
-	set nexx [expr $newx + [expr $xoffset * $scalefactor] ]
+	set newx [expr $newx + [expr $xoffset * $scalefactor] ]
 	set newy [expr $iny * $scalefactor]
-	set nexy [expr $newy + [expr $xoffset * $scalefactor] ]
+	set newy [expr $newy + [expr $yoffset * $scalefactor] ]
 
 	editCommitPoly $newx $newy
 }
@@ -50,6 +50,7 @@ scaledpolycommit 0 20
 
 
 # J
+set xoffset [expr $xoffset + 50]
 scaledpoly 0 0
 scaledpoly 0 15
 scaledpoly 15 15
@@ -64,6 +65,7 @@ scaledpolycommit 25 0
 
 
 # H
+set xoffset [expr $xoffset + 50]
 scaledpoly 0 0
 scaledpoly 0 50
 scaledpoly 10 50
