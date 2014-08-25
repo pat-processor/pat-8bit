@@ -258,3 +258,20 @@ amsFillperi
 source sign.tcl
 
 set_interactive_constraint_modes [all_constraint_modes -active]
+
+
+# Clean up routing blockages
+selectRouteBlk -box 224.5700 1496.4700 282.1100 1585.3700 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 219.4700 1026.5400 308.6200 1252.1100 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 1215.0000 2716.8200 1266.9400 3000.0000 defLayerBlkName -layer 2
+deleteSelectedFromFPlan
+selectRouteBlk -box 1215.0000 2708.5900 1267.4300 2757.9500 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 262.0400 2738.3900 1235.0000 2758.3900 defLayerBlkName -layer 1
+deleteSelectedFromFPlan
+selectRouteBlk -box 1207.0000 1269.6400 1227.0000 2730.3900 defLayerBlkName -layer 1
+deleteSelectedFromFPlan
+selectRouteBlk -box 262.0400 1241.6400 1235.0000 1261.6400 defLayerBlkName -layer 1
+

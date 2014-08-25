@@ -57,7 +57,7 @@ scaledpolycommit 0 20
 
 # J
 set scalefactorx 1.8
-set xoffset [expr $xoffset + $spacing]
+set xoffset [expr $xoffset + [expr $spacing - 1]]
 scaledpoly 0 0
 scaledpoly 0 15
 scaledpoly 15 15
@@ -73,7 +73,7 @@ scaledpolycommit 25 0
 
 # H
 set scalefactorx 2
-set xoffset [expr $xoffset + $spacing]
+set xoffset [expr $xoffset + [expr $spacing + 1]]
 scaledpoly 0 0
 scaledpoly 0 50
 scaledpoly 10 50
