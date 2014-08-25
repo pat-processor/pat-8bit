@@ -63,10 +63,7 @@ globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
 #amsHVringBlk corebox 10 70
 #amsHVringBlk corebox 10 70
 
-# Block off pin area from M1 routing for deep nWell
 
-# 35x55 routing blockage. Add 2um space on to prevent DRC errors.
-sjhHVringBlk 15 28 49
 #createRouteBlk -box 0 0 705.371 15.061 -layer 1
 #createRouteBlk -box 0 0 15.639 734.71 -layer 1
 #createRouteBlk -box 0 694.603 682.659 709.278 -layer 1
@@ -115,16 +112,15 @@ source patternbuffer-pin-edit.tcl
 
 # Do the work!
 #addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 10
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
 addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 10 bottom 20 top 20 right 10} -spacing 10 -offset 4.9
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
-# Fix some DRCs
-editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
-setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
-editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
-#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
-#editTrim
+
+
+# Block off pin area from M1 routing for deep nWell
+
 
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
@@ -143,10 +139,20 @@ next "Design placed. Continue y/n"
 
 # power routing
 sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
-# Whatever the last sroute operation is, it breaks the via spacing, so undo it!
-undo
+# Whatever the last sroute operation is, it breaks the via spacing, so undo it
 #redirect -quiet {set honorDomain [getAnalysisMode -honorClockDomains]} > /dev/null
 #amsPowerRoute
+
+# Fix some DRCs
+editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
+#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+#editTrim
+
+# reserve routing for power connections
+# 35x55 routing blockage. Add 2um space on to prevent DRC errors.
+sjhHVringBlk 15 28 49
 
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true

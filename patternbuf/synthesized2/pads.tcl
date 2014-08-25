@@ -133,6 +133,7 @@ globalNetConnect vdd! -type pgpin -pin vdd! -inst * -module {}
 globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
 
 
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
 selectObject Module theCore
 addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 15 bottom 30 top 30 right 15} -spacing 10 -offset 4.9
 
@@ -140,16 +141,9 @@ addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
 
-# to fix any DRC problems in power vias (forces generation of new custom power vias)
-editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
-setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
-editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
 
-# reserve routing for power connections
-createRouteBlk -layer {M2 AM} -box 219.474 1026.543 308.622 1252.106
-createRouteBlk -layer {M2 AM} -box 224.568 1496.468 282.115 1585.368
-createRouteBlk -layer {M2 AM} -box 1215 2708.595 1267.430 2757.95
-createRouteBlk -layer M2 -box 1215 2716.816 1266.940 3018.136
+
+
 
 
 # === End power planning
@@ -172,7 +166,6 @@ source pads-pin-edit.tcl
 
 
 
-sjhHVringBlk 20 37 65
 
 next "Begin placement? y/n"
 
@@ -193,13 +186,28 @@ sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } 
 # Whatever the last sroute operation is, it breaks the via spacing, so undo it!
 undo
 
+# to fix any DRC problems in power vias (forces generation of new custom power vias)
+editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
 
 # Fix some DRCs
-editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
-editTrim
+#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+#editTrim
 #editPowerVia -via_columns 3 -bottom_layer M1 -modify_vias 1 -via_rows 1 -top_layer AM
 
+# reserve routing for power connections
+# Putting this before power routing could cause M1 and power vias in the rings to be missed
+sjhHVringBlk 20 37 65
+createRouteBlk -layer {M2 AM} -box 219.474 1026.543 308.622 1252.106
+createRouteBlk -layer {M2 AM} -box 224.568 1496.468 282.115 1585.368
+createRouteBlk -layer {M2 AM} -box 1215 2708.595 1267.430 2757.95
+createRouteBlk -layer M2 -box 1215 2716.816 1266.940 3018.136
+
+
 next "Begin post-power optimisation? y/n"
+puts "-->"
+puts "--> Beginning pre-clock optimisation"
 
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
@@ -214,6 +222,8 @@ clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 next "Post-clock opt? y/n"
 
+puts "-->"
+puts "--> Beginning post-clock optimisation"
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
@@ -229,6 +239,9 @@ setNanoRouteMode -quiet -routeWithSiDriven false
 routeDesign -globalDetail
 
 next "Post-route optimisation? y/n"
+puts "-->"
+puts "--> Beginning post-route optimisation"
+
 
 # report and optimise timing
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
