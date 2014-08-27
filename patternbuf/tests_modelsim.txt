@@ -1,8 +1,6 @@
+TOD: 5J25CTFF
+
 *** CONDITIONALITY ***
-
-* Reset Init z & n *
-* Reset init instruction *
-
 -- TESTS --
 
 ORA 3 06_0_03_06_0_03
@@ -13,79 +11,52 @@ ADDMA
 
 -- MODELSIM --
 
-add wave -position end  sim:/digital/clk
-add wave -position end  sim:/digital/reset
-add wave -position end  sim:/digital/pc
-add wave -position end  sim:/digital/instruction
-add wave -position end	sim:/digital/thePAT/acc
-add wave -position end  sim:/digital/field_in
-add wave -position end  sim:/digital/thePAT/i_t_i0
-add wave -position end  sim:/digital/thePAT/i_t_i3
-add wave -position end  sim:/digital/thePAT/i_t_i8
-add wave -position end  sim:/digital/thePAT/immediate_i8
-add wave -position end  sim:/digital/thePAT/immediate_i3
-add wave -position end  sim:/digital/thePAT/condition
-add wave -position end  sim:/digital/thePAT/acc_result
-add wave -position end  sim:/digital/thePAT/field_result
-add wave -position end  sim:/digital/thePAT/acc_alu_y
-add wave -position end  sim:/digital/thePAT/field_alu_y
-add wave -position end  sim:/digital/thePAT/opcode_i8
-add wave -position end  sim:/digital/thePAT/opcode_i3
-add wave -position end  sim:/digital/thePAT/opcode_i0
-add wave -position end  sim:/digital/thePAT/field_op
-add wave -position end  sim:/digital/thePAT/field_out_low
-add wave -position end  sim:/digital/thePAT/field_out_high
-add wave -position end  sim:/digital/thePAT/field_write_low
-add wave -position end  sim:/digital/thePAT/field_write_high
-add wave -position end  sim:/digital/thePAT/op_bf
-add wave -position end  sim:/digital/thePAT/op_bb
-add wave -position end  sim:/digital/thePAT/op_call
-add wave -position end  sim:/digital/thePAT/op_ldi
-add wave -position end  sim:/digital/thePAT/op_ldm
-add wave -position end  sim:/digital/thePAT/op_stam
-add wave -position end  sim:/digital/thePAT/op_setsp
-add wave -position end  sim:/digital/thePAT/op_or
-add wave -position end  sim:/digital/thePAT/op_and
-add wave -position end  sim:/digital/thePAT/op_addm
-add wave -position end  sim:/digital/thePAT/op_subm
-add wave -position end  sim:/digital/thePAT/op_add
-add wave -position end  sim:/digital/thePAT/op_sub
-add wave -position end  sim:/digital/thePAT/op_orm
-add wave -position end  sim:/digital/thePAT/op_andm
-add wave -position end  sim:/digital/thePAT/op_in
-add wave -position end  sim:/digital/thePAT/op_shl
-add wave -position end  sim:/digital/thePAT/op_shr
-add wave -position end  sim:/digital/thePAT/op_shlo
-add wave -position end  sim:/digital/thePAT/op_asr
-add wave -position end  sim:/digital/thePAT/op_out
-add wave -position end  sim:/digital/thePAT/op_setb
-add wave -position end  sim:/digital/thePAT/op_incsp
-add wave -position end  sim:/digital/thePAT/op_decsp
-add wave -position end  sim:/digital/thePAT/op_return
-add wave -position end  sim:/digital/thePAT/op_not
-add wave -position end  sim:/digital/thePAT/op_nop
-add wave -position end  sim:/digital/thePAT/op_ldba
-add wave -position end  sim:/digital/thePAT/op_stab
-add wave -position end  sim:/digital/thePAT/op_lda
-add wave -position end  sim:/digital/thePAT/op_ldsp
-add wave -position end  sim:/digital/thePAT/op_stsp
-add wave -position end  sim:/digital/thePAT/source_acc
-add wave -position end  sim:/digital/thePAT/source_dmem
-add wave -position end  sim:/digital/thePAT/source_field
-add wave -position end  sim:/digital/thePAT/source_imm
-add wave -position end  sim:/digital/thePAT/source_sp
-add wave -position end  sim:/digital/thePAT/source_in
-add wave -position end  sim:/digital/thePAT/dest_acc
-add wave -position end  sim:/digital/thePAT/dest_dmem
-add wave -position end  sim:/digital/thePAT/dest_field
-add wave -position end  sim:/digital/thePAT/dest_sp
-add wave -position end  sim:/digital/thePAT/dest_pc
-add wave -position end  sim:/digital/thePAT/dest_reg
-add wave -position end  sim:/digital/thePAT/dest_from_alu
+
+add wave -position end  sim:/digital/thePAT/clk
+add wave -position 1  sim:/digital/thePAT/reset
+add wave -position end  sim:/digital/thePAT/Rd_2
+add wave -position end  sim:/digital/thePAT/Rn
+add wave -position end  sim:/digital/thePAT/condition_decoded
+add wave -position end  sim:/digital/thePAT/data_in
+add wave -position end  sim:/digital/thePAT/data_out
+add wave -position end  sim:/digital/thePAT/data_read_adr
+add wave -position end  sim:/digital/thePAT/data_write
+add wave -position end  sim:/digital/thePAT/dest_field_regd
+add wave -position end  sim:/digital/thePAT/dest_out_regd
+add wave -position end  sim:/digital/thePAT/dest_pc_regd
+add wave -position end  sim:/digital/thePAT/dest_reg_regd
+add wave -position end  sim:/digital/thePAT/execute_next
+add wave -position 3  sim:/digital/thePAT/field_op
+add wave -position end  sim:/digital/thePAT/imm_alu_a
+add wave -position end  sim:/digital/thePAT/imm_alu_b
+add wave -position end  sim:/digital/thePAT/imm_alu_y
+add wave -position 5  sim:/digital/thePAT/immediate_i_all
+add wave -position 1  sim:/digital/thePAT/instruction_in
+add wave -position 2  sim:/digital/thePAT/jumping
+add wave -position end  sim:/digital/thePAT/reg_alu_a
+add wave -position end  sim:/digital/thePAT/reg_alu_b
+add wave -position end  sim:/digital/thePAT/reg_alu_y
+add wave -position end  sim:/digital/thePAT/result
+add wave -position end  /digital/thePAT/dmem/dmem
+add wave -position 8  sim:/digital/thePAT/n
+add wave -position 9  sim:/digital/thePAT/z
+
+
+
+
+
+
+force -freeze sim:/digital/field_toPAT_low 8'h42 0
+force -freeze sim:/digital/field_toPAT_high 8'h82 0
+force -freeze sim:/digital/thePAT/data_out 8'h11 0 -cancel 1
+force -freeze sim:/digital/thePAT/bubbles 2'b00 0 -cancel 1
+force -freeze sim:/digital/thePAT/jump_forward 1'b0 0 -cancel 1
+force -freeze sim:/digital/thePAT/jumping 1'b0 0 -cancel 1
+force -freeze sim:/digital/thePAT/n 1'b0 0 -cancel 1
+force -freeze sim:/digital/thePAT/z 1'b0 0 -cancel 1
+mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/thePAT/dmem/dmem
 
 mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/iBuffer/iMem/imem
-
-
 mem load -filltype value -filldata {0700307003 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(0)
 mem load -filltype value -filldata {0040200401 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(1)
 mem load -filltype value -filldata {00ff000403 } -fillradix hexadecimal /digital/iBuffer/iMem/imem(2)
@@ -95,14 +66,15 @@ mem load -filltype value -filldata {0040a00409 } -fillradix hexadecimal /digital
 mem load -filltype value -filldata {00ff30040b } -fillradix hexadecimal /digital/iBuffer/iMem/imem(6)
 mem load -filltype value -filldata {0040e0040d } -fillradix hexadecimal /digital/iBuffer/iMem/imem(7)
 mem load -filltype value -filldata {004100040f } -fillradix hexadecimal /digital/iBuffer/iMem/imem(8)
+mem load -i D:/pat/pat/patasm/pat.hex -format hex /digital/iBuffer/iMem/imem
+mem load -filltype inc -filldata 0 -fillradix hexadecimal -skip 0 /digital/thePAT/dmem/dmem
 
+force -freeze sim:/digital/iBuffer/iMem/imem_in 0 0
+force -freeze sim:/digital/iBuffer/iMem/imem_write 1'h0 0
+force -freeze sim:/digital/iBuffer/imem_write_adr 10'h000 0
+force -freeze sim:/digital/thePAT/field_in_high 8'h42 0
+force -freeze sim:/digital/thePAT/field_in_low 8'h43 0
 
-force -freeze sim:/digital/field_toPAT_low 8'h42 0
-force -freeze sim:/digital/field_toPAT_high 8'h82 0
-force -freeze sim:/digital/thePAT/acc 8'h11 0 -cancel 1
-force -freeze sim:/digital/thePAT/bubbles 2'b00 0 -cancel 1
-force -freeze sim:/digital/thePAT/jump_forward 1'b0 0 -cancel 1
-force -freeze sim:/digital/thePAT/jumping 1'b0 0 -cancel 1
 force -freeze sim:/digital/clk 1 0, 0 {50 ns} -r 100
 force -freeze sim:/digital/reset 1'h1 0
 run
@@ -110,6 +82,10 @@ run
 run
 force -freeze sim:/digital/reset 1'h0 0
 run 800
+
+
+N.B. LDI shows as OR 0
+
 
 
 *** 

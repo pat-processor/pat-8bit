@@ -1,5 +1,16 @@
 #!/usr/bin/python -u
 
+# PAT Assembler 2
+# 30/07/2014
+# Simon Hollis (simon@cs.bris.ac.uk)
+# For 23-bit implicit register version of PAT
+
+# Important info
+# --------------
+# * Results take 2 cycles to commit to a register.
+#   So, the following is invalid: ADDI r0 1 ; ADDI r0 1 - Use ADDR instead for the second
+#   The following is also invalid: ADDI r0 1 ; foo ; SUBI r0 1 - Use ADDI ; foo ; NOP ; SUBI instead
+
 from __future__ import print_function
 import sys
 
@@ -9,18 +20,18 @@ input_file = open(input_file_name, 'r')
 output_file_name = 'pat.hex'
 
 # i8 operators
-I8_OPS = ["ORI", "ANDI", "ADDM", "SUBM", "ADDI", "SUBI", "LDI", "LDM", "BF", "BB", "ORM", "ANDM"] 
-I8_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xd, 0xe]
+I8_OPS = ["ORI", "ORR", "ANDI", "ANDR", "ADDI", "ADDR", "SUBI", "SUBR", "LDI", "BF", "CALL"] 
+I8_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xd, 0xe]
 
 #i3 operators
-I3_OPS = ["SHLZ", "SHLO", "SHRZ", "ASR", "IN", "OUT", "SETB"]
-I3_OPCODES = [0, 1, 2, 3, 6, 8, 9]
+I3_OPS = ["SHLZI", "SHLZR", "SHLOI", "SHLOR", "SHRZI", "SHRZR", "SHROI", "SHROR", "INR", "OUTR", "SETB"]
+I3_OPCODES = [0, 1, 2, 3, 4, 5, 6, 7, 8, 0xb, 0xc]
 
 #i0 operators
-I0_OPS = ["NOT", "TEST", "NOP"]
-I0_OPCODES = [0, 2, 5]
+I0_OPS = ["NOTR", "TEST", "RETURN", "NOP"]
+I0_OPCODES = [0, 2, 3, 5]
 
-CONDITIONS = ["Z", "NZ", "N", "AL"]
+CONDITIONS = ["Z", "NZ", "LT", "AL"]
 COND_CODES = [0, 1, 2, 3]
 
 
@@ -51,6 +62,7 @@ def get_opcode(instr):
 		if instr.startswith(I3_OPS[i]):
 			foo, bar, instr = instr.partition(I3_OPS[i])
 			opcode = I3_OPCODES[i]
+			print("i3opcode:", opcode)
 			return (opcode, 4, instr)
 		i+=1
 
@@ -64,41 +76,41 @@ def get_opcode(instr):
 		i+=1
 
 def is_branch(instr):
-	return instr.startswith("B")
+	return instr.startswith("B") or instr.startswith("ZB") or instr.startswith("ALB") or instr.startswith("NZB") or instr.startswith("LT")
 
 def calculate_branch(address, immediate):
-	offset = immediate - address
+	offset = (immediate - address) - 6
 	if (offset >= 0):
 		print("Branch forward by:", offset)
 		return (offset, "BF")
 	else:
-		offset = abs(offset)
-		print("Branch backward by:", offset)
-		return (offset, "BB")
+		offset = offset & 0xff ; # byte conversion
+		print("Branch backward by:", 256 - offset)
+		return (offset, "BF")
 
 
 # see if the destination is a field or the acc
 def get_dest(instr):
-	if instr.startswith("F"):
+	if instr.endswith("F"):
 		return 1 #field
 	else:
 		 return 0 # acc
 
-def encode_instr(fieldp, cond, opcode, shift, dest, immediate):
+def encode_instr(rd, fieldp, cond, opcode, shift, dest, immediate):
 	# TODO: Insert bounds checking on immediates
 	if (shift == 8):
-		return ((fieldp << 15) | (cond << 13) | (dest << 12) | (opcode << 8) | immediate)
+		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (opcode << 8) | immediate)
 	elif (shift == 4):
-		return ((fieldp << 15) | (cond << 13) | (dest << 12) | (opcode << 4) | immediate)
+		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (0xf << 8) | (opcode << 4) | immediate)
 	else:
-		return ((fieldp << 15) | (cond << 13) | (dest << 12) | opcode)
+		return ((rd << 20) | (fieldp << 15) | (cond << 13) | (dest << 12) | (0xff << 4) | opcode)
 
 
 def write_hexfile(mem):
 	out = open(output_file_name, 'w')
 	address = 0
 	while (address < len(mem)):
-		out.write('@'+str(address/2)+' ')
+		out.write('@'+hex(int(address/2))[2:]+' ')
 		if (address + 1 < len(mem)):
 			first = mem[address]
 			second = mem[address+1]
@@ -113,6 +125,23 @@ def write_hexfile(mem):
 		address += 2	
 	out.close()
 
+def write_hexfile_23bit(mem):
+	out = open(output_file_name, 'w')
+	address = 0
+	while (address < len(mem)):
+		out.write('@'+hex(int(address/2))[2:]+' ')
+		if (address + 1 < len(mem)):
+			first = int(mem[address], 16)
+			second = int(mem[address+1], 16)
+			out.write((hex(second << 23 | first)[2:]).zfill(12))
+		else:
+			first = int(mem[address], 16)
+			second = 0
+			out.write((hex(first)[2:]).zfill(12))
+		out.write("\n")
+		address += 2	
+	out.close()
+
 ##################################
 address = 0
 mem = []
@@ -120,10 +149,27 @@ labels = {}
 
 for instr in input_file:
 	# assert 
-#	print(instr)
-	instr, sep, immediate = instr.partition(' ')
-	instr = instr.strip()
-	immediate = immediate.strip()
+	if (instr.startswith('#')): # comment
+		continue
+	print(instr)
+	tokens = instr.split()
+#	for t in tokens:
+#		print(t)
+	instr = tokens[0]
+	print("Instruction is", instr, ", ", end="")
+	if len(tokens) > 1:
+		rd = tokens[1]
+		print("Rd is", rd, ", ",  end="")
+		rd = rd[1:] # strip 'r'
+		rd = int(rd)
+	else:
+		rd = 0
+	if len(tokens) > 2:
+		immediate = tokens[2]
+		immediate.strip()
+	else:
+		immediate = "0" ; # immediate unused in this instruction format
+
 	if (instr.startswith(':')): # labels start with ':' and are all alpha
 		instr = instr.strip(':')
 		print("Found label:", instr)
@@ -152,13 +198,14 @@ for instr in input_file:
 		opcode, shift, instr = get_opcode(instr)
 		dest = get_dest(instr)
 		#print (cond, opcode, shift, dest, immediate, instr)
-		emit = encode_instr(0, cond, opcode, shift, dest, immediate)
-		emit = (hex(emit)[2:]).zfill(5) # to hex, pad with zeroes and lose the '0x' prefix
+		emit = encode_instr(rd, 0, cond, opcode, shift, dest, immediate)
+		emit = (hex(emit)[2:]).zfill(6) # to hex, pad with zeroes and lose the '0x' prefix
+		print(emit)
 		#print(emit)
 		mem.append(emit) 
 		address += 1
 
-write_hexfile(mem)	
+write_hexfile_23bit(mem)	
 #address = 0
 #for item in mem:
 #	print(address, item)

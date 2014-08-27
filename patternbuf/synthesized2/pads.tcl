@@ -1,3 +1,9 @@
+source utility.tcl
+
+puts "Set script into interactive mode? y/n"
+set answer [gets stdin]
+set interactive [string compare $answer "y"]
+
 # load
 set defHierChar /
 set locv_inter_clock_use_worst_derate false
@@ -29,27 +35,51 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
+setDesignMode -process 180
+setOaxMode -compressLevel 0
+set init_oa_abstract_view {abstract layout}
+
+# Add I/O filler to complete pad rings. Do before floorplan since tool
+# won't consider those outside floorplan
+#amsFillperi
 # locate the components
-#floorPlan -site ams018hvSite -d 1500.0 3000.0 200 1100 100 200
-#floorPlan -site ams018hvSite -d 2700.0 3000.0 200.11 1100.03 1300.0 200.0
-floorPlan -site ams018hvSite -d 2700.0 2998.13 200.11 1100.03 100 200.0
-setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
+#                                             left btm right top
+# -200um
+# below will have some I/O pads out of routing range.
+floorPlan -site ams018hvSite -d 1270.0 3000.0 100 1100 100 100
+
+# below is big enough to encompass the I/O pads.
+#floorPlan -site ams018hvSite -d 3000.0 3000.0 100.43 1100.03 1830.0 100.0
+
+
+# 50% util
+#setObjFPlanBox Module theCore 435.680 1331.680 1395.155 2571.520
+# -100um
+#setObjFPlanBox Module theCore 328.720 1326.955 1288.000 2672.320
+# -200um
+setObjFPlanBox Module theCore 328.720 1326.640 1199.442 2672.320
+# -230um
+#setObjFPlanBox Module theCore 297.16 1326.64 1167.96 2672.32
+# 60% util
+#setObjFPlanBox Module theCore 428.400 1335.939 1183.280 2566.480
+# 70% util
+#setObjFPlanBox Module theCore 428.400 1336.720 1093.470 2566.480
 # blockage width 750 height 750 X 635 Y 340 Layers All
-createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {400 400 1150 1150}
+createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {300 430 1050 1180}
 #createRouteBlk -layer {M1 M2 M3 M4 MT AM} -box {1300 400 2100 1210}
 
+
 # move corner pads closer to corners.
-setObjFPlanBox Instance iopad_a5 0.262 2680.395 226.872 2768.895
-setObjFPlanBox Instance iopad_a4 230.162 2774.571 318.662 3001.181
-setObjFPlanBox Instance iopad_b6 1.634 232.024 228.244 320.524
-setObjFPlanBox Instance iopad_b7 232.612 0.0 321.112 226.61
+#setObjFPlanBox Instance iopad_a4 0.262 2680.395 226.872 2768.895
+#setObjFPlanBox Instance iopad_a3 230.162 2774.571 318.662 3001.181
+#setObjFPlanBox Instance iopad_b5 1.634 232.024 228.244 320.524
+#setObjFPlanBox Instance iopad_b6 232.612 0.0 321.112 226.61
 
-# Allow cut-outs!!!
-setPreference EnableRectilinearDesign 1
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2682.1700 1498.7100 2682.1700 1498.7100 297.0400 2700.0000 297.0400 2700.0000 0.0000 0.0000 0.0000
 
-setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
-#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2622.2800 1512.9800 2622.2800 1512.9800 1269.3000 386.4400 1269.3000 386.4400 310.6500 2700.0000 310.6500 2700.0000 0.0000 0.0000 0.0000
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2753.4400 1242.7300 2753.4400 1242.7300 284.7700 3000.0000 284.7700 3000.0000 0.0000 0.0000 0.0000
+
+# too small setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 2998.1300 2700.0000 2998.1300 2700.0000 2636.4100 1224.8500 2636.4100 1224.8500 387.4800 2700.0000 387.4800 2700.0000 0.0000 0.0000 0.0000
+
 
 
 setOaxMode -compressLevel 0
@@ -57,12 +87,22 @@ setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
 
 
-createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
+createPinGroup patternbuffer_high -cell pads -pin {pwm_high reset_patternbuf_high sout_high field_toPAT_high[7] field_toPAT_high[6] field_toPAT_high[5] field_toPAT_high[4] field_toPAT_high[3] field_toPAT_high[2] field_toPAT_high[1] field_toPAT_high[0] sclk_high sin_high ssel_high saddr_high[2] saddr_high[1] saddr_high[0] bufp_high[2] bufp_high[1] bufp_high[0] fieldp_high[4] fieldp_high[3] fieldp_high[2] fieldp_high[1] fieldp_high[0] fieldwp_high[4] fieldwp_high[3] fieldwp_high[2] fieldwp_high[1] fieldwp_high[0] field_write_en_high field_fromPAT_high[7] field_fromPAT_high[6] field_fromPAT_high[5] field_fromPAT_high[4] field_fromPAT_high[3] field_fromPAT_
+
+
+# ams scripts
+amsUserGrid
+
+
+
+
+
+high[2] field_fromPAT_high[1] field_fromPAT_high[0]} -spacing 4
 
 createPinGroup patternbuffer_low -cell pads -pin {pwm_low reset_patternbuf_low field_toPAT_low[7] field_toPAT_low[6] field_toPAT_low[5] field_toPAT_low[4] field_toPAT_low[3] field_toPAT_low[2] field_toPAT_low[1] field_toPAT_low[0] sout_low sin_low sclk_low ssel_low saddr_low[2] saddr_low[1] saddr_low[0] bufp_low[2] bufp_low[0] bufp_low[1] fieldp_low[4] fieldp_low[3] fieldp_low[2] fieldp_low[1] fieldp_low[0] fieldwp_low[4] fieldwp_low[3] fieldwp_low[2] fieldwp_low[1] fieldwp_low[0] field_write_en_low field_fromPAT_low[7] field_fromPAT_low[6] field_fromPAT_low[5] field_fromPAT_low[4] field_fromPAT_low[3] field_fromPAT_low[2] field_fromPAT_low[1] field_fromPAT_low[0]} -spacing 4
 
 
-createPinGroup selects -cell pads -pin {clock_external clock_select vref_select f5v_select} -spacing 4
+createPinGroup selects -cell pads -pin {clock_external} -spacing 4
 
 
 createPinGroup clocks -cell pads -pin {clk_int} -spacing 4
@@ -74,14 +114,9 @@ createPinGuide -pingroup clocks -cell pads -edge 2 -layer M3
 
 
 
+# -- begin power planning
 
-# ams scripts
-amsUserGrid
-# connect power (both if with I/O), "core" if not
-#amsGlobalConnect both
 amsGlobalConnect both
-#amsHVringBlk corebox
-amsHVringBlk corebox 10 70
 
 globalNetConnect vdd1v8l! -type pgpin -pin vdd1v8l! -inst * -module {}
 globalNetConnect vdd1v8r! -type pgpin -pin vdd1v8r! -inst * -module {}
@@ -98,71 +133,102 @@ globalNetConnect vdd! -type pgpin -pin vdd! -inst * -module {}
 globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
 
 
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
 selectObject Module theCore
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 4.9
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 15 bottom 30 top 30 right 15} -spacing 10 -offset 4.9
+
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 10 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
+
+
+
+
+
+
+# === End power planning
+
+
+# Allow cut-outs!!!
+setPreference EnableRectilinearDesign 1
+puts "--> Adding cut-out"
+#setObjFPlanPolygon Cell {pads} 0.0000 0.0000 0.0000 3000.0000 3000.0000 3000.0000 3000.0000 2700 1271.0000 2700 1271.0000 1291.5600 3000.0000 1291.5600 3000.0000 0.0000 0.0000 0.0000
+
+
+puts "--> Adjusting pins"
+# Edit pin positions
+source pads-pin-edit.tcl
 
 #addRing -stacked_via_top_layer AM -user_defined_region {450 2550 1250 2550 1250 1200 450 1200} -around user_defined -jog_distance 4.9 -threshold 4.9 -type block_rings -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 4.9
 
 
 #addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -area {450 2600 1250 2600 1250 1140 450 1140} -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
-# Place
-setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
 
+
+
+next "Begin placement? y/n"
+
+# Place
+puts "--> Setting place mode"
+setPlaceMode -congEffort auto -timingDriven 1 -modulePlan 1 -clkGateAware 1 -powerDriven 0 -ignoreScan 1 -reorderScan 1 -ignoreSpare 1 -placeIOPins 1 -moduleAwareSpare 0 -checkPinLayerForAccess {  1 } -maxRouteLayer 5 -preserveRouting 0 -rmAffectedRouting 0 -checkRoute 0 -swapEEQ 0
+puts "--> placingDesign"
 placeDesign -prePlaceOpt
 
+puts "--> Adjusting pins"
+# Edit pin positions
+source pads-pin-edit.tcl
 
 
-##### HIGH-SIDE PATTERNBUFFER CONNECTIONS ###############
-# PAT -> Patternbuffer
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 25 -start 1399.865 2469.234 -pin {{bufp_high[0]} {bufp_high[1]} {bufp_high[2]} {field_fromPAT_high[0]} {field_fromPAT_high[1]} {field_fromPAT_high[2]} {field_fromPAT_high[3]} {field_fromPAT_high[4]} {field_fromPAT_high[5]} {field_fromPAT_high[6]} {field_fromPAT_high[7]} field_write_en_high {fieldp_high[0]} {fieldp_high[1]} {fieldp_high[2]} {fieldp_high[3]} {fieldp_high[4]} {fieldwp_high[0]} {fieldwp_high[1]} {fieldwp_high[2]} {fieldwp_high[3]} {fieldwp_high[4]} pwm_high reset_patternbuf_high {saddr_high[0]} {saddr_high[1]} {saddr_high[2]} sclk_high sin_high ssel_high }
-
-# PAT <- Patternbuffer
-editPin -side Right -fixedPin 1 -fixOverlap 1 -layer 2 -spreadType start -spacing 41 -start 1399.865 17469.234 -pin { sout_high {field_toPAT_high[0]} {field_toPAT_high[1]} {field_toPAT_high[2]} {field_toPAT_high[3]} {field_toPAT_high[4]} {field_toPAT_high[5]} {field_toPAT_high[6]} {field_toPAT_high[7]}}
-
-
-##### LOW-SIDE PATTERNBUFFER CONNECTIONS ###########
-# PAT -> Patternbuffer
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -spacing 4.0 -start 1390.163 1400 -pin {{bufp_low[0]} {bufp_low[1]} {bufp_low[2]} {field_fromPAT_low[0]} {field_fromPAT_low[1]} {field_fromPAT_low[2]} {field_fromPAT_low[3]} {field_fromPAT_low[4]} {field_fromPAT_low[5]} {field_fromPAT_low[6]} {field_fromPAT_low[7]} field_write_en_low {fieldp_low[0]} {fieldp_low[1]} {fieldp_low[2]} {fieldp_low[3]} {fieldp_low[4]} {fieldwp_low[0]} {fieldwp_low[1]} {fieldwp_low[2]} {fieldwp_low[3]} {fieldwp_low[4]} pwm_low reset_patternbuf_low {saddr_low[0]} {saddr_low[1]} {saddr_low[2]} sclk_low sin_low ssel_low}
-
-# PAT <- Patternbuffer
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -spacing 4.0 -start 1390.163 700 -pin {sout_low {field_toPAT_low[0]} {field_toPAT_low[1]} {field_toPAT_low[2]} {field_toPAT_low[3]} {field_toPAT_low[4]} {field_toPAT_low[5]} {field_toPAT_low[6]} {field_toPAT_low[7]}}
-
-
-### PIN CONNECTIONS ####
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -spacing 4.0 -start 1499.353 1210.848 -pin {clock_select f5v_select vref_select}
-
-editPin -side Right -fixedPin 1 -unit TRACK -fixOverlap 1 -layer 2 -spreadType start -start 1495.065 1500 -pin clk_int
-
-
+puts "--> Performing power routing"
 # power routing
 sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
 # Whatever the last sroute operation is, it breaks the via spacing, so undo it!
 undo
 
+# to fix any DRC problems in power vias (forces generation of new custom power vias)
+editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
 
 # Fix some DRCs
-editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
-editTrim
+#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+#editTrim
 #editPowerVia -via_columns 3 -bottom_layer M1 -modify_vias 1 -via_rows 1 -top_layer AM
+
+# reserve routing for power connections
+# Putting this before power routing could cause M1 and power vias in the rings to be missed
+sjhHVringBlk 20 37 65
+createRouteBlk -layer {M2 AM} -box 219.474 1026.543 308.622 1252.106
+createRouteBlk -layer {M2 AM} -box 224.568 1496.468 282.115 1585.368
+createRouteBlk -layer {M2 AM} -box 1215 2708.595 1267.430 2757.95
+createRouteBlk -layer M2 -box 1215 2716.816 1266.940 3018.136
+
+
+next "Begin post-power optimisation? y/n"
+puts "-->"
+puts "--> Beginning pre-clock optimisation"
 
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -preCTS
 #optDesign -preCTS
 
+next "Clock design? y/n"
+
 clockDesign -specFile Clock-pads.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 #report_timing
 
+next "Post-clock opt? y/n"
+
+puts "-->"
+puts "--> Beginning post-clock optimisation"
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
 
 
+next "Begin routing? y/n"
 
 # main routing
 setNanoRouteMode -quiet -routeWithTimingDriven 1
@@ -172,11 +238,40 @@ setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
 routeDesign -globalDetail
 
+next "Post-route optimisation? y/n"
+puts "-->"
+puts "--> Beginning post-route optimisation"
+
+
 # report and optimise timing
 #timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postRoute
 
+next "Add filler? y/n"
+
 # add core filler to prevent DRC violation
-amsFillcore 
+amsFillcore
 amsFillperi
+
+# sign my name :)
+source sign.tcl
+
+set_interactive_constraint_modes [all_constraint_modes -active]
+
+
+# Clean up routing blockages
+selectRouteBlk -box 224.5700 1496.4700 282.1100 1585.3700 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 219.4700 1026.5400 308.6200 1252.1100 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 1215.0000 2716.8200 1266.9400 3000.0000 defLayerBlkName -layer 2
+deleteSelectedFromFPlan
+selectRouteBlk -box 1215.0000 2708.5900 1267.4300 2757.9500 defLayerBlkName -layer 6
+deleteSelectedFromFPlan
+selectRouteBlk -box 262.0400 2738.3900 1235.0000 2758.3900 defLayerBlkName -layer 1
+deleteSelectedFromFPlan
+selectRouteBlk -box 1207.0000 1269.6400 1227.0000 2730.3900 defLayerBlkName -layer 1
+deleteSelectedFromFPlan
+selectRouteBlk -box 262.0400 1241.6400 1235.0000 1261.6400 defLayerBlkName -layer 1
+

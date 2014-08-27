@@ -1,3 +1,11 @@
+source utility.tcl
+
+## BEGIN SCRIPT
+
+puts "Set script into interactive mode? y/n"
+set answer [gets stdin]
+set interactive [string compare $answer "y"]
+
 # load
 set defHierChar /
 set conf_gen_footprint 1
@@ -30,12 +38,16 @@ set fp_core_to_bottom 50.000000
 init_design
 set_analysis_view -setup {HV_TYP} -hold {HV_TYP}
 
+setDesignMode -process 180
 setOaxMode -compressLevel 0
+set init_oa_abstract_view {abstract layout}
+
 
 # end load
 
 # floorplan
-floorPlan -site ams018hvSite -r 0.985468919242 0.50 100 100 100 100
+#floorPlan -site ams018hvSite -r 0.985468919242 0.50 100 100 100 100
+floorPlan -site ams018hvSite -r 0.985468919242 0.50 50 70 50 70
 selectObject Module theBuffers
 setObjFPlanBox Module theBuffers 54.320 56.225 698.392 680.400
 
@@ -44,8 +56,19 @@ amsUserGrid
 # connect power (both if with I/O), "core" if not
 #amsGlobalConnect both
 amsGlobalConnect core
+globalNetConnect vdd! -type pgpin -pin vdd! -inst * -module {}
+globalNetConnect gnd! -type pgpin -pin gnd! -inst * -module {}
+
 #amsHVringBlk corebox
-amsHVringBlk corebox 10 70
+#amsHVringBlk corebox 10 70
+#amsHVringBlk corebox 10 70
+
+
+#createRouteBlk -box 0 0 705.371 15.061 -layer 1
+#createRouteBlk -box 0 0 15.639 734.71 -layer 1
+#createRouteBlk -box 0 694.603 682.659 709.278 -layer 1
+#createRouteBlk -box 670 0.102 670 708.902 -layer 1
+
 
 # create pin groups
 createPinGroup tweak0 -cell patternbuffer -pin {tweak_enable_0 tweak_sense_0 tweak_delay_0[2] tweak_delay_0[1] tweak_delay_0[0] tweak_duration_0[1] tweak_duration_0[0]} -spacing 4
@@ -81,17 +104,23 @@ createPinGuide -pingroup pdrive -cell patternbuffer -edge 2 -layer M3
 # PAT connections
 createPinGroup patpins -cell patternbuffer -pin {{field_byte_out[0]} {field_byte_out[1]} {field_byte_out[2]} {field_byte_out[3]} {field_byte_out[4]} {field_byte_out[5]} {field_byte_out[6]} {field_byte_out[7]} {field_in_in[0]} {field_in_in[1]} {field_in_in[2]} {field_in_in[3]} {field_in_in[4]} {field_in_in[5]} {field_in_in[6]} {field_in_in[7]} field_write_in {fieldp_in[0]} {fieldp_in[1]} {fieldp_in[2]} {fieldp_in[3]} {fieldp_in[4]} {fieldwp_in[0]} {fieldwp_in[1]} {fieldwp_in[2]} {fieldwp_in[3]} {fieldwp_in[4]} {bufp_in[0]} {bufp_in[1]} {bufp_in[2]}} -spacing 4
 
-createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
+#createPinGuide -pingroup patpins -cell patternbuffer -edge 0 -layer M3
+# Fix digital pins in aligned location for pat component
+# Call the script with exact pin placements
+source patternbuffer-pin-edit.tcl
 
 
 # Do the work!
-addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 10
+#addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom MT top MT right AM left AM} -width 20 -spacing 10 -offset 10
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+addRing -stacked_via_top_layer AM -around core -jog_distance 4.9 -threshold 4.9 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer {bottom M1 top M1 right AM left AM} -width {left 10 bottom 20 top 20 right 10} -spacing 10 -offset 4.9
 
 addStripe -block_ring_top_layer_limit AM -max_same_layer_jog_length 4 -padcore_ring_bottom_layer_limit MT -set_to_set_distance 100 -stacked_via_top_layer AM -padcore_ring_top_layer_limit AM -spacing 5 -merge_stripes_value 4.9 -layer AM -block_ring_bottom_layer_limit MT -width 10 -nets {gnd! vdd!} -stacked_via_bottom_layer M1
 
-# Fix some DRCs
-editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
-editTrim
+
+
+# Block off pin area from M1 routing for deep nWell
+
 
 setMultiCpuUsage -localCpu 4 -cpuPerRemoteHost 1 -remoteHost 0 -keepLicense true
 
@@ -105,13 +134,25 @@ placeDesign -prePlaceOpt
 # Call the script with exact pin placements
 source patternbuffer-pin-edit.tcl
 
+# after 2000 # pause for 2s
+next "Design placed. Continue y/n"
 
 # power routing
 sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
-# Whatever the last sroute operation is, it breaks the via spacing, so undo it!
-undo
+# Whatever the last sroute operation is, it breaks the via spacing, so undo it
 #redirect -quiet {set honorDomain [getAnalysisMode -honorClockDomains]} > /dev/null
 #amsPowerRoute
+
+# Fix some DRCs
+editPowerVia -bottom_layer M1 -delete_vias 1 -top_layer AM
+setViaGenMode -viarule_preference generated -invoke_verifyGeometry true
+editPowerVia -bottom_layer M1 -add_vias 1 -top_layer AM
+#editSelect -type Special -shapes STRIPE -status {ROUTED FIXED}
+#editTrim
+
+# reserve routing for power connections
+# 35x55 routing blockage. Add 2um space on to prevent DRC errors.
+sjhHVringBlk 15 28 49
 
 # optimise for speed
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
@@ -121,6 +162,8 @@ optDesign -preCTS
 clockDesign -specFile Clock.ctstch -outDir clock_report -fixedInstBeforeCTS
 
 report_timing
+
+next "Clock tree synthesized. Optimize? y/n"
 
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 optDesign -postCTS
@@ -133,15 +176,18 @@ setNanoRouteMode -quiet -drouteEndIteration default
 setNanoRouteMode -quiet -routeWithTimingDriven true
 setNanoRouteMode -quiet -routeWithSiDriven false
 routeDesign -globalDetail
-
 # report and optimise timing
 timeDesign -postRoute -pathReports -drvReports -slackReports -numPaths 50 -prefix patternbuffer_postRoute -outDir timingReports
 setOptMode -fixCap true -fixTran true -fixFanoutLoad true
 
-# from AMS FAQ
+next "Design routed. Optimise? y/n"
+
+optDesign -postRoute
 optDesign -postRoute
 
 # add core filler to prevent DRC violation
+
+next "Design optimsed. Add filler? y/n"
 amsFillcore 
 
 
@@ -152,7 +198,7 @@ amsFillcore
 #optDesign -postRoute
 
 # save result
-saveDesign -cellview {patternbuffer patternbuffer layout}
+#saveDesign -cellview {patternbuffer patternbuffer layout}
 
 # open GUI
 win
