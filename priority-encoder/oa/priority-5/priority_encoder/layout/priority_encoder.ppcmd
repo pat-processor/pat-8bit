@@ -1,0 +1,44 @@
+# PPCMD 1 
+# sroute -connect { blockPin padPin padRing corePin } -layerChangeRange { M1 AM } -blockPinTarget { nearestRingStripe nearestTarget } -padPinPortConnect { allPort oneGeom } -checkAlignedSecondaryPin 1 -blockPin useLef -allowJogging 1 -crossoverViaBottomLayer M1 -allowLayerChange 1 -targetViaTopLayer AM -crossoverViaTopLayer AM -targetViaBottomLayer M1 -nets { gnd! vdd! }
+# 2 
+# 16 
+# 0 
+# 0 
+# 0 
+# 0 
+# BOX_LIST 
+# END_BOX_LIST 
+# NET_INFO_LIST 
+# END_NET_INFO_LIST 
+# END_PPCMD 1 
+
+# PPCMD 2 
+# addRing -spacing_bottom 2.8 -width_left 2 -width_bottom 2 -width_top 2 -spacing_top 2.8 -layer_bottom M1 -stacked_via_top_layer AM -width_right 2 -around core -jog_distance 4.9 -offset_bottom 4.9 -layer_top M1 -threshold 4.9 -offset_left 4.9 -spacing_right 2.8 -spacing_left 2.8 -offset_right 4.9 -offset_top 4.9 -layer_right M2 -nets {gnd! vdd!} -stacked_via_bottom_layer M1 -layer_left M2
+# 1 
+# 32 
+# 1 
+# 0 
+# 0 
+# 0 
+# BOX_LIST 
+# END_BOX_LIST 
+# NET_INFO_LIST 
+# vdd! 2000 1 1 0 0 0 0 0 
+# RING_PT_INFO_LIST 
+# 359240 265940 359240 539340 
+# END_RING_PT_INFO_LIST 
+# vdd! 2000 2 1 0 0 0 0 0 
+# RING_PT_INFO_LIST 
+# 265940 402640 452540 402640 
+# END_RING_PT_INFO_LIST 
+# gnd! 2000 1 1 0 0 0 0 0 
+# RING_PT_INFO_LIST 
+# 359240 270740 359240 534540 
+# END_RING_PT_INFO_LIST 
+# gnd! 2000 2 1 0 0 0 0 0 
+# RING_PT_INFO_LIST 
+# 270740 402640 447740 402640 
+# END_RING_PT_INFO_LIST 
+# END_NET_INFO_LIST 
+# END_PPCMD 2 
+
