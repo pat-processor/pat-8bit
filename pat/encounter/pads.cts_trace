@@ -1,0 +1,480 @@
+
+
+
+
+
+Tracing Clock clk_int
+
+****** Clock Tree (clk_int) Structure
+Nr. Subtrees                   : 1
+Nr. Sinks                      : 420
+Nr.          Rising  Sync Pins : 0
+Nr. Inverter Rising  Sync Pins : 420
+Nr.          Falling Sync Pins : 0
+Nr. Inverter Falling Sync Pins : 0
+Nr. Unsync Pins                : 0
+
+** Leaf Pins
+CELL (PORT)                            Nr.
+-----------------------------------------------
+DFX6_HV (CP)                            6
+DFX4_HV (CP)                            2
+DFSX2_HV (CP)                           8
+DFSX1_HV (CP)                           14
+DFSX4_HV (CP)                           30
+DFSX6_HV (CP)                           139
+DFSX3_HV (CP)                           221
+-----------------------------------------------
+
+
+
+
+** Unsync Pins
+CELL (PORT)                            Nr.
+-----------------------------------------------
+-----------------------------------------------
+
+
+
+
+** Gate Component Input Pins
+CELL (PORT)                            Nr.
+-----------------------------------------------
+-----------------------------------------------
+
+
+
+** Subtree Detail
+*DEPTH 0 Input_Pin: (EMPTY) Output_Pin: (clk_int) Cell: (EMPTY) Net: (clk_int) NO-INV
+          Nr. of Exclude Pins           : 0
+          Nr. of Unsync Pins            : 0
+          Nr. of Total Sync Pins        : 420
+          Nr. of     Rising  Sync Pins  : 0
+          Nr. of Inv Rising  Sync Pins  : 420
+          Nr. of     Falling Sync Pins  : 0
+          Nr. of Inv Falling Sync Pins  : 0
+          Nr. of Gated Clocks           : 0
+***********************************************************
+
+****** Pre CTS Detail Structure for clock clk_int
+*DEPTH 0: clk_int
+ (Sync)theCore/iBuffer/i_buffer_reg[0][0]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][10]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][11]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][12]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][13]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][14]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][15]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][16]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][17]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][18]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][19]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][1]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][20]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][21]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][22]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][2]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][3]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][4]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][5]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][6]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][7]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][8]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[0][9]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][0]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][10]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][11]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][12]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][13]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][14]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][15]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][16]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][17]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][18]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][19]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][1]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][20]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][21]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][22]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][2]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][3]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][4]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][5]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][6]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][7]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][8]/CP
+ (Sync)theCore/iBuffer/i_buffer_reg[1][9]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[0]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[10]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[11]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[12]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[13]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[14]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[15]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[16]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[17]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[18]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[19]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[1]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[20]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[21]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[22]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[2]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[3]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[4]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[5]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[6]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[7]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[8]/CP
+ (Sync)theCore/iBuffer/instruction_out_reg[9]/CP
+ (Sync)theCore/iBuffer/jump_bubble_reg[0]/CP
+ (Sync)theCore/iBuffer/jump_bubble_reg[1]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[0]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[1]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[2]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[3]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[4]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[5]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[6]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[7]/CP
+ (Sync)theCore/thePAT/thePC/lr_reg[8]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[0]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[1]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[2]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[3]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[4]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[5]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[6]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[7]/CP
+ (Sync)theCore/thePAT/thePC/pc_out_reg[8]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[0]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[1]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[2]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[3]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[4]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[5]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[6]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[7]/CP
+ (Sync)theCore/thePAT/thePC/pc_reg[8]/CP
+ (Sync)theCore/thePAT/Rd_1_reg[0]/CP
+ (Sync)theCore/thePAT/Rd_1_reg[1]/CP
+ (Sync)theCore/thePAT/Rd_1_reg[2]/CP
+ (Sync)theCore/thePAT/Rd_2_reg[0]/CP
+ (Sync)theCore/thePAT/Rd_2_reg[1]/CP
+ (Sync)theCore/thePAT/Rd_2_reg[2]/CP
+ (Sync)theCore/thePAT/bubbles_reg[0]/CP
+ (Sync)theCore/thePAT/bubbles_reg[1]/CP
+ (Sync)theCore/thePAT/bubbles_reg[2]/CP
+ (Sync)theCore/thePAT/bufp_reg[0]/CP
+ (Sync)theCore/thePAT/bufp_reg[1]/CP
+ (Sync)theCore/thePAT/bufp_reg[2]/CP
+ (Sync)theCore/thePAT/data_write_reg/CP
+ (Sync)theCore/thePAT/dest_field_regd_2_reg/CP
+ (Sync)theCore/thePAT/dest_field_regd_reg/CP
+ (Sync)theCore/thePAT/dest_out_regd_reg/CP
+ (Sync)theCore/thePAT/dest_pc_regd_reg/CP
+ (Sync)theCore/thePAT/dest_reg_regd_reg/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[0][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[1][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[2][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[3][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[4][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[5][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[6][7]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][0]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][1]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][2]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][3]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][4]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][5]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][6]/CP
+ (Sync)theCore/thePAT/dmem_dmem_reg[7][7]/CP
+ (Sync)theCore/thePAT/execute_next_reg/CP
+ (Sync)theCore/thePAT/field_op_regd_reg/CP
+ (Sync)theCore/thePAT/field_out_reg[0]/CP
+ (Sync)theCore/thePAT/field_out_reg[1]/CP
+ (Sync)theCore/thePAT/field_out_reg[2]/CP
+ (Sync)theCore/thePAT/field_out_reg[3]/CP
+ (Sync)theCore/thePAT/field_out_reg[4]/CP
+ (Sync)theCore/thePAT/field_out_reg[5]/CP
+ (Sync)theCore/thePAT/field_out_reg[6]/CP
+ (Sync)theCore/thePAT/field_out_reg[7]/CP
+ (Sync)theCore/thePAT/field_write_en_high_reg/CP
+ (Sync)theCore/thePAT/field_write_en_low_reg/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[0][0]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[0][1]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[0][2]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[0][3]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[0][4]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[1][0]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[1][1]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[1][2]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[1][3]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[1][4]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[2][0]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[2][1]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[2][2]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[2][3]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[2][4]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[3][0]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[3][1]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[3][2]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[3][3]/CP
+ (Sync)theCore/thePAT/fieldp_history_reg[3][4]/CP
+ (Sync)theCore/thePAT/fieldp_reg[0]/CP
+ (Sync)theCore/thePAT/fieldp_reg[1]/CP
+ (Sync)theCore/thePAT/fieldp_reg[2]/CP
+ (Sync)theCore/thePAT/fieldp_reg[3]/CP
+ (Sync)theCore/thePAT/fieldp_reg[4]/CP
+ (Sync)theCore/thePAT/fieldwp_reg[0]/CP
+ (Sync)theCore/thePAT/fieldwp_reg[1]/CP
+ (Sync)theCore/thePAT/fieldwp_reg[2]/CP
+ (Sync)theCore/thePAT/fieldwp_reg[3]/CP
+ (Sync)theCore/thePAT/fieldwp_reg[4]/CP
+ (Sync)theCore/thePAT/immediate_bufp_regd_reg[0]/CP
+ (Sync)theCore/thePAT/immediate_bufp_regd_reg[1]/CP
+ (Sync)theCore/thePAT/immediate_bufp_regd_reg[2]/CP
+ (Sync)theCore/thePAT/immediate_bufp_regd_reg[3]/CP
+ (Sync)theCore/thePAT/immediate_i8_regd_reg[4]/CP
+ (Sync)theCore/thePAT/immediate_i8_regd_reg[5]/CP
+ (Sync)theCore/thePAT/immediate_i8_regd_reg[6]/CP
+ (Sync)theCore/thePAT/immediate_i8_regd_reg[7]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[0]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[1]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[2]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[3]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[4]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[5]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[6]/CP
+ (Sync)theCore/thePAT/immediate_pc_reg[7]/CP
+ (Sync)theCore/thePAT/immediate_value_reg[3]/CP
+ (Sync)theCore/thePAT/immediate_value_reg[4]/CP
+ (Sync)theCore/thePAT/immediate_value_reg[5]/CP
+ (Sync)theCore/thePAT/immediate_value_reg[6]/CP
+ (Sync)theCore/thePAT/immediate_value_reg[7]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[0]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[10]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[11]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[12]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[13]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[14]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[15]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[16]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[17]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[18]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[19]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[1]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[20]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[21]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[22]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[2]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[3]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[4]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[5]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[6]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[7]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[8]/CP
+ (Sync)theCore/thePAT/instruction_1_reg[9]/CP
+ (Sync)theCore/thePAT/jump_forward_reg/CP
+ (Sync)theCore/thePAT/jump_return_reg/CP
+ (Sync)theCore/thePAT/jumping_reg/CP
+ (Sync)theCore/thePAT/low_high_buffer_reg/CP
+ (Sync)theCore/thePAT/n_reg/CP
+ (Sync)theCore/thePAT/op_add_regd_reg/CP
+ (Sync)theCore/thePAT/op_and_regd_reg/CP
+ (Sync)theCore/thePAT/op_call_regd_reg/CP
+ (Sync)theCore/thePAT/op_not_regd_reg/CP
+ (Sync)theCore/thePAT/op_or_regd_reg/CP
+ (Sync)theCore/thePAT/op_return_regd_reg/CP
+ (Sync)theCore/thePAT/op_setb_regd_reg/CP
+ (Sync)theCore/thePAT/op_shlo_regd_reg/CP
+ (Sync)theCore/thePAT/op_shlz_regd_reg/CP
+ (Sync)theCore/thePAT/op_shrz_regd_reg/CP
+ (Sync)theCore/thePAT/op_sub_regd_reg/CP
+ (Sync)theCore/thePAT/outputs_reg[0][0]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][1]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][2]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][3]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][4]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][5]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][6]/CP
+ (Sync)theCore/thePAT/outputs_reg[0][7]/CP
+ (Sync)theCore/thePAT/source1_value_reg[0]/CP
+ (Sync)theCore/thePAT/source1_value_reg[1]/CP
+ (Sync)theCore/thePAT/source1_value_reg[2]/CP
+ (Sync)theCore/thePAT/source1_value_reg[3]/CP
+ (Sync)theCore/thePAT/source1_value_reg[4]/CP
+ (Sync)theCore/thePAT/source1_value_reg[5]/CP
+ (Sync)theCore/thePAT/source1_value_reg[6]/CP
+ (Sync)theCore/thePAT/source1_value_reg[7]/CP
+ (Sync)theCore/thePAT/source2_value_reg[0]/CP
+ (Sync)theCore/thePAT/source2_value_reg[1]/CP
+ (Sync)theCore/thePAT/source2_value_reg[2]/CP
+ (Sync)theCore/thePAT/source2_value_reg[3]/CP
+ (Sync)theCore/thePAT/source2_value_reg[4]/CP
+ (Sync)theCore/thePAT/source2_value_reg[5]/CP
+ (Sync)theCore/thePAT/source2_value_reg[6]/CP
+ (Sync)theCore/thePAT/source2_value_reg[7]/CP
+ (Sync)theCore/thePAT/source_immediate_reg/CP
+ (Sync)theCore/thePAT/z_reg/CP
+ (Sync)theCore/thePAT/data_out_reg[0]/CP
+ (Sync)theCore/thePAT/data_out_reg[1]/CP
+ (Sync)theCore/thePAT/data_out_reg[2]/CP
+ (Sync)theCore/thePAT/data_out_reg[3]/CP
+ (Sync)theCore/thePAT/data_out_reg[4]/CP
+ (Sync)theCore/thePAT/data_out_reg[5]/CP
+ (Sync)theCore/thePAT/data_out_reg[6]/CP
+ (Sync)theCore/thePAT/data_out_reg[7]/CP
+ (Sync)theCore/timer_div_reg[0]/CP
+ (Sync)theCore/timer_div_reg[1]/CP
+ (Sync)theCore/timer_div_reg[2]/CP
+ (Sync)theCore/timer_div_reg[3]/CP
+ (Sync)theCore/timer_div_reg[4]/CP
+ (Sync)theCore/timer_div_reg[5]/CP
+ (Sync)theCore/timer_div_reg[6]/CP
+ (Sync)theCore/timer_div_reg[7]/CP
+ (Sync)theCore/timer_reg[0]/CP
+ (Sync)theCore/timer_reg[1]/CP
+ (Sync)theCore/timer_reg[2]/CP
+ (Sync)theCore/timer_reg[3]/CP
+ (Sync)theCore/timer_reg[4]/CP
+ (Sync)theCore/timer_reg[5]/CP
+ (Sync)theCore/timer_reg[6]/CP
+ (Sync)theCore/timer_reg[7]/CP
+ (Sync)clk_div_reg[0]/CP
+ (Sync)clk_div_reg[1]/CP
+ (Sync)clk_div_reg[2]/CP
+ (Sync)clk_div_reg[3]/CP
+ (Sync)clk_div_reg[4]/CP
+ (Sync)imem_clock_prev_reg/CP
+ (Sync)imem_clock_sync_1_reg/CP
+ (Sync)imem_clock_synched_reg/CP
+ (Sync)imem_write_sync_1_reg/CP
+ (Sync)imem_write_synched_reg/CP
+ (Sync)input_shifter_reg[0]/CP
+ (Sync)input_shifter_reg[10]/CP
+ (Sync)input_shifter_reg[11]/CP
+ (Sync)input_shifter_reg[12]/CP
+ (Sync)input_shifter_reg[13]/CP
+ (Sync)input_shifter_reg[14]/CP
+ (Sync)input_shifter_reg[15]/CP
+ (Sync)input_shifter_reg[16]/CP
+ (Sync)input_shifter_reg[17]/CP
+ (Sync)input_shifter_reg[18]/CP
+ (Sync)input_shifter_reg[19]/CP
+ (Sync)input_shifter_reg[1]/CP
+ (Sync)input_shifter_reg[20]/CP
+ (Sync)input_shifter_reg[21]/CP
+ (Sync)input_shifter_reg[22]/CP
+ (Sync)input_shifter_reg[23]/CP
+ (Sync)input_shifter_reg[24]/CP
+ (Sync)input_shifter_reg[25]/CP
+ (Sync)input_shifter_reg[26]/CP
+ (Sync)input_shifter_reg[27]/CP
+ (Sync)input_shifter_reg[28]/CP
+ (Sync)input_shifter_reg[29]/CP
+ (Sync)input_shifter_reg[2]/CP
+ (Sync)input_shifter_reg[30]/CP
+ (Sync)input_shifter_reg[31]/CP
+ (Sync)input_shifter_reg[32]/CP
+ (Sync)input_shifter_reg[33]/CP
+ (Sync)input_shifter_reg[34]/CP
+ (Sync)input_shifter_reg[35]/CP
+ (Sync)input_shifter_reg[36]/CP
+ (Sync)input_shifter_reg[37]/CP
+ (Sync)input_shifter_reg[38]/CP
+ (Sync)input_shifter_reg[39]/CP
+ (Sync)input_shifter_reg[3]/CP
+ (Sync)input_shifter_reg[40]/CP
+ (Sync)input_shifter_reg[41]/CP
+ (Sync)input_shifter_reg[42]/CP
+ (Sync)input_shifter_reg[43]/CP
+ (Sync)input_shifter_reg[44]/CP
+ (Sync)input_shifter_reg[45]/CP
+ (Sync)input_shifter_reg[46]/CP
+ (Sync)input_shifter_reg[47]/CP
+ (Sync)input_shifter_reg[48]/CP
+ (Sync)input_shifter_reg[49]/CP
+ (Sync)input_shifter_reg[4]/CP
+ (Sync)input_shifter_reg[50]/CP
+ (Sync)input_shifter_reg[51]/CP
+ (Sync)input_shifter_reg[52]/CP
+ (Sync)input_shifter_reg[53]/CP
+ (Sync)input_shifter_reg[54]/CP
+ (Sync)input_shifter_reg[55]/CP
+ (Sync)input_shifter_reg[56]/CP
+ (Sync)input_shifter_reg[57]/CP
+ (Sync)input_shifter_reg[5]/CP
+ (Sync)input_shifter_reg[6]/CP
+ (Sync)input_shifter_reg[7]/CP
+ (Sync)input_shifter_reg[8]/CP
+ (Sync)input_shifter_reg[9]/CP
+ (Sync)inputs_a_sync_1_reg[0]/CP
+ (Sync)inputs_a_sync_1_reg[1]/CP
+ (Sync)inputs_a_sync_1_reg[2]/CP
+ (Sync)inputs_a_sync_1_reg[3]/CP
+ (Sync)inputs_a_sync_1_reg[4]/CP
+ (Sync)inputs_a_sync_1_reg[5]/CP
+ (Sync)inputs_a_sync_1_reg[6]/CP
+ (Sync)inputs_a_sync_1_reg[7]/CP
+ (Sync)inputs_a_synched_reg[0]/CP
+ (Sync)inputs_a_synched_reg[1]/CP
+ (Sync)inputs_a_synched_reg[2]/CP
+ (Sync)inputs_a_synched_reg[3]/CP
+ (Sync)inputs_a_synched_reg[4]/CP
+ (Sync)inputs_a_synched_reg[5]/CP
+ (Sync)inputs_a_synched_reg[6]/CP
+ (Sync)inputs_a_synched_reg[7]/CP
+ (Sync)pwm_high_sync_1_reg/CP
+ (Sync)pwm_high_synched_reg/CP
+ (Sync)pwm_low_sync_1_reg/CP
+ (Sync)pwm_low_synched_reg/CP
